@@ -15,7 +15,11 @@ import {
   Coffee,
   Compass,
   Copy,
+  Download,
   ExternalLink,
+  FileText,
+  Globe2,
+  Image as ImageIcon,
   Layers3,
   Menu,
   Package,
@@ -24,6 +28,7 @@ import {
   Type,
   X,
 } from "lucide-react";
+import { applicationCopy, navLabels, paletteLabels, promptArabic, promptTags, promptTitles, ui, type Lang } from "@/lib/brandTranslations";
 
 const asset = {
   logo: "/manus-storage/apex-roast-logo_2e612c7e.png",
@@ -32,6 +37,24 @@ const asset = {
   ritual: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1400&q=85",
   materials: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1400&q=85",
 };
+
+const downloadable = {
+  brandPdf: "/manus-storage/APEX_ROAST_brand_guidelines_f4ba978c.pdf",
+  logoSvg: "/manus-storage/apex-roast-symbol_225a1f6b.svg",
+};
+
+const promptThumbs = [
+  "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=500&q=80&sat=-20",
+  "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80",
+  "https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=500&q=80",
+];
 
 function RiseSeal({ compact = false }: { compact?: boolean }) {
   return (
@@ -82,11 +105,30 @@ function scrollToId(id: string) {
 }
 
 function Home() {
+  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("apex-roast-lang") as Lang) || "en");
   const [activeApp, setActiveApp] = useState(applications[0].id);
   const [openPrompt, setOpenPrompt] = useState("01");
   const [copied, setCopied] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [progress, setProgress] = useState(0);
+  const direction = lang === "ar" ? "rtl" : "ltr";
+  const t = ui[lang];
+  const currentNav = [
+    { id: "strategy", label: navLabels[lang].strategy, number: "01" },
+    { id: "dna", label: navLabels[lang].dna, number: "02" },
+    { id: "applications", label: navLabels[lang].applications, number: "03" },
+    { id: "prompts", label: navLabels[lang].prompts, number: "04" },
+    { id: "downloads", label: navLabels[lang].downloads, number: "05" },
+  ];
+  const selectedAppIndex = Math.max(0, applications.findIndex((item) => item.id === activeApp));
+  const selectedAppCopy = applicationCopy[selectedAppIndex];
+  const currentPrompts = prompts.map((item, index) => ({ ...item, title: promptTitles[lang][index], tag: promptTags[lang][index], prompt: lang === "ar" ? promptArabic[index] : item.prompt, thumb: promptThumbs[index] }));
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = direction;
+    localStorage.setItem("apex-roast-lang", lang);
+  }, [lang, direction]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -123,14 +165,15 @@ function Home() {
           </span>
         </a>
         <nav className={mobileNavOpen ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
-          {navItems.map((item) => (
+          {currentNav.map((item) => (
             <button key={item.id} onClick={() => { scrollToId(item.id); setMobileNavOpen(false); }}>
               <span>{item.number}</span>{item.label}
             </button>
           ))}
         </nav>
         <div className="nav-actions">
-          <span className="nav-status"><CircleDashed size={13} /> v2.0 / live system</span>
+          <span className="nav-status"><CircleDashed size={13} /> {t.status}</span>
+          <button className="language-toggle" onClick={() => setLang(lang === "en" ? "ar" : "en")} aria-label={lang === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}><Globe2 size={14} />{lang === "en" ? "عربي" : "EN"}</button>
           <button className="nav-menu" onClick={() => setMobileNavOpen((value) => !value)} aria-label="Toggle navigation">
             {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -143,19 +186,19 @@ function Home() {
           <div className="hero-orbit orbit-two" />
           <div className="chapter-rail hero-rail"><span>00</span><i /><span>06</span></div>
           <div className="hero-copy">
-            <p className="eyebrow light"><span className="eyebrow-dot" /> Complete identity system / 2026</p>
-            <h1>Precision<br /><em>at the peak.</em></h1>
-            <p className="hero-lede">A living brand guide for APEX ROAST — where specialty coffee, measured craft, and contemporary quiet luxury meet.</p>
+            <p className="eyebrow light"><span className="eyebrow-dot" /> {t.cover}</p>
+            <h1>{t.heroTitleA}<br /><em>{t.heroTitleB}</em></h1>
+            <p className="hero-lede">{t.heroLede}</p>
             <div className="hero-actions">
-              <button className="button button-gold" onClick={() => scrollToId("dna")}>Explore the system <ArrowDownRight size={16} /></button>
-              <button className="text-link light-link" onClick={() => scrollToId("prompts")}>Open prompt atelier <ArrowUpRight size={15} /></button>
+              <button className="button button-gold" onClick={() => scrollToId("dna")}>{t.explore} <ArrowDownRight size={16} /></button>
+              <button className="text-link light-link" onClick={() => scrollToId("prompts")}>{t.openPrompts} <ArrowUpRight size={15} /></button>
             </div>
-            <div className="hero-meta"><span>01 / 06</span><span>Brand identity manual</span><span>Scroll to ascend</span></div>
+            <div className="hero-meta"><span>{t.metaOne}</span><span>{t.metaTwo}</span><span>{t.metaThree}</span></div>
           </div>
           <div className="hero-visual">
             <div className="hero-image-frame">
               <img src={asset.hero} alt="APEX ROAST coffee bag and ceramic cup in warm directional light" />
-              <div className="hero-image-caption"><span>FIG. 01</span><span>The ritual of elevation</span></div>
+              <div className="hero-image-caption"><span>FIG. 01</span><span>{lang === "ar" ? "طقس الارتقاء" : "The ritual of elevation"}</span></div>
             </div>
             <div className="hero-stamp"><img src={asset.logo} alt="" /><span>ROASTED<br />WITH INTENT</span></div>
           </div>
@@ -163,8 +206,8 @@ function Home() {
 
         <section className="manifesto-strip">
           <RiseSeal compact />
-          <p className="eyebrow"><span className="eyebrow-dot" /> The brand idea</p>
-          <p className="manifesto-copy">A better cup is not louder.<br /><strong>It is more precise.</strong></p>
+          <p className="eyebrow"><span className="eyebrow-dot" /> {t.idea}</p>
+          <p className="manifesto-copy">{t.manifestoA}<br /><strong>{t.manifestoB}</strong></p>
           <span className="strip-index">01 — 04</span>
         </section>
 
@@ -172,16 +215,16 @@ function Home() {
           <div className="section-intro">
             <div className="section-number">01<span>/</span>04</div>
             <div>
-              <p className="eyebrow"><span className="eyebrow-dot" /> Strategy / foundation</p>
-              <h2>The value<br /><em>of restraint.</em></h2>
+              <p className="eyebrow"><span className="eyebrow-dot" /> {t.strategyEyebrow}</p>
+              <h2>{t.strategyTitleA}<br /><em>{t.strategyTitleB}</em></h2>
             </div>
           </div>
           <div className="strategy-content">
-            <div className="strategy-lead"><p>APEX ROAST brings the language of precision and contemporary luxury into coffee without losing the warmth of the ritual.</p><span className="big-quote">“</span></div>
+            <div className="strategy-lead"><p>{t.positioningBody}</p><span className="big-quote">“</span></div>
             <div className="strategy-grid">
-              <article className="editorial-card featured-card"><span className="card-kicker">Positioning</span><h3>A premium coffee identity for people who notice the details.</h3><p>Origin, roasting, and preparation become one coherent experience — clear enough to understand, considered enough to remember.</p><span className="card-index">01</span></article>
-              <article className="editorial-card"><span className="card-kicker">Promise</span><h3>Every detail moves the ritual upward.</h3><p>Better selection. Better roasting. Better attention to the moment in the cup.</p><span className="card-index">02</span></article>
-              <article className="editorial-card"><span className="card-kicker">Personality</span><h3>Precise. Warm. Assured.</h3><p>Never arrogant, chaotic, overly rustic, or aggressively futuristic.</p><span className="card-index">03</span></article>
+              <article className="editorial-card featured-card"><span className="card-kicker">{t.positioning}</span><h3>{t.positioningTitle}</h3><p>{t.positioningBody}</p><span className="card-index">01</span></article>
+              <article className="editorial-card"><span className="card-kicker">{t.promise}</span><h3>{t.promiseTitle}</h3><p>{t.promiseBody}</p><span className="card-index">02</span></article>
+              <article className="editorial-card"><span className="card-kicker">{t.personality}</span><h3>{t.personalityTitle}</h3><p>{t.personalityBody}</p><span className="card-index">03</span></article>
             </div>
           </div>
         </section>
@@ -190,41 +233,51 @@ function Home() {
           <div className="chapter-rail"><span>02</span><i /><span>04</span></div>
           <div className="section-intro dark-intro">
             <div className="section-number">02<span>/</span>04</div>
-            <div><p className="eyebrow light"><span className="eyebrow-dot" /> Visual DNA / system</p><h2>One mark.<br /><em>Many rituals.</em></h2></div>
+            <div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.dnaEyebrow}</p><h2>{t.dnaTitleA}<br /><em>{t.dnaTitleB}</em></h2></div>
           </div>
           <div className="dna-layout">
             <div className="logo-specimen">
-              <div className="specimen-header"><span>Primary symbol</span><span>01 / 04</span></div>
+              <div className="specimen-header"><span>{t.primarySymbol}</span><span>01 / 04</span></div>
               <div className="logo-stage"><div className="logo-grid-lines" /><img src={asset.logo} alt="APEX ROAST summit bean symbol" /><span className="axis-label axis-top">APEX</span><span className="axis-label axis-bottom">ROAST</span></div>
-              <div className="specimen-footer"><span>30° / 60° geometry</span><span>Bean-derived negative space</span></div>
+              <div className="specimen-footer"><span>{t.geometry}</span><span>{t.beanSpace}</span></div>
             </div>
-            <div className="dna-copy"><p className="section-kicker light">A visual vocabulary for the everyday ascent.</p><p className="body-copy light-copy">The summit-bean symbol is the smallest expression of the brand: an abstract rise, a controlled split, a mark that remains legible before any material or color is added.</p><div className="rule-list"><div><span>01</span><p>8-point grid<br /><small>Disciplined, never rigid.</small></p></div><div><span>02</span><p>Negative space<br /><small>Luxury through control.</small></p></div><div><span>03</span><p>Warm precision<br /><small>Data meets sensation.</small></p></div></div></div>
+            <div className="dna-copy"><p className="section-kicker light">{t.dnaKicker}</p><p className="body-copy light-copy">{t.dnaBody}</p><div className="rule-list"><div><span>01</span><p>{lang === "ar" ? "شبكة 8 نقاط" : "8-point grid"}<br /><small>{lang === "ar" ? "منضبطة وليست جامدة." : "Disciplined, never rigid."}</small></p></div><div><span>02</span><p>{lang === "ar" ? "الفراغ السلبي" : "Negative space"}<br /><small>{lang === "ar" ? "الفخامة عبر التحكم." : "Luxury through control."}</small></p></div><div><span>03</span><p>{lang === "ar" ? "دقة دافئة" : "Warm precision"}<br /><small>{lang === "ar" ? "المعلومات تلتقي بالإحساس." : "Data meets sensation."}</small></p></div></div></div>
           </div>
-          <div className="palette-wrap"><div className="palette-heading"><p className="eyebrow light"><span className="eyebrow-dot" /> Palette / 06 colors</p><span>Click a swatch to copy HEX</span></div><div className="palette-grid">{palette.map((color) => <button className={`color-swatch ${color.tone}`} key={color.hex} onClick={() => copyPrompt(color.hex, color.hex)} style={{ background: color.hex }} aria-label={`Copy ${color.name} ${color.hex}`}><span className="swatch-hover"><Copy size={14} /></span><div><strong>{color.name}</strong><small>{color.hex}</small><em>{color.note}</em></div></button>)}</div></div>
-          <div className="type-section"><div><p className="eyebrow light"><span className="eyebrow-dot" /> Typography / hierarchy</p><h3 className="serif-display">A higher<br /><em>standard.</em></h3></div><div className="type-specimens"><div className="type-row"><span>Display / DM Serif Display</span><strong>Rise into<br />the ritual.</strong></div><div className="type-row"><span>Utility / Manrope</span><p>Origin / altitude / process / clarity<br /><b>ROASTED WITH INTENT.</b></p></div></div></div>
+          <div className="palette-wrap"><div className="palette-heading"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.palette}</p><span>{t.clickSwatch}</span></div><div className="palette-grid">{palette.map((color, index) => <button className={`color-swatch ${color.tone}`} key={color.hex} onClick={() => copyPrompt(color.hex, color.hex)} style={{ background: color.hex }} aria-label={`Copy ${color.name} ${color.hex}`}><span className="swatch-hover">{copied === color.hex ? <Check size={14} /> : <Copy size={14} />}</span><div><strong>{lang === "ar" ? paletteLabels[index][1] : paletteLabels[index][0]}</strong><small>{color.hex}</small><em>{lang === "ar" ? paletteLabels[index][3] : paletteLabels[index][2]}</em></div></button>)}</div></div>
+          <div className="type-section"><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.typography}</p><h3 className="serif-display">{t.typeTitleA}<br /><em>{t.typeTitleB}</em></h3></div><div className="type-specimens"><div className="type-row"><span>{t.display}</span><strong>{lang === "ar" ? "اصعد إلى<br />الطقس." : "Rise into<br />the ritual."}</strong></div><div className="type-row"><span>{t.utility}</span><p>{lang === "ar" ? "المصدر / الارتفاع / المعالجة / الوضوح" : "Origin / altitude / process / clarity"}<br /><b>{lang === "ar" ? "محمصة بنية." : "ROASTED WITH INTENT."}</b></p></div></div></div>
         </section>
 
         <section className="applications-section section-light" id="applications">
-          <div className="section-intro"><div className="section-number">03<span>/</span>04</div><div><p className="eyebrow"><span className="eyebrow-dot" /> Applications / touchpoints</p><h2>Built for<br /><em>the ritual.</em></h2></div></div>
-          <div className="applications-layout"><div className="app-tabs">{applications.map((item, index) => <button key={item.id} className={activeApp === item.id ? "app-tab active" : "app-tab"} onClick={() => setActiveApp(item.id)}><span>0{index + 1}</span>{item.label}<ArrowUpRight size={15} /></button>)}<div className="app-note"><Sparkles size={15} /> A system designed to expand.</div></div><div className={`application-card tint-${selectedApp.tint}`}><img src={selectedApp.image} alt={selectedApp.title} /><div className="application-overlay"><p className="eyebrow light"><span className="eyebrow-dot" /> {selectedApp.eyebrow}</p><h3>{selectedApp.title}</h3><p>{selectedApp.body}</p><span className="application-arrow"><ArrowUpRight size={19} /></span></div></div></div>
-          <div className="application-footnote"><span>03</span><p>Every application carries the same rising diagonal, tactile material logic, and quiet premium voice.</p><ArrowDownRight size={18} /></div>
+          <div className="section-intro"><div className="section-number">03<span>/</span>04</div><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.appsEyebrow}</p><h2>{t.appsTitleA}<br /><em>{t.appsTitleB}</em></h2></div></div>
+          <div className="applications-layout"><div className="app-tabs">{applications.map((item, index) => <button key={item.id} className={activeApp === item.id ? "app-tab active" : "app-tab"} onClick={() => setActiveApp(item.id)}><span>0{index + 1}</span>{lang === "ar" ? applicationCopy[index][1] : applicationCopy[index][0]}<ArrowUpRight size={15} /></button>)}<div className="app-note"><Sparkles size={15} /> {t.appNote}</div></div><div className={`application-card tint-${selectedApp.tint}`}><img src={selectedApp.image} alt={lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]} /><div className="application-overlay"><p className="eyebrow light"><span className="eyebrow-dot" /> {lang === "ar" ? selectedAppCopy[3] : selectedAppCopy[2]}</p><h3>{lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]}</h3><p>{lang === "ar" ? selectedAppCopy[7] : selectedAppCopy[6]}</p><span className="application-arrow"><ArrowUpRight size={19} /></span></div></div></div>
+          <div className="application-footnote"><span>03</span><p>{t.appFoot}</p><ArrowDownRight size={18} /></div>
         </section>
 
         <section className="prompt-section section-dark" id="prompts">
-          <div className="chapter-rail"><span>04</span><i /><span>04</span></div>
-          <div className="section-intro dark-intro"><div className="section-number">04<span>/</span>04</div><div><p className="eyebrow light"><span className="eyebrow-dot" /> Prompt atelier / production</p><h2>From idea<br /><em>to artifact.</em></h2></div></div>
-          <div className="prompt-header"><p className="body-copy light-copy">Ten connected prompts for one connected identity. Each prompt keeps the same summit-bean symbol, palette, material language, lighting logic, and editorial restraint.</p><div className="prompt-meta"><span><Clipboard size={15} /> 10 production prompts</span><span><Layers3 size={15} /> One visual DNA</span></div></div>
-          <div className="prompt-list">{prompts.map((item) => { const isOpen = openPrompt === item.number; return <article className={isOpen ? "prompt-item is-open" : "prompt-item"} key={item.number}><button className="prompt-trigger" onClick={() => setOpenPrompt(isOpen ? "" : item.number)} aria-expanded={isOpen}><span className="prompt-number">{item.number}</span><span className="prompt-title">{item.title}</span><span className="prompt-tag">{item.tag}</span>{isOpen ? <ChevronDown size={17} /> : <ArrowUpRight size={17} />}</button>{isOpen && <div className="prompt-detail"><p>{item.prompt}</p><button className="copy-button" onClick={() => copyPrompt(item.number, item.prompt)}>{copied === item.number ? <Check size={15} /> : <Copy size={15} />}{copied === item.number ? "Copied" : "Copy prompt"}</button></div>}</article>; })}</div>
+          <div className="chapter-rail"><span>04</span><i /><span>05</span></div>
+          <div className="section-intro dark-intro"><div className="section-number">04<span>/</span>05</div><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.promptEyebrow}</p><h2>{t.promptTitleA}<br /><em>{t.promptTitleB}</em></h2></div></div>
+          <div className="prompt-header"><p className="body-copy light-copy">{t.promptBody}</p><div className="prompt-meta"><span><Clipboard size={15} /> {t.promptCount}</span><span><Layers3 size={15} /> {t.oneDna}</span></div></div>
+          <div className="prompt-list">{currentPrompts.map((item) => { const isOpen = openPrompt === item.number; return <article className={isOpen ? "prompt-item is-open" : "prompt-item"} key={item.number}><button className="prompt-trigger" onClick={() => setOpenPrompt(isOpen ? "" : item.number)} aria-expanded={isOpen}><span className="prompt-number">{item.number}</span><span className="prompt-title">{item.title}</span><span className="prompt-thumb" aria-hidden="true"><img src={item.thumb} alt="" /><span>{t.preview}</span></span><span className="prompt-tag">{item.tag}</span>{isOpen ? <ChevronDown size={17} /> : <ArrowUpRight size={17} />}</button>{isOpen && <div className="prompt-detail"><p>{item.prompt}</p><button className="copy-button" onClick={() => copyPrompt(item.number, item.prompt)}>{copied === item.number ? <Check size={15} /> : <Copy size={15} />}{copied === item.number ? t.copied : t.copyPrompt}</button></div>}</article>; })}</div>
+        </section>
+
+        <section className="downloads-section section-light" id="downloads">
+          <div className="section-intro"><div className="section-number">05<span>/</span>05</div><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.downloadEyebrow}</p><h2>{t.downloadTitleA}<br /><em>{t.downloadTitleB}</em></h2></div></div>
+          <div className="download-lead"><p>{t.downloadBody}</p><span className="download-rule"><Package size={17} /> {lang === "ar" ? "APEX ROAST / مكتبة الأصول" : "APEX ROAST / ASSET LIBRARY"}</span></div>
+          <div className="download-grid">
+            <article className="download-card download-featured"><div className="download-icon"><FileText size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "PDF / 12 صفحة" : "PDF / 12 pages"}</span><h3>{t.brandGuidelines}</h3><p>{t.brandGuidelinesBody}</p></div><a className="download-link" href={downloadable.brandPdf} download><Download size={16} /> {t.downloadPdf}</a></article>
+            <article className="download-card"><div className="download-icon"><Layers3 size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "متجهي / قابل للتحرير" : "Vector / editable"}</span><h3>{t.logoSvg}</h3><p>{t.logoSvgBody}</p></div><a className="download-link" href={downloadable.logoSvg} download><Download size={16} /> {t.downloadSvg}</a></article>
+            <article className="download-card"><div className="download-icon"><ImageIcon size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "PNG / معاينة" : "PNG / preview"}</span><h3>{t.logoPng}</h3><p>{t.logoPngBody}</p></div><a className="download-link" href={asset.logo} download><Download size={16} /> {t.downloadPng}</a></article>
+          </div>
         </section>
 
         <section className="handoff-section">
           <div className="handoff-mark"><img src={asset.logo} alt="" /></div>
-          <div className="handoff-content"><p className="eyebrow light"><span className="eyebrow-dot" /> Final handoff / v2.0</p><h2>Hold the<br /><em>standard.</em></h2><p>APEX ROAST is more than ten images. It is a system that can keep moving — from origin, to roast, to the next cup.</p><button className="button button-gold" onClick={() => scrollToId("top")}>Back to the cover <ArrowUpRight size={16} /></button></div>
-          <div className="handoff-side"><div className="handoff-list"><span>Logo system</span><span>Color & type</span><span>Packaging</span><span>Digital & social</span><span>Production prompts</span></div><div className="handoff-signature">APEX ROAST <span>Precision at the Peak.</span></div></div>
+          <div className="handoff-content"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.finalEyebrow}</p><h2>{t.finalTitleA}<br /><em>{t.finalTitleB}</em></h2><p>{t.finalBody}</p><button className="button button-gold" onClick={() => scrollToId("top")}>{t.back} <ArrowUpRight size={16} /></button></div>
+          <div className="handoff-side"><div className="handoff-list"><span>{t.logoSystem}</span><span>{t.colorType}</span><span>{lang === "ar" ? "التغليف" : "Packaging"}</span><span>{t.digitalSocial}</span><span>{t.productionPrompts}</span></div><div className="handoff-signature">APEX ROAST <span>{lang === "ar" ? "الدقة في القمة." : "Precision at the Peak."}</span></div></div>
         </section>
       </main>
 
-      <footer className="site-footer"><span>APEX ROAST / BRAND GUIDE</span><span>THE RITUAL OF ELEVATION</span><span>© 2026 / SYSTEM 02</span></footer>
+      <footer className="site-footer"><span>{t.footerA}</span><span>{t.footerB}</span><span>{t.footerC}</span></footer>
     </div>
   );
 }

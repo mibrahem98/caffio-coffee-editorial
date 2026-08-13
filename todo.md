@@ -13,7 +13,7 @@
 - [x] Add persistent light/dark theme switching with accessible contrast.
 - [x] Expand localization to four fully native-feeling interface languages.
 - [x] Refine responsive layout, spacing, controls, and active states across themes and languages.
-- [ ] Inspect shared-remote changes and identify the latest APEX ROAST source of truth.
-- [ ] Resolve project conflicts without overwriting compatible newer work.
-- [ ] Confirm the final page contains the latest APEX language, theme, search, ZIP, and skill updates.
-- [ ] Run final typecheck/build and save the reconciled checkpoint.
+- [x] Inspect shared-remote changes and identify the latest APEX ROAST source of truth.
+- [x] Resolve project conflicts without overwriting compatible newer work.
+- [x] Confirm the final page contains the latest APEX language, theme, search, ZIP, and skill updates.
+- [x] Run final typecheck/build and save the reconciled checkpoint.

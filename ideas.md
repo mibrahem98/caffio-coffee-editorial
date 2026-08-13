@@ -1,4 +1,4 @@
-# APEX ROAST — Design Direction
+# MIZAN COFFEE — Design Direction
 
 ## Three initial approaches
 
@@ -14,7 +14,7 @@
 **Very Brief Intro:** A lighter, archival direction inspired by coffee origin cards, topographic mapping, and contemporary packaging systems. It is informative, tactile, and quietly optimistic.
 **Probability:** 0.08
 
-## Chosen direction: Quiet Summit Editorial
+## Chosen direction: Quiet Roast Editorial
 
 ### Design Movement
 Contemporary editorial minimalism blended with tactile luxury packaging and quiet Swiss-style information design.
@@ -24,6 +24,7 @@ Contemporary editorial minimalism blended with tactile luxury packaging and quie
 2. **Ritual over spectacle:** Every interaction should feel like moving through a considered coffee ritual, not a flashy product demo.
 3. **System before ornament:** The summit-bean mark, diagonal geometry, and palette should repeat with disciplined variation.
 4. **Warm precision:** Pair measured grids and small data labels with coffee warmth, paper grain, and human-scale imagery.
+5. **Auditable content:** Origin, farm, process, altitude, roast, and tasting claims remain marked as pending until a batch card or producer document is attached to `docs/RESEARCH-SOURCES.md`.
 
 ### Color Philosophy
 The visual system starts with Summit Charcoal and Night Navy to create depth and a sense of a private roasting room. Warm Ivory opens the experience and carries longer reading sections. Roast Brown connects the system to bean, wood, and roast. Aged Gold is an accent for moments of value, never a default coating. The site should feel dark in its hero and signature panels, then open into warm editorial space.
@@ -60,19 +61,19 @@ Example lines:
 > **Move through the system. Taste the intention.**
 
 ### Wordmark & Logo
-The mark is an abstract rising summit with a single negative-space split inspired by a coffee bean. In the site, the symbol is used as a small gold seal and in the chapter rail; the wordmark is set with generous tracking and never treated as generic body text.
+The MIZAN mark is an abstract balance/orbit/bean symbol. In the site, the symbol is used as a small brass seal, cart mark, detail-page stamp, and section index; the wordmark is set with generous tracking and never treated as generic body text.
 
 ### Signature Brand Color
 **Aged Gold — #B89152.** It is the brand's ownable accent: warm, mineral, and slightly weathered rather than bright yellow metallic.
 
 ## Site structure
 
-1. **Home / Cover:** brand statement, live visual DNA, entry CTA.
-2. **Strategy:** positioning, promise, values, audience, tone.
-3. **Visual DNA:** logo construction, colors, typography, geometry, materials.
-4. **Applications:** packaging, cups, digital, social, cafe environment, iconography, campaign, case-study board.
-5. **Prompt Atelier:** ten expandable production prompts with copy controls.
-6. **Download / Handoff:** practical deliverables, production notes, and final summary.
+1. **Home / Cover:** brand statement, source protocol, collection entry, and content status.
+2. **Collection:** working product catalog with roast filters, search, comparison, and transparent demo labels.
+3. **Product detail:** origin, farm or producer, process, altitude, roast profile, tasting cues, brew methods, source note, and verified-review empty state.
+4. **Ritual & Field notes:** practical brew starting points and editorial notes on content, freshness, and preparation.
+5. **FAQ & Waitlist:** explicit demo-commerce language, accessible validation, and a non-connected waitlist state.
+6. **Cart drawer:** local-only interactive cart with quantities, demo offers, summary, and simulated checkout.
 
 ## Style Decisions
 
@@ -80,6 +81,7 @@ The mark is an abstract rising summit with a single negative-space split inspire
 - No purple gradients, generic dashboard cards, excessive rounded corners, or stock-photo collage.
 - Visual assets should feel like one photographed brand system: tactile, editorial, and quietly premium.
 - Generated imagery is used for prominent visual plates; text-heavy artifacts remain editable HTML rather than baked into images.
+- Product reviews and ratings are never fabricated. Until verified feedback is connected, detail pages display a transparent empty state.
 
 ### Accepted review amendments
 
@@ -89,5 +91,5 @@ The mark is an abstract rising summit with a single negative-space split inspire
 
 ### QA notes
 
-- Desktop and mobile screenshots confirm the editorial rhythm, chapter navigation, responsive stacking, and prompt accordion remain legible.
-- The generated hero and logo are retained as the signature assets. Secondary image slots use curated coffee imagery as resilient fallbacks so the live guide never exposes a failed-generation placeholder.
+- Desktop and mobile screenshots confirm the editorial rhythm, product detail path, cart drawer, filter/comparison controls, and FAQ remain legible.
+- Product imagery uses curated coffee photography as a resilient visual layer; product facts remain source-aware and are not presented as verified until records are attached.

@@ -1,318 +1,99 @@
-/*
-  APEX ROAST — Quiet Summit Editorial.
-  This page treats the brand manual as an interactive studio book: dark cover,
-  offset editorial chapters, tactile image plates, and restrained gold rules.
-*/
-import { useEffect, useMemo, useState } from "react";
-import {
-  ArrowDownRight,
-  ArrowUpRight,
-  BookOpen,
-  Check,
-  ChevronDown,
-  CircleDashed,
-  Clipboard,
-  Coffee,
-  Compass,
-  Copy,
-  Download,
-  ExternalLink,
-  FileText,
-  Globe2,
-  Image as ImageIcon,
-  Layers3,
-  Menu,
-  Moon,
-  Package,
-  Palette,
-  Search,
-  SlidersHorizontal,
-  Sparkles,
-  Sun,
-  Type,
-  X,
-} from "lucide-react";
-import { applicationCopy, navLabels, paletteLabels, promptArabic, promptTags, promptTitles, ui, type Lang } from "@/lib/brandTranslations";
-import { appCopyExtra, localeDirection, navLabelsExtra, promptCopiesExtra, promptTagsExtra, promptTitlesExtra, uiExtra } from "@/lib/localeExtras";
-import { extraUi, type ExtraUi } from "@/lib/extraLabels";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import { ArrowDownRight, ArrowUpRight, CheckCircle2, ChevronDown, Coffee, Compass, Filter, Leaf, Scale, Search, ShoppingBag, Sparkles } from "lucide-react";
+import { toast } from "sonner";
+import MizanHeader from "@/components/MizanHeader";
+import CartDrawer from "@/components/CartDrawer";
+import { useCart } from "@/contexts/CartContext";
+import { coffeeProducts, formatPrice, type Lang } from "@/lib/mizanCatalog";
 
-const asset = {
-  logo: "/manus-storage/apex-roast-logo_2e612c7e.png",
-  hero: "/manus-storage/apex-roast-hero-reference_5ed83964.jpg",
-  packaging: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1400&q=85",
-  ritual: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=1400&q=85",
-  materials: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1400&q=85",
+const images = {
+  hero: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1800&q=90",
+  ritual: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1400&q=88",
+  journalOne: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=900&q=86",
+  journalTwo: "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=900&q=86",
+  journalThree: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=900&q=86",
 };
 
-const downloadable = {
-  brandPdf: "/manus-storage/APEX_ROAST_brand_guidelines_f4ba978c.pdf",
-  logoSvg: "/manus-storage/apex-roast-symbol_225a1f6b.svg",
-  allZip: "/manus-storage/APEX_ROAST_identity_library_6f35f210.zip",
+const copy = {
+  en: {
+    status: "Roastery / source records in progress", cover: "MIZAN COFFEE / SPECIALTY ROASTERS", heroA: "Balance", heroB: "in every cup.", heroBody: "Origin-led coffee for people who notice the quiet details — roasted with clarity, served with intention.", explore: "Explore the collection", story: "Our approach", metaA: "Small-batch profiles", metaB: "Source-led content", metaC: "Est. 2026", manifesto: "Good coffee is a practice.", manifestoEm: "Not a performance.", storyEyebrow: "01 / The MIZAN approach", storyA: "A quieter", storyB: "way to care.", storyBody: "MIZAN is a coffee house built around balance: between source and roast, guidance and freedom, ritual and the everyday. Every product page is designed to show what is known, what is pending, and where the next document belongs.", sourceNote: "Content status: product claims remain pending until a batch card or producer document is attached.", sourceLink: "Read the source protocol", collectionEyebrow: "02 / The collection", collectionA: "Choose your", collectionB: "starting point.", collectionBody: "Explore the current working catalog. Prices, origin fields, and tasting notes are marked as demo content until verified product records are connected.", filter: "Filter", all: "All profiles", light: "Light roast", medium: "Medium roast", espresso: "Espresso", search: "Search coffee", compare: "Compare two coffees", compareHint: "A fast view for choosing a starting point.", field: "Field notes", add: "Add to cart", details: "View details", demo: "Demo profile", ritualEyebrow: "03 / The ritual", ritualA: "Brew with", ritualB: "a little room.", ritualBody: "Recipes are starting points, not rules. Keep the ratio steady, then let water, grind, and time become your own small experiment.", ritualCaption: "Small gestures / big difference", guide: "Open brew guide", notesEyebrow: "04 / Field notes", notesA: "A few things", notesB: "worth slowing down for.", read: "Read the note", note1: "What a product card should prove", note1Body: "A useful product page separates a documented fact from a working profile, so the cup can be understood without overclaiming.", note2: "A five-minute pour-over", note2Body: "A calm starting recipe built around repeatability, with room for the person holding the brewer.", note3: "Keep the good part", note3Body: "Storage, freshness, and the small habits that protect aroma deserve the same attention as the roast.", faqEyebrow: "05 / Common questions", faqA: "Clear answers", faqB: "for better mornings.", faq1: "How do I choose a coffee?", faq1Body: "Start with the roast profile and brew method, then open the product detail page. Origin and tasting fields are only treated as final when a supporting record is attached.", faq2: "Are the prices and checkout live?", faq2Body: "No. The cart is an interactive front-end simulation. It does not process payments or create a real order.", faq3: "When will reviews appear?", faq3Body: "Only after verified customer feedback is collected and approved for publication. Until then, each product shows a transparent empty state.", joinEyebrow: "Stay close to the roast", joinA: "The next good", joinB: "cup starts here.", joinBody: "Occasional origin records, brew notes, and quiet invitations from the roastery. No noise.", email: "Your email address", join: "Join the list", emailRequired: "Enter your email address.", emailInvalid: "Use a valid email format, such as hello@example.com.", joined: "You’re on the list. We’ll keep the next note close.", joinedTitle: "You’re on the list.", joinedBody: "The next note will find its way to your inbox.", useAnother: "Use another email", footerA: "MIZAN COFFEE / SPECIALTY ROASTERS", footerB: "BALANCE IN EVERY CUP", footerC: "© 2026 / CONTENT STATUS: DEMO", copyLang: "عربي" },
+  ar: {
+    status: "المحمصة / سجلات المصدر قيد الإعداد", cover: "ميزان / محمصة قهوة مختصة", heroA: "توازن", heroB: "في كل كوب.", heroBody: "قهوة تبدأ من المصدر لمن يلاحظ التفاصيل الهادئة — تُحمّص بوضوح وتُقدّم بنيّة.", explore: "استكشف المجموعة", story: "منهجنا في العمل", metaA: "ملفات تحميص صغيرة", metaB: "محتوى يبدأ من المصدر", metaC: "منذ 2026", manifesto: "القهوة الجيدة ممارسة.", manifestoEm: "وليست استعراضًا.", storyEyebrow: "01 / منهج ميزان", storyA: "طريقة", storyB: "أهدأ للاهتمام.", storyBody: "ميزان بيت قهوة يقوم على التوازن: بين المصدر والتحميص، والإرشاد والحرية، والطقس واليومي. صُممت كل صفحة منتج لتوضح ما هو معروف، وما يزال قيد التوثيق، وأين يوضع المستند القادم.", sourceNote: "حالة المحتوى: تبقى ادعاءات المنتج قيد التوثيق حتى إرفاق بطاقة دفعة أو مستند منتج.", sourceLink: "اقرأ بروتوكول المصادر", collectionEyebrow: "02 / المجموعة", collectionA: "اختر", collectionB: "نقطة البداية.", collectionBody: "استكشف الكتالوج الحالي. تُوسم الأسعار وحقول المنشأ وملاحظات التذوق كمحتوى تجريبي حتى ربط سجلات المنتجات الموثقة.", filter: "تصفية", all: "كل الملفات", light: "تحميص خفيف", medium: "تحميص متوسط", espresso: "إسبريسو", search: "ابحث عن قهوة", compare: "قارن قهوتين", compareHint: "عرض سريع لاختيار نقطة البداية.", field: "ملاحظات الحقل", add: "أضف إلى السلة", details: "عرض التفاصيل", demo: "ملف تجريبي", ritualEyebrow: "03 / الطقس", ritualA: "حضّرها", ritualB: "مع مساحة للتجربة.", ritualBody: "الوصفات نقاط بداية لا قواعد. حافظ على النسبة، ثم دع الماء والطحن والوقت تصبح تجربتك الصغيرة.", ritualCaption: "إيماءات صغيرة / فرق كبير", guide: "افتح دليل التحضير", notesEyebrow: "04 / ملاحظات الحقل", notesA: "أشياء قليلة", notesB: "تستحق التمهّل.", read: "اقرأ الملاحظة", note1: "ما الذي يجب أن تثبته بطاقة المنتج؟", note1Body: "تفرق صفحة المنتج المفيدة بين الحقيقة الموثقة والملف التجريبي، حتى يُفهم الكوب دون مبالغة.", note2: "الترشيح في خمس دقائق", note2Body: "وصفة بداية هادئة مبنية على قابلية التكرار مع مساحة لصاحب أداة التحضير.", note3: "احتفظ بالجزء الجيد", note3Body: "التخزين والطزاجة والعادات الصغيرة التي تحمي الرائحة تستحق عناية تساوي عناية التحميص.", faqEyebrow: "05 / أسئلة شائعة", faqA: "إجابات واضحة", faqB: "لصباح أفضل.", faq1: "كيف أختار القهوة؟", faq1Body: "ابدأ بملف التحميص وطريقة التحضير، ثم افتح صفحة تفاصيل المنتج. لا تُعامل معلومات المنشأ والتذوق كنهائية إلا مع وجود سجل داعم.", faq2: "هل الأسعار وإتمام الطلب حقيقيان؟", faq2Body: "لا. السلة محاكاة أمامية تفاعلية ولا تعالج دفعات أو تنشئ طلبًا حقيقيًا.", faq3: "متى ستظهر المراجعات؟", faq3Body: "فقط بعد جمع ملاحظات عملاء موثقة واعتمادها للنشر. حتى ذلك الحين تعرض كل قهوة حالة فارغة شفافة.", joinEyebrow: "ابق قريبًا من التحميص", joinA: "الكوب الجيد", joinB: "التالي يبدأ هنا.", joinBody: "سجلات مصادر موسمية، وملاحظات تحضير، ودعوات هادئة من المحمصة. بلا ضجيج.", email: "بريدك الإلكتروني", join: "انضم إلى القائمة", emailRequired: "أدخل بريدك الإلكتروني.", emailInvalid: "استخدم صيغة بريد صحيحة مثل hello@example.com.", joined: "تم تسجيلك. سنبقي الملاحظة القادمة قريبة.", joinedTitle: "تم تسجيلك.", joinedBody: "ستصل الملاحظة القادمة إلى بريدك قريبًا.", useAnother: "استخدم بريدًا آخر", footerA: "ميزان / محمصة قهوة مختصة", footerB: "توازن في كل كوب", footerC: "© 2026 / حالة المحتوى: تجريبي", copyLang: "EN" },
 };
 
-const promptThumbs = [
-  "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1512568400610-62da28bc8a13?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=500&q=80&sat=-20",
-  "https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=500&q=80",
-  "https://images.unsplash.com/photo-1485808191679-5f86510681a2?auto=format&fit=crop&w=500&q=80",
-];
+const profileLabels: Record<Lang, Record<string, string>> = {
+  en: { light: "Light", medium: "Medium", espresso: "Espresso" },
+  ar: { light: "خفيف", medium: "متوسط", espresso: "إسبريسو" },
+};
 
-function RiseSeal({ compact = false }: { compact?: boolean }) {
-  return (
-    <span className={compact ? "rise-seal compact" : "rise-seal"} aria-hidden="true">
-      <span className="rise-seal-mark"><i /><b /></span>
-      <span className="rise-seal-copy">APEX / ROAST</span>
-    </span>
-  );
-}
-
-const navItems = [
-  { id: "strategy", label: "Strategy", number: "01" },
-  { id: "dna", label: "Visual DNA", number: "02" },
-  { id: "applications", label: "Applications", number: "03" },
-  { id: "prompts", label: "Prompt atelier", number: "04" },
-];
-
-const palette = [
-  { name: "Summit Charcoal", hex: "#1E2224", note: "Main dark field", tone: "dark" },
-  { name: "Night Navy", hex: "#0B1B2B", note: "Digital depth", tone: "dark" },
-  { name: "Warm Ivory", hex: "#F2EBDD", note: "Editorial space", tone: "light" },
-  { name: "Roast Brown", hex: "#4A3025", note: "Sensory warmth", tone: "dark" },
-  { name: "Aged Gold", hex: "#B89152", note: "Value accent", tone: "light" },
-  { name: "Mist Stone", hex: "#B8B1A5", note: "Quiet utility", tone: "dark" },
-];
-
-const applications = [
-  { id: "packaging", label: "Packaging", eyebrow: "01 / shelf presence", title: "A tactile system that reads before it speaks.", body: "Matte paper, a rising mark, and a calm information hierarchy turn every bag into a quiet sign of intention.", image: asset.packaging, tint: "rust" },
-  { id: "ritual", label: "Serving ritual", eyebrow: "02 / daily object", title: "The identity lands in the hand.", body: "Cups, sleeves, and ceramics carry the same summit logic into the small gestures that make coffee memorable.", image: asset.ritual, tint: "ivory" },
-  { id: "materials", label: "Material language", eyebrow: "03 / tactile DNA", title: "Luxury, with the volume turned down.", body: "Uncoated stock, dark walnut, smoked glass, and aged gold build a world that feels considered rather than decorated.", image: asset.materials, tint: "navy" },
-];
-
-const prompts = [
-  { number: "01", title: "Primary logo system", tag: "identity", prompt: "Using the APEX ROAST master visual direction, create a premium logo identity presentation sheet on a warm ivory background and a Summit Charcoal background. Show the primary horizontal lockup, centered stacked lockup, standalone summit-bean symbol, wordmark-only version, monochrome black version, ivory reverse version, and a restrained aged-gold material preview. The symbol must be an original abstract rising summit with one clean negative-space split inspired by a coffee bean, constructed with simple geometric proportions and strong optical balance. The wordmark “APEX ROAST” must be elegant, accurately spelled, highly legible, and custom-looking. Vector-like precision, timeless identity, crisp edges, no fake extra copy." },
-  { number: "02", title: "Premium coffee packaging", tag: "packaging", prompt: "Create a complete APEX ROAST premium specialty coffee packaging system with three coordinated resealable coffee bags: Origin Series, House Espresso, and Seasonal Micro-Lot. Use the same bag structure and the same abstract summit-bean symbol, differentiating each product through controlled Roast Brown, Night Navy, or Warm Ivory fields. Use matte Summit Charcoal paper, subtle tactile grain, restrained aged-gold foil, minimal contour lines, and a clear information hierarchy. Include front and back views with origin, altitude, process, roast profile, tasting notes, brew method, weight, barcode placeholder, and regulatory information placeholder. Realistic folds, accurate seals, believable paper texture, clean flat artwork references alongside the 3D mockup." },
-  { number: "03", title: "Brand guidelines board", tag: "system", prompt: "Design a highly organized APEX ROAST brand guidelines board as a premium editorial presentation. Include the primary logo, summit-bean symbol, clear-space diagram, color swatches with exact HEX codes, typography hierarchy, 8-point grid, 30/60-degree geometry, approved materials, photography direction, icon style, and one coffee bag mockup. Use a warm ivory paper background, Summit Charcoal typography, Night Navy panels, and restrained Aged Gold rules. Keep it clean, spacious, precise, and readable, with short accurate labels and no decorative moodboard clutter." },
-  { number: "04", title: "Cups & serving ritual", tag: "touchpoint", prompt: "Create a refined APEX ROAST serving ritual scene with an ivory ceramic espresso cup, a matte charcoal takeaway cup, a dark coffee sleeve, a saucer, a napkin, a loyalty card, and a small coffee bag arranged on dark walnut. Apply the summit-bean symbol at a believable small scale and use Warm Ivory, Summit Charcoal, Night Navy, Roast Brown, and one restrained Aged Gold detail. Show natural espresso crema, subtle steam, realistic ceramic glaze, tactile paper, and soft morning side light. Warm, human, contemporary, and practical." },
-  { number: "05", title: "Website & commerce", tag: "digital", prompt: "Design a high-end responsive APEX ROAST ecommerce website homepage displayed in a realistic desktop browser and mobile companion frame. Use a calm Warm Ivory and Night Navy interface with Summit Charcoal text and restrained Aged Gold accents. Include navigation with the logo, hero statement “Precision at the Peak.”, origin-led coffee feature, product cards with roast and tasting data, brew guide, subscription offer, brand story, and a clear footer. Strong accessibility contrast, generous whitespace, simple summit-inspired dividers, realistic product hierarchy, no clutter." },
-  { number: "06", title: "Social template system", tag: "content", prompt: "Create a coordinated APEX ROAST social media template system shown as six square posts in a clean grid. The six categories are new coffee launch, origin story, tasting notes, brew guide, customer ritual, and seasonal campaign. Use the same 8-point grid, rising diagonal, summit-bean symbol, color palette, typography hierarchy, and generous negative space across all tiles. Alternate between tactile coffee close-ups, editorial information layouts, and quiet product compositions. Keep headline phrases short and accurately spelled." },
-  { number: "07", title: "Cafe environment", tag: "space", prompt: "Create a realistic APEX ROAST specialty coffee shop interior identity application. Show a matte Summit Charcoal feature wall with a refined dimensional summit-bean sign, a warm ivory menu board, dark walnut counter, smoked glass details, matte black metal fixtures, branded takeaway station, and a small origin map panel. Integrate one subtle rising diagonal and one bean-oval detail. Use soft daylight with warm practical lighting, realistic scale, believable materials, and an inviting premium atmosphere." },
-  { number: "08", title: "Iconography & motifs", tag: "assets", prompt: "Design an APEX ROAST supporting graphic language presentation sheet with seven custom monoline icons: origin, altitude, roast, aroma, brew, freshness, and subscription. Include one contour-line pattern derived from the rising summit, one bean-inspired oval motif, one elevation marker, and three border treatments. Use a consistent stroke weight, 30/60-degree geometry, rounded bean curves, and the APEX ROAST color system. Minimal, recognizable, scalable, suitable for packaging, menus, web interfaces, and social templates." },
-  { number: "09", title: "Campaign poster", tag: "campaign", prompt: "Create a premium APEX ROAST campaign poster in portrait format for the campaign “Rise Into the Ritual.” Show one beautiful, realistic coffee preparation moment with controlled liquid movement, a carefully placed APEX ROAST product bag, and a strong Warm Ivory headline area. Use a Summit Charcoal or Night Navy field, one rising diagonal inspired by the summit symbol, subtle Roast Brown warmth, and a small Aged Gold accent. Establish a clear reading order from headline to product to call-to-action. Editorial, printable, memorable, and commercially effective." },
-  { number: "10", title: "Complete case study", tag: "presentation", prompt: "Create a polished APEX ROAST brand identity case-study presentation board showing the full visual story in one coherent sequence. Arrange the primary logo, packaging family, ceramic cup, website interface, social templates, cafe sign, menu, icon sheet, campaign poster, and a final coffee ritual scene across a spacious editorial layout. Build a clear narrative from origin to roast to preparation to customer moment. Use the same summit-bean symbol, palette, tactile materials, soft directional lighting, 8-point grid, and controlled negative space. High-end professional branding presentation, no visual clutter." },
-];
-
-function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function Home() {
-  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("apex-roast-lang") as Lang) || "en");
-  const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("apex-roast-theme") as "light" | "dark") || "dark");
-  const [activeApp, setActiveApp] = useState(applications[0].id);
-  const [openPrompt, setOpenPrompt] = useState("01");
-  const [copied, setCopied] = useState<string | null>(null);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+function MizanHome() {
+  const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("mizan-lang") as Lang) || "en");
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [query, setQuery] = useState("");
+  const [compareIds, setCompareIds] = useState([coffeeProducts[0].id, coffeeProducts[1].id]);
   const [progress, setProgress] = useState(0);
-  const [promptQuery, setPromptQuery] = useState("");
-  const [promptFilter, setPromptFilter] = useState("all");
-  const direction = localeDirection(lang);
-  const t = (lang === "fr" || lang === "es" ? uiExtra[lang] : ui[lang]) as typeof ui.en;
-  const labels = extraUi[lang] as ExtraUi;
-  const currentNav = [
-    { id: "strategy", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].strategy : navLabels[lang].strategy, number: "01" },
-    { id: "dna", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].dna : navLabels[lang].dna, number: "02" },
-    { id: "applications", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].applications : navLabels[lang].applications, number: "03" },
-    { id: "prompts", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].prompts : navLabels[lang].prompts, number: "04" },
-    { id: "downloads", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].downloads : navLabels[lang].downloads, number: "05" },
-  ];
-  const selectedAppIndex = Math.max(0, applications.findIndex((item) => item.id === activeApp));
-  const selectedAppCopy = applicationCopy[selectedAppIndex];
-  const selectedAppExtra = lang === "fr" || lang === "es" ? appCopyExtra[lang][selectedAppIndex] : null;
-  const currentPrompts = prompts.map((item, index) => ({
-    ...item,
-    title: lang === "fr" || lang === "es" ? promptTitlesExtra[lang][index] : promptTitles[lang][index],
-    tag: lang === "fr" || lang === "es" ? promptTagsExtra[lang][index] : promptTags[lang][index],
-    prompt: lang === "ar" ? promptArabic[index] : lang === "fr" || lang === "es" ? promptCopiesExtra[lang][index] : item.prompt,
-    thumb: promptThumbs[index],
-  }));
-  const filteredPrompts = currentPrompts.filter((item) => {
-    const query = promptQuery.trim().toLocaleLowerCase(lang);
-    const haystack = `${item.title} ${item.tag} ${item.prompt}`.toLocaleLowerCase(lang);
-    const matchesQuery = !query || haystack.includes(query);
-    const matchesFilter = promptFilter === "all" || item.tag === promptFilter;
-    return matchesQuery && matchesFilter;
-  });
+  const [waitlistState, setWaitlistState] = useState<"idle" | "error" | "success">("idle");
+  const [emailError, setEmailError] = useState("");
+  const t = copy[lang];
+  const { add } = useCart();
+  const direction = lang === "ar" ? "rtl" : "ltr";
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = direction;
-    localStorage.setItem("apex-roast-lang", lang);
-  }, [lang, direction]);
+    localStorage.setItem("mizan-lang", lang);
+  }, [direction, lang]);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("apex-roast-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? Math.min(100, Math.round((window.scrollY / max) * 100)) : 0);
-    };
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => { const max = document.documentElement.scrollHeight - window.innerHeight; setProgress(max ? Math.round((window.scrollY / max) * 100) : 0); };
+    onScroll(); window.addEventListener("scroll", onScroll, { passive: true }); return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const selectedApp = useMemo(() => applications.find((item) => item.id === activeApp) ?? applications[0], [activeApp]);
+  const filteredProducts = useMemo(() => coffeeProducts.filter((product) => {
+    const matchesFilter = activeFilter === "all" || product.roastTone === activeFilter;
+    const haystack = `${product.name[lang]} ${product.origin[lang]} ${product.profile[lang]}`.toLowerCase();
+    return matchesFilter && (!query.trim() || haystack.includes(query.trim().toLowerCase()));
+  }), [activeFilter, lang, query]);
+  const compareProducts = compareIds.map((id) => coffeeProducts.find((product) => product.id === id) || coffeeProducts[0]);
 
-  const copyPrompt = async (number: string, text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(number);
-      window.setTimeout(() => setCopied(null), 1800);
-    } catch {
-      setCopied(null);
-    }
+  const handleWaitlist = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const input = event.currentTarget.elements.namedItem("email") as HTMLInputElement | null;
+    const email = input?.value.trim() || "";
+    if (!email) { setEmailError(t.emailRequired); setWaitlistState("error"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setEmailError(t.emailInvalid); setWaitlistState("error"); return; }
+    setEmailError(""); setWaitlistState("success"); toast.success(t.joined);
   };
 
-  return (
-    <div className="site-shell">
-      <div className="reading-progress" style={{ width: `${progress}%` }} />
+  return <div className="mizan-site" dir={direction}>
+    <div className="reading-progress" style={{ width: `${progress}%` }} />
+    <MizanHeader lang={lang} onLangChange={setLang} />
+    <CartDrawer lang={lang} />
+    <main id="top">
+      <section className="mizan-hero">
+        <div className="hero-contour contour-one" /><div className="hero-contour contour-two" />
+        <div className="hero-rail"><span>00</span><i /><span>06</span></div>
+        <div className="hero-copy"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.cover}</p><h1>{t.heroA}<br /><em>{t.heroB}</em></h1><p className="hero-lede">{t.heroBody}</p><div className="hero-actions"><a className="button button-gold" href="#collection">{t.explore}<ArrowDownRight size={16} /></a><a className="text-link light-link" href="#story">{t.story}<ArrowUpRight size={15} /></a></div><div className="hero-meta"><span>{t.metaA}</span><span>{t.metaB}</span><span>{t.metaC}</span></div></div>
+        <div className="hero-visual"><div className="hero-image"><img src={images.hero} alt="Specialty coffee cups and roasted beans in warm light" /><div className="hero-image-caption"><span>FIG. 01</span><span>{lang === "ar" ? "صباح محسوب التفاصيل" : "A considered morning"}</span></div></div><div className="hero-seal"><span className="mizan-symbol large" aria-hidden="true"><i /><b /><em /></span><span>ROASTED<br />WITH BALANCE</span></div><div className="hero-data"><small>{lang === "ar" ? "حالة المحتوى" : "CONTENT STATUS"}</small><strong>{lang === "ar" ? "تجريبي" : "DEMO"}</strong><span>{lang === "ar" ? "بانتظار سجلات الدفعات" : "Awaiting batch records"}</span></div></div>
+      </section>
+      <section className="manifesto"><span className="manifesto-mark"><span className="mizan-symbol" aria-hidden="true"><i /><b /><em /></span></span><p className="eyebrow"><span className="eyebrow-dot" /> {lang === "ar" ? "فكرة ميزان" : "The MIZAN idea"}</p><p className="manifesto-copy">{t.manifesto}<br /><strong>{t.manifestoEm}</strong></p><span className="strip-index">01 — 06</span></section>
 
-      <header className="site-nav">
-        <a className="brand-lockup" href="#top" aria-label="APEX ROAST home">
-          <img src={asset.logo} alt="" className="brand-mark" />
-          <span>
-            <strong>APEX</strong>
-            <small>ROAST / BRAND GUIDE</small>
-          </span>
-        </a>
-        <nav className={mobileNavOpen ? "nav-links is-open" : "nav-links"} aria-label="Primary navigation">
-          {currentNav.map((item) => (
-            <button key={item.id} onClick={() => { scrollToId(item.id); setMobileNavOpen(false); }}>
-              <span>{item.number}</span>{item.label}
-            </button>
-          ))}
-        </nav>
-        <div className="nav-actions">
-          <span className="nav-status"><CircleDashed size={13} /> {t.status}</span>
-          <label className="language-control"><Globe2 size={14} /><select value={lang} onChange={(event) => setLang(event.target.value as Lang)} aria-label="Select language"><option value="en">EN</option><option value="ar">عربي</option><option value="fr">FR</option><option value="es">ES</option></select></label>
-          <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label={theme === "dark" ? labels.lightMode : labels.darkMode}>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</button>
-          <button className="nav-menu" onClick={() => setMobileNavOpen((value) => !value)} aria-label="Toggle navigation">
-            {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
-        </div>
-      </header>
+      <section className="story-section section-light" id="story"><div className="section-intro"><span className="section-number">01<span>/</span>06</span><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.storyEyebrow}</p><h2>{t.storyA}<br /><em>{t.storyB}</em></h2></div></div><div className="story-body"><p>{t.storyBody}</p><div className="source-note"><Compass size={16} /><span>{t.sourceNote}<a href="/docs/RESEARCH-SOURCES.md">{t.sourceLink}</a></span></div></div><div className="principle-grid"><article><span>01 / ORIGIN</span><h3>{lang === "ar" ? "المصدر قبل الزخرفة." : "Origin before ornament."}</h3><p>{lang === "ar" ? "نوضح ما نعرفه، ونوسم ما ينتظر التوثيق." : "Show what is known, label what still needs a source."}</p><Leaf size={21} /></article><article><span>02 / ROAST</span><h3>{lang === "ar" ? "تحميص بوضوح." : "Roast with clarity."}</h3><p>{lang === "ar" ? "ملف عملي يترك للشخصية مساحة لتظهر." : "A practical profile that leaves room for character."}</p><Coffee size={21} /></article><article><span>03 / RITUAL</span><h3>{lang === "ar" ? "الخطوة الأخيرة إنسانية." : "The last step is human."}</h3><p>{lang === "ar" ? "إرشاد يساعدك دون أن يملي عليك الطقس." : "Guidance that helps without prescribing the ritual."}</p><Sparkles size={21} /></article></div></section>
 
-      <main id="top">
-        <section className="hero-section">
-          <div className="hero-orbit orbit-one" />
-          <div className="hero-orbit orbit-two" />
-          <div className="chapter-rail hero-rail"><span>00</span><i /><span>06</span></div>
-          <div className="hero-copy">
-            <p className="eyebrow light"><span className="eyebrow-dot" /> {t.cover}</p>
-            <h1>{t.heroTitleA}<br /><em>{t.heroTitleB}</em></h1>
-            <p className="hero-lede">{t.heroLede}</p>
-            <div className="hero-actions">
-              <button className="button button-gold" onClick={() => scrollToId("dna")}>{t.explore} <ArrowDownRight size={16} /></button>
-              <button className="text-link light-link" onClick={() => scrollToId("prompts")}>{t.openPrompts} <ArrowUpRight size={15} /></button>
-            </div>
-            <div className="hero-meta"><span>{t.metaOne}</span><span>{t.metaTwo}</span><span>{t.metaThree}</span></div>
-          </div>
-          <div className="hero-visual">
-            <div className="hero-image-frame">
-              <img src={asset.hero} alt="APEX ROAST coffee bag and ceramic cup in warm directional light" />
-              <div className="hero-image-caption"><span>FIG. 01</span><span>{lang === "ar" ? "طقس الارتقاء" : "The ritual of elevation"}</span></div>
-            </div>
-            <div className="hero-stamp"><img src={asset.logo} alt="" /><span>ROASTED<br />WITH INTENT</span></div>
-          </div>
-        </section>
+      <section className="collection-section section-dark" id="collection"><div className="chapter-rail"><span>02</span><i /><span>06</span></div><div className="section-intro dark-intro"><span className="section-number">02<span>/</span>06</span><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.collectionEyebrow}</p><h2>{t.collectionA}<br /><em>{t.collectionB}</em></h2></div></div><div className="collection-toolbar"><p>{t.collectionBody}</p><div className="toolbar-actions"><label className="coffee-search"><Search size={15} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t.search} aria-label={t.search} /></label><div className="filter-group"><Filter size={14} />{["all", "light", "medium", "espresso"].map((filter) => <button key={filter} className={activeFilter === filter ? "is-active" : ""} onClick={() => setActiveFilter(filter)}>{t[filter as "all" | "light" | "medium" | "espresso"]}</button>)}</div></div></div><div className="product-grid">{filteredProducts.map((product) => <article className="product-tile" key={product.id}><div className="product-image"><img src={product.image} alt={`${product.shortName[lang]} coffee profile`} /><span>{t.demo}</span></div><div className="product-tile-copy"><div className="product-topline"><span>{profileLabels[lang][product.roastTone]}</span><span>{product.weight}</span></div><h3>{product.name[lang]}</h3><p>{product.profile[lang]}</p><small>{product.origin[lang]}</small><div className="product-tile-actions"><a href={`/coffee/${product.id}`}>{t.details}<ArrowUpRight size={14} /></a><button onClick={() => { add(product.id); window.dispatchEvent(new CustomEvent("mizan:open-cart")); toast.success(lang === "ar" ? "تمت الإضافة إلى السلة" : "Added to cart"); }}>{t.add}<ShoppingBag size={14} /></button></div></div></article>)}</div>{filteredProducts.length === 0 && <div className="empty-filter"><Search size={18} /><p>{lang === "ar" ? "لا توجد نتائج بهذا البحث." : "No coffee matches this search."}</p></div>}<div className="comparison-wrap"><div className="comparison-heading"><div><span className="eyebrow light"><span className="eyebrow-dot" /> {t.compare}</span><p>{t.compareHint}</p></div><Scale size={23} /></div><div className="compare-selects">{compareProducts.map((product, index) => <label key={index}><span>{lang === "ar" ? `القهوة ${index + 1}` : `Coffee ${index + 1}`}</span><select value={compareIds[index]} onChange={(event) => setCompareIds((current) => current.map((id, position) => position === index ? event.target.value : id))}>{coffeeProducts.map((option) => <option value={option.id} key={option.id}>{option.shortName[lang]}</option>)}</select></label>)}</div><div className="compare-table"><div><span>{lang === "ar" ? "التحميص" : "Roast"}</span>{compareProducts.map((product) => <strong key={product.id}>{product.profile[lang]}</strong>)}</div><div><span>{lang === "ar" ? "المصدر" : "Origin"}</span>{compareProducts.map((product) => <strong key={product.id}>{product.origin[lang]}</strong>)}</div><div><span>{lang === "ar" ? "الإيحاءات" : "Tasting"}</span>{compareProducts.map((product) => <strong key={product.id}>{product.tastingNotes[0][lang]}</strong>)}</div></div></div></section>
 
-        <section className="manifesto-strip">
-          <RiseSeal compact />
-          <p className="eyebrow"><span className="eyebrow-dot" /> {t.idea}</p>
-          <p className="manifesto-copy">{t.manifestoA}<br /><strong>{t.manifestoB}</strong></p>
-          <span className="strip-index">01 — 04</span>
-        </section>
+      <section className="ritual-section section-light" id="ritual"><div className="section-intro"><span className="section-number">03<span>/</span>06</span><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.ritualEyebrow}</p><h2>{t.ritualA}<br /><em>{t.ritualB}</em></h2></div></div><div className="ritual-grid"><div className="ritual-photo"><img src={images.ritual} alt="Pour-over coffee ritual in a calm morning light" /><span>{t.ritualCaption}</span></div><div className="ritual-copy"><p>{t.ritualBody}</p><div className="brew-lines"><div><span>01 / POUR-OVER</span><strong>1:16 · 92°C · 04:00</strong></div><div><span>02 / ESPRESSO</span><strong>1:2 · 93°C · 00:28</strong></div><a href="#faq">{t.guide}<ArrowUpRight size={15} /></a></div></div></div></section>
 
-        <section className="strategy-section section-light" id="strategy">
-          <div className="section-intro">
-            <div className="section-number">01<span>/</span>04</div>
-            <div>
-              <p className="eyebrow"><span className="eyebrow-dot" /> {t.strategyEyebrow}</p>
-              <h2>{t.strategyTitleA}<br /><em>{t.strategyTitleB}</em></h2>
-            </div>
-          </div>
-          <div className="strategy-content">
-            <div className="strategy-lead"><p>{t.positioningBody}</p><span className="big-quote">“</span></div>
-            <div className="strategy-grid">
-              <article className="editorial-card featured-card"><span className="card-kicker">{t.positioning}</span><h3>{t.positioningTitle}</h3><p>{t.positioningBody}</p><span className="card-index">01</span></article>
-              <article className="editorial-card"><span className="card-kicker">{t.promise}</span><h3>{t.promiseTitle}</h3><p>{t.promiseBody}</p><span className="card-index">02</span></article>
-              <article className="editorial-card"><span className="card-kicker">{t.personality}</span><h3>{t.personalityTitle}</h3><p>{t.personalityBody}</p><span className="card-index">03</span></article>
-            </div>
-          </div>
-        </section>
+      <section className="notes-section section-light" id="notes"><div className="section-intro"><span className="section-number">04<span>/</span>06</span><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.notesEyebrow}</p><h2>{t.notesA}<br /><em>{t.notesB}</em></h2></div></div><div className="notes-grid"><article><img src={images.journalOne} alt="Coffee beans on a tactile surface" /><div><span>01 / CONTENT</span><h3>{t.note1}</h3><p>{t.note1Body}</p><button onClick={() => toast(t.read)}>{t.read}<ArrowUpRight size={14} /></button></div></article><article><img src={images.journalTwo} alt="Pour-over coffee preparation" /><div><span>02 / BREW</span><h3>{t.note2}</h3><p>{t.note2Body}</p><button onClick={() => toast(t.read)}>{t.read}<ArrowUpRight size={14} /></button></div></article><article><img src={images.journalThree} alt="Coffee beside a window" /><div><span>03 / FRESHNESS</span><h3>{t.note3}</h3><p>{t.note3Body}</p><button onClick={() => toast(t.read)}>{t.read}<ArrowUpRight size={14} /></button></div></article></div></section>
 
-        <section className="dna-section section-dark" id="dna">
-          <div className="chapter-rail"><span>02</span><i /><span>04</span></div>
-          <div className="section-intro dark-intro">
-            <div className="section-number">02<span>/</span>04</div>
-            <div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.dnaEyebrow}</p><h2>{t.dnaTitleA}<br /><em>{t.dnaTitleB}</em></h2></div>
-          </div>
-          <div className="dna-layout">
-            <div className="logo-specimen">
-              <div className="specimen-header"><span>{t.primarySymbol}</span><span>01 / 04</span></div>
-              <div className="logo-stage"><div className="logo-grid-lines" /><img src={asset.logo} alt="APEX ROAST summit bean symbol" /><span className="axis-label axis-top">APEX</span><span className="axis-label axis-bottom">ROAST</span></div>
-              <div className="specimen-footer"><span>{t.geometry}</span><span>{t.beanSpace}</span></div>
-            </div>
-            <div className="dna-copy"><p className="section-kicker light">{t.dnaKicker}</p><p className="body-copy light-copy">{t.dnaBody}</p><div className="rule-list"><div><span>01</span><p>{lang === "ar" ? "شبكة 8 نقاط" : "8-point grid"}<br /><small>{lang === "ar" ? "منضبطة وليست جامدة." : "Disciplined, never rigid."}</small></p></div><div><span>02</span><p>{lang === "ar" ? "الفراغ السلبي" : "Negative space"}<br /><small>{lang === "ar" ? "الفخامة عبر التحكم." : "Luxury through control."}</small></p></div><div><span>03</span><p>{lang === "ar" ? "دقة دافئة" : "Warm precision"}<br /><small>{lang === "ar" ? "المعلومات تلتقي بالإحساس." : "Data meets sensation."}</small></p></div></div></div>
-          </div>
-          <div className="palette-wrap"><div className="palette-heading"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.palette}</p><span>{t.clickSwatch}</span></div><div className="palette-grid">{palette.map((color, index) => <button className={`color-swatch ${color.tone}`} key={color.hex} onClick={() => copyPrompt(color.hex, color.hex)} style={{ background: color.hex }} aria-label={`Copy ${color.name} ${color.hex}`}><span className="swatch-hover">{copied === color.hex ? <Check size={14} /> : <Copy size={14} />}</span><div><strong>{lang === "ar" ? paletteLabels[index][1] : paletteLabels[index][0]}</strong><small>{color.hex}</small><em>{lang === "ar" ? paletteLabels[index][3] : paletteLabels[index][2]}</em></div></button>)}</div></div>
-          <div className="type-section"><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.typography}</p><h3 className="serif-display">{t.typeTitleA}<br /><em>{t.typeTitleB}</em></h3></div><div className="type-specimens"><div className="type-row"><span>{t.display}</span><strong>{lang === "ar" ? "اصعد إلى<br />الطقس." : "Rise into<br />the ritual."}</strong></div><div className="type-row"><span>{t.utility}</span><p>{lang === "ar" ? "المصدر / الارتفاع / المعالجة / الوضوح" : "Origin / altitude / process / clarity"}<br /><b>{lang === "ar" ? "محمصة بنية." : "ROASTED WITH INTENT."}</b></p></div></div></div>
-        </section>
+      <section className="faq-section section-dark" id="faq"><div className="section-intro dark-intro"><span className="section-number">05<span>/</span>06</span><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.faqEyebrow}</p><h2>{t.faqA}<br /><em>{t.faqB}</em></h2></div></div><div className="faq-list"><details open><summary>{t.faq1}<ChevronDown size={17} /></summary><p>{t.faq1Body}</p></details><details><summary>{t.faq2}<ChevronDown size={17} /></summary><p>{t.faq2Body}</p></details><details><summary>{t.faq3}<ChevronDown size={17} /></summary><p>{t.faq3Body}</p></details></div></section>
 
-        <section className="applications-section section-light" id="applications">
-          <div className="section-intro"><div className="section-number">03<span>/</span>04</div><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.appsEyebrow}</p><h2>{t.appsTitleA}<br /><em>{t.appsTitleB}</em></h2></div></div>
-          <div className="applications-layout"><div className="app-tabs">{applications.map((item, index) => <button key={item.id} className={activeApp === item.id ? "app-tab active" : "app-tab"} onClick={() => setActiveApp(item.id)}><span>0{index + 1}</span>{lang === "fr" || lang === "es" ? appCopyExtra[lang][index][0] : lang === "ar" ? applicationCopy[index][1] : applicationCopy[index][0]}<ArrowUpRight size={15} /></button>)}<div className="app-note"><Sparkles size={15} /> {t.appNote}</div></div><div className={`application-card tint-${selectedApp.tint}`}><img src={selectedApp.image} alt={selectedAppExtra ? selectedAppExtra[2] : lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]} /><div className="application-overlay"><p className="eyebrow light"><span className="eyebrow-dot" /> {selectedAppExtra ? selectedAppExtra[1] : lang === "ar" ? selectedAppCopy[3] : selectedAppCopy[2]}</p><h3>{selectedAppExtra ? selectedAppExtra[2] : lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]}</h3><p>{selectedAppExtra ? selectedAppExtra[3] : lang === "ar" ? selectedAppCopy[7] : selectedAppCopy[6]}</p><span className="application-arrow"><ArrowUpRight size={19} /></span></div></div></div>
-          <div className="application-footnote"><span>03</span><p>{t.appFoot}</p><ArrowDownRight size={18} /></div>
-        </section>
-
-        <section className="prompt-section section-dark" id="prompts">
-          <div className="chapter-rail"><span>04</span><i /><span>05</span></div>
-          <div className="section-intro dark-intro"><div className="section-number">04<span>/</span>05</div><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.promptEyebrow}</p><h2>{t.promptTitleA}<br /><em>{t.promptTitleB}</em></h2></div></div>
-          <div className="prompt-header"><p className="body-copy light-copy">{t.promptBody}</p><div className="prompt-meta"><span><Clipboard size={15} /> {t.promptCount}</span><span><Layers3 size={15} /> {t.oneDna}</span></div></div>
-          <div className="prompt-controls"><label className="prompt-search"><Search size={16} /><input value={promptQuery} onChange={(event) => setPromptQuery(event.target.value)} placeholder={labels.searchPrompts} aria-label={labels.searchPrompts} /></label><label className="prompt-filter"><SlidersHorizontal size={15} /><span>{labels.filterBy}</span><select value={promptFilter} onChange={(event) => setPromptFilter(event.target.value)} aria-label={labels.filterBy}><option value="all">{labels.allTypes}</option>{prompts.map((item) => <option key={item.tag} value={item.tag}>{item.tag}</option>)}</select></label><span className="prompt-result-count">{filteredPrompts.length} / {prompts.length} {labels.showing}</span>{(promptQuery || promptFilter !== "all") && <button className="prompt-reset" onClick={() => { setPromptQuery(""); setPromptFilter("all"); }}>{labels.reset}</button>}</div>
-          <div className="prompt-list">{filteredPrompts.length ? filteredPrompts.map((item) => { const isOpen = openPrompt === item.number; return <article className={isOpen ? "prompt-item is-open" : "prompt-item"} key={item.number}><button className="prompt-trigger" onClick={() => setOpenPrompt(isOpen ? "" : item.number)} aria-expanded={isOpen}><span className="prompt-number">{item.number}</span><span className="prompt-title">{item.title}</span><span className="prompt-thumb" aria-hidden="true"><img src={item.thumb} alt="" /><span>{t.preview}</span></span><span className="prompt-tag">{item.tag}</span>{isOpen ? <ChevronDown size={17} /> : <ArrowUpRight size={17} />}</button>{isOpen && <div className="prompt-detail"><p>{item.prompt}</p><button className="copy-button" onClick={() => copyPrompt(item.number, item.prompt)}>{copied === item.number ? <Check size={15} /> : <Copy size={15} />}{copied === item.number ? t.copied : t.copyPrompt}</button></div>}</article>; }) : <div className="prompt-empty">{labels.noResults}</div>}</div>
-        </section>
-
-        <section className="downloads-section section-light" id="downloads">
-          <div className="section-intro"><div className="section-number">05<span>/</span>05</div><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.downloadEyebrow}</p><h2>{t.downloadTitleA}<br /><em>{t.downloadTitleB}</em></h2></div></div>
-          <div className="download-lead"><p>{t.downloadBody}</p><span className="download-rule"><Package size={17} /> {lang === "ar" ? "APEX ROAST / مكتبة الأصول" : "APEX ROAST / ASSET LIBRARY"}</span></div>
-          <div className="download-grid">
-            <article className="download-card download-featured"><div className="download-icon"><FileText size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "PDF / 12 صفحة" : "PDF / 12 pages"}</span><h3>{t.brandGuidelines}</h3><p>{t.brandGuidelinesBody}</p></div><a className="download-link" href={downloadable.brandPdf} download><Download size={16} /> {t.downloadPdf}</a></article>
-            <article className="download-card"><div className="download-icon"><Layers3 size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "متجهي / قابل للتحرير" : "Vector / editable"}</span><h3>{t.logoSvg}</h3><p>{t.logoSvgBody}</p></div><a className="download-link" href={downloadable.logoSvg} download><Download size={16} /> {t.downloadSvg}</a></article>
-            <article className="download-card"><div className="download-icon"><ImageIcon size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "PNG / معاينة" : "PNG / preview"}</span><h3>{t.logoPng}</h3><p>{t.logoPngBody}</p></div><a className="download-link" href={asset.logo} download><Download size={16} /> {t.downloadPng}</a></article>
-          </div>
-          <a className="download-all" href={downloadable.allZip} download><Package size={18} /><span>{labels.downloadAll}</span><small>ZIP / complete identity library</small><ArrowUpRight size={18} /></a>
-        </section>
-
-        <section className="handoff-section">
-          <div className="handoff-mark"><img src={asset.logo} alt="" /></div>
-          <div className="handoff-content"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.finalEyebrow}</p><h2>{t.finalTitleA}<br /><em>{t.finalTitleB}</em></h2><p>{t.finalBody}</p><button className="button button-gold" onClick={() => scrollToId("top")}>{t.back} <ArrowUpRight size={16} /></button></div>
-          <div className="handoff-side"><div className="handoff-list"><span>{t.logoSystem}</span><span>{t.colorType}</span><span>{lang === "ar" ? "التغليف" : "Packaging"}</span><span>{t.digitalSocial}</span><span>{t.productionPrompts}</span></div><div className="handoff-signature">APEX ROAST <span>{lang === "ar" ? "الدقة في القمة." : "Precision at the Peak."}</span></div></div>
-        </section>
-      </main>
-
-      <footer className="site-footer"><span>{t.footerA}</span><span>{t.footerB}</span><span>{t.footerC}</span></footer>
-    </div>
-  );
+      <section className="join-section" id="join"><div className="join-mark"><span className="mizan-symbol large" aria-hidden="true"><i /><b /><em /></span></div><div className="join-copy"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.joinEyebrow}</p>{waitlistState === "success" ? <div className="join-success"><div className="success-icon"><CheckCircle2 size={28} /></div><h2>{t.joinedTitle}</h2><p>{t.joinedBody}</p><button className="text-link light-link" onClick={() => setWaitlistState("idle")}>{t.useAnother}<ArrowUpRight size={15} /></button></div> : <><h2>{t.joinA}<br /><em>{t.joinB}</em></h2><p>{t.joinBody}</p><form onSubmit={handleWaitlist} noValidate><input name="email" type="email" placeholder={t.email} aria-label={t.email} aria-invalid={waitlistState === "error"} aria-describedby={emailError ? "email-error" : undefined} onChange={() => { setEmailError(""); setWaitlistState("idle"); }} /><button className="button button-gold" type="submit">{t.join}<ArrowUpRight size={16} /></button></form>{emailError && <span className="email-error" id="email-error" role="alert">{emailError}</span>}</>}</div><div className="join-aside"><span>01</span><i /><span>{lang === "ar" ? "رسائل موسمية" : "Seasonal letters"}</span></div></section>
+    </main>
+    <footer className="mizan-footer"><span>{t.footerA}</span><span>{t.footerB}</span><span>{t.footerC}</span></footer>
+  </div>;
 }
 
-export default Home;
+export default function Home() {
+  return <MizanHome />;
+}

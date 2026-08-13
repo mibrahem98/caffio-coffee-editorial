@@ -34,11 +34,11 @@ export default function ShareProduct({ product, lang }: { product: CoffeeProduct
   const url = getShareUrl(product);
   const title = product.name[lang];
   const encodedUrl = encodeURIComponent(url);
-  const encodedTitle = encodeURIComponent(`${title} · MIZAN COFFEE`);
+  const encodedTitle = encodeURIComponent(`${title} · Caffio Coffee`);
 
   const handleNativeShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title, text: `${title} · MIZAN COFFEE`, url });
+    await navigator.share({ title, text: `${title} · Caffio Coffee`, url });
       return;
     }
     const success = await copyToClipboard(url);
@@ -56,5 +56,5 @@ export default function ShareProduct({ product, lang }: { product: CoffeeProduct
     }
   };
 
-  return <div className="share-product" aria-label={t.label}><div className="share-product-heading"><Share2 size={15} /><span>{t.label}</span></div><div className="share-product-actions"><button className="share-button share-native" onClick={handleNativeShare} aria-label={t.native}><Send size={14} />{t.native}</button><button className="share-button" onClick={handleCopy} aria-label={copied ? t.copied : t.copy}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t.copied : t.copy}</button><a className="share-button" href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" aria-label={t.whatsapp}><Link2 size={14} />{t.whatsapp}</a><a className="share-button" href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" aria-label={t.facebook}><Facebook size={14} />{t.facebook}</a><a className="share-button" href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`} target="_blank" rel="noreferrer" aria-label={t.x}><span className="share-x-mark">𝕏</span>{t.x}</a></div><span className="share-product-hint">{lang === "ar" ? "مشاركة محلية عبر المتصفح / لا يتم إرسال بيانات إلى MIZAN" : "Browser sharing only / no data is sent to MIZAN"}</span></div>;
+  return <div className="share-product" aria-label={t.label}><div className="share-product-heading"><Share2 size={15} /><span>{t.label}</span></div><div className="share-product-actions"><button className="share-button share-native" onClick={handleNativeShare} aria-label={t.native}><Send size={14} />{t.native}</button><button className="share-button" onClick={handleCopy} aria-label={copied ? t.copied : t.copy}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? t.copied : t.copy}</button><a className="share-button" href={`https://wa.me/?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer" aria-label={t.whatsapp}><Link2 size={14} />{t.whatsapp}</a><a className="share-button" href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer" aria-label={t.facebook}><Facebook size={14} />{t.facebook}</a><a className="share-button" href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`} target="_blank" rel="noreferrer" aria-label={t.x}><span className="share-x-mark">𝕏</span>{t.x}</a></div><span className="share-product-hint">{lang === "ar" ? "مشاركة محلية عبر المتصفح / لا يتم إرسال بيانات إلى Caffio" : "Browser sharing only / no data is sent to Caffio"}</span></div>;
 }

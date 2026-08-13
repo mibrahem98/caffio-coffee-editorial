@@ -6,8 +6,8 @@ import { useFavorites } from "@/contexts/FavoritesContext";
 import type { Lang } from "@/lib/mizanCatalog";
 
 const copy = {
-  en: { story: "Story", collection: "Collection", ritual: "Ritual", notes: "Field notes", faq: "FAQ", explore: "Explore coffee", light: "Light mode", dark: "Dark mode", cart: "Open cart", favorites: "Saved coffees", tracking: "Track demo order", profile: "Local profile" },
-  ar: { story: "القصة", collection: "المجموعة", ritual: "الطقس", notes: "ملاحظات الحقل", faq: "الأسئلة الشائعة", explore: "استكشف القهوة", light: "الوضع الفاتح", dark: "الوضع الليلي", cart: "فتح السلة", favorites: "القهوة المفضلة", tracking: "تتبع الطلب التجريبي", profile: "الملف المحلي" },
+  en: { story: "Story", collection: "Collection", ritual: "Ritual", notes: "Field notes", faq: "FAQ", caseStudy: "Case study", explore: "Explore coffee", light: "Light mode", dark: "Dark mode", cart: "Open cart", favorites: "Saved coffees", tracking: "Track demo order", profile: "Local profile" },
+  ar: { story: "القصة", collection: "المجموعة", ritual: "الطقس", notes: "ملاحظات الحقل", faq: "الأسئلة الشائعة", caseStudy: "دراسة الحالة", explore: "استكشف القهوة", light: "الوضع الفاتح", dark: "الوضع الليلي", cart: "فتح السلة", favorites: "القهوة المفضلة", tracking: "تتبع الطلب التجريبي", profile: "الملف المحلي" },
 };
 
 export default function MizanHeader({ lang, onLangChange, home = true }: { lang: Lang; onLangChange: (lang: Lang) => void; home?: boolean }) {
@@ -17,16 +17,16 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
   const { favorites } = useFavorites();
   const t = copy[lang];
   const link = (id: string) => home ? `#${id}` : `/#${id}`;
-  const navHref = (id: string) => id === "notes" ? "/notes" : link(id);
+  const navHref = (id: string) => id === "notes" ? "/notes" : id === "caseStudy" ? "/case-study" : link(id);
 
   return (
     <header className="mizan-nav">
-      <a className="mizan-wordmark" href={home ? "#top" : "/"} aria-label="MIZAN COFFEE home" onClick={() => setMobileOpen(false)}>
+      <a className="mizan-wordmark" href={home ? "#top" : "/"} aria-label="Caffio Coffee home" onClick={() => setMobileOpen(false)}>
         <span className="mizan-symbol" aria-hidden="true"><i /><b /><em /></span>
-        <span><strong>MIZAN</strong><small>COFFEE / SPECIALTY ROASTERS</small></span>
+        <span><strong>CAFFIO</strong><small>COFFEE / SPECIALTY ROASTERS</small></span>
       </a>
       <nav className={mobileOpen ? "mizan-nav-links is-open" : "mizan-nav-links"} aria-label="Primary navigation">
-        {["story", "collection", "ritual", "notes", "faq"].map((id, index) => <a key={id} href={navHref(id)} onClick={() => setMobileOpen(false)}><span>0{index + 1}</span>{t[id as keyof typeof t]}</a>)}
+        {["story", "collection", "ritual", "notes", "faq", "caseStudy"].map((id, index) => <a key={id} href={navHref(id)} onClick={() => setMobileOpen(false)}><span>0{index + 1}</span>{t[id as keyof typeof t]}</a>)}
       </nav>
       <div className="mizan-nav-actions">
         <label className="locale-toggle"><Globe2 size={14} /><select value={lang} onChange={(event) => onLangChange(event.target.value as Lang)} aria-label="Select language"><option value="en">EN</option><option value="ar">عربي</option></select></label>

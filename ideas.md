@@ -1,4 +1,4 @@
-# MIZAN COFFEE — Design Direction
+# CAFFIO COFFEE — Neo-Minimalism 2026 Direction
 
 ## Three initial approaches
 
@@ -47,7 +47,7 @@ Entrances use soft opacity and 12–20px vertical movement, staggered 40–70ms 
 Use **DM Serif Display** for large statements and chapter titles, paired with **Manrope** for navigation, labels, and long-form copy. Use uppercase tracking for metadata and section labels. Keep body copy at a comfortable reading width with a strong line-height. Never use Inter.
 
 ### Brand Essence
-**Positioning:** A premium coffee identity guide for people who care about precision, origin, and the quiet pleasure of a better daily ritual.
+**Positioning:** A premium Caffio coffee experience for people who care about precision, origin, and the quiet pleasure of a better daily ritual.
 
 **Personality adjectives:** precise, warm, assured.
 
@@ -61,7 +61,7 @@ Example lines:
 > **Move through the system. Taste the intention.**
 
 ### Wordmark & Logo
-The MIZAN mark is an abstract balance/orbit/bean symbol. In the site, the symbol is used as a small brass seal, cart mark, detail-page stamp, and section index; the wordmark is set with generous tracking and never treated as generic body text.
+The Caffio mark is an abstract balance/orbit/bean symbol. In the site, the symbol is used as a small brass seal, cart mark, detail-page stamp, and section index; the wordmark is set with generous tracking and never treated as generic body text.
 
 ### Signature Brand Color
 **Aged Gold — #B89152.** It is the brand's ownable accent: warm, mineral, and slightly weathered rather than bright yellow metallic.

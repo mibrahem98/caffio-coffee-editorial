@@ -13,6 +13,7 @@ import FieldNotes from "./pages/FieldNotes";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import ScrollMotion from "./components/ScrollMotion";
+import CaseStudy from "./pages/CaseStudy";
 
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path={"/notes"} component={FieldNotes} />
       <Route path={"/favorites"} component={Favorites} />
       <Route path={"/profile"} component={Profile} />
+      <Route path={"/case-study"} component={CaseStudy} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

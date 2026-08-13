@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { addItem, advanceDemoOrder, applyDemoDiscount, createDemoOrder, discountAmount, getItemCount, toggleFavorite, updateItem } from "@/lib/demoCommerce";
 
-describe("MIZAN demo commerce", () => {
+describe("Caffio demo commerce", () => {
   it("adds items, counts them, updates quantity, and removes at zero", () => {
     let items = addItem({}, "alto");
     items = addItem(items, "alto");
@@ -16,16 +16,16 @@ describe("MIZAN demo commerce", () => {
   });
 
   it("applies supported promo codes case-insensitively and rejects unknown codes", () => {
-    expect(applyDemoDiscount(" mizan10 ")).toEqual({ code: "MIZAN10", percent: 10 });
+    expect(applyDemoDiscount(" caffio10 ")).toEqual({ code: "CAFFIO10", percent: 10 });
     expect(applyDemoDiscount("not-active")).toBeNull();
     expect(discountAmount(18, 10)).toBe(1.8);
   });
 
   it("creates an immutable local order snapshot and advances through a bounded timeline", () => {
     const items = { alto: 2 };
-    const order = createDemoOrder(items, 32.4, "MIZAN10", new Date("2026-08-14T10:00:00.000Z"), "MZ-TEST");
+    const order = createDemoOrder(items, 32.4, "CAFFIO10", new Date("2026-08-14T10:00:00.000Z"), "CF-TEST");
     items.alto = 8;
-    expect(order).toMatchObject({ id: "MZ-TEST", total: 32.4, statusIndex: 0, discountCode: "MIZAN10" });
+    expect(order).toMatchObject({ id: "CF-TEST", total: 32.4, statusIndex: 0, discountCode: "CAFFIO10" });
     expect(order.items).toEqual({ alto: 2 });
     expect(advanceDemoOrder(order).statusIndex).toBe(1);
     expect(advanceDemoOrder({ ...order, statusIndex: 3 }).statusIndex).toBe(3);

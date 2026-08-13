@@ -9,7 +9,7 @@ export type DemoOrderDraft = {
   statusIndex: number;
 };
 
-export const demoOffers: Record<string, number> = { MIZAN10: 10, RITUAL15: 15 };
+export const demoOffers: Record<string, number> = { CAFFIO10: 10, RITUAL15: 15 };
 export const demoStatusCount = 4;
 
 export function addItem(items: CartItems, productId: string): CartItems {
@@ -37,7 +37,7 @@ export function discountAmount(subtotal: number, percent: number): number {
   return Math.round(subtotal * (percent / 100) * 100) / 100;
 }
 
-export function createDemoOrder(items: CartItems, total: number, discountCode: string | undefined, now = new Date(), id = `MZ-${now.getTime().toString(36).toUpperCase()}`): DemoOrderDraft {
+export function createDemoOrder(items: CartItems, total: number, discountCode: string | undefined, now = new Date(), id = `CF-${now.getTime().toString(36).toUpperCase()}`): DemoOrderDraft {
   return { id, createdAt: now.toISOString(), items: { ...items }, total, discountCode, statusIndex: 0 };
 }
 

@@ -12,6 +12,7 @@ import OrderTracking from "./pages/OrderTracking";
 import FieldNotes from "./pages/FieldNotes";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
+import ScrollMotion from "./components/ScrollMotion";
 
 
 function Router() {
@@ -43,6 +44,7 @@ function App() {
           <FavoritesProvider>
             <TooltipProvider>
               <Toaster />
+              <ScrollMotion />
               <Router />
             </TooltipProvider>
           </FavoritesProvider>

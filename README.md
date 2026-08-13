@@ -4,6 +4,14 @@ MIZAN COFFEE / ميزان is a bilingual specialty-coffee brand experience built
 
 **Live experience:** [apexroast-5n8tojyv.manus.space](https://apexroast-5n8tojyv.manus.space/)
 
+## Screenshots
+
+| Home / editorial landing | Product record / batch audit | Local profile / demo history |
+|---|---|---|
+| ![MIZAN home](https://files.manuscdn.com/user_upload_by_module/session_file/310519663707167899/MfmFpJnXXjPQpsYQ.png) | ![MIZAN product detail](https://files.manuscdn.com/user_upload_by_module/session_file/310519663707167899/VAoHXImmMgTHtwvj.png) | ![MIZAN profile](https://files.manuscdn.com/user_upload_by_module/session_file/310519663707167899/dgdmcHlGeAuQUknB.png) |
+
+These captures show the current public-facing composition. The product capture includes the local share rail and the interactive batch-record disclosure; the profile capture shows the empty-state behavior before browser-local orders or favorites exist.
+
 ## Portfolio highlights
 
 | Area | What is demonstrated |
@@ -12,12 +20,29 @@ MIZAN COFFEE / ميزان is a bilingual specialty-coffee brand experience built
 | Product storytelling | Independent product routes with origin, farm, process, altitude, roast, tasting cues, brew methods, and interactive batch audit cards |
 | Demo commerce | Local cart drawer, quantity controls, demo promo codes, local checkout simulation, bounded order history, and a demo tracking timeline |
 | Retention UX | Saved-coffee favorites, interactive field-note recipes, and a local profile combining orders and favorites |
+| Social interaction | Product sharing through the browser-native share sheet when available, with copy-link, WhatsApp, Facebook, and X fallbacks |
 | Trust and compliance | Pending states for unsupported facts, source-aware content structure, and an intentionally empty verified-review state rather than fabricated testimonials |
 | Quality | Vitest coverage for cart, discounts, immutable order snapshots, bounded tracking status, and favorites; TypeScript and production build checks |
 
 ## Routes
 
 The main experience is available at `/`. Product records use `/coffee/:id`. The supporting editorial and local demo routes are `/notes`, `/favorites`, `/track`, and `/profile`.
+
+## Design decisions
+
+| Decision | Rationale |
+|---|---|
+| Quiet Roast Editorial | The interface treats coffee as a considered ritual rather than a generic catalog. Large serif statements, measured whitespace, archival metadata, and calm chapter pacing make the brand feel tactile without becoming decorative noise. |
+| MIZAN visual grammar | A charcoal field, warm ivory reading surface, roast brown, and aged brass create a warm precision system. The rising diagonal, contour lines, orbit seals, and oversized chapter numbers turn balance into a repeatable visual motif. |
+| Origin before ornament | Product pages separate known records from pending documentation. Batch cards expose record ID, verification state, expected source, evidence state, and review date so visual polish never hides content uncertainty. |
+| Practical ritual | Field notes present ratios, temperature, grind, time, and ordered steps as starting points rather than universal claims. The interaction uses accessible disclosure panels so the page stays editorial and useful. |
+| Demo-first commerce | Cart, promo codes, checkout, tracking, favorites, and profile history are deliberately local-only. The interface communicates the boundary instead of pretending that payment, shipping, CRM, or customer accounts exist. |
+| Bilingual parity | Arabic and English share the same information architecture and meaning while the document direction, alignment, and labels adapt to RTL/LTR. |
+| Motion with restraint | Scroll reveals use short opacity/transform transitions through `IntersectionObserver`; content is still readable before observation, and `prefers-reduced-motion` disables the effect. |
+
+## Interaction notes
+
+On a product detail page, the share rail first tries the browser-native `navigator.share` flow. Where that is unavailable, visitors can copy the product URL or open a prefilled share URL for WhatsApp, Facebook, or X. These fallbacks do not send product or customer data to MIZAN. All interactive states are designed to remain keyboard reachable and to preserve the same content hierarchy in both themes.
 
 ## Local development
 

@@ -3,6 +3,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Check,
+  CheckCircle2,
   ChevronRight,
   CircleDashed,
   Coffee,
@@ -12,12 +13,19 @@ import {
   Globe2,
   Leaf,
   Menu,
+  Minus,
+  Moon,
+  Plus,
   Scale,
   Sparkles,
+  ShoppingBag,
+  Sun,
+  Trash2,
   X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { paletteLabels, navLabels, ui, type Lang } from "@/lib/brandTranslations";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const imagery = {
   hero: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1800&q=90",
@@ -38,6 +46,7 @@ const products = [
     altitude: { en: "1,950–2,100 masl", ar: "1950–2100 م" },
     process: { en: "Washed", ar: "مغسولة" },
     accent: "gold",
+    price: 18,
   },
   {
     id: "sombra",
@@ -48,6 +57,7 @@ const products = [
     altitude: { en: "1,700–1,900 masl", ar: "1700–1900 م" },
     process: { en: "Honey", ar: "عسلية" },
     accent: "brown",
+    price: 20,
   },
   {
     id: "mizan",
@@ -58,6 +68,7 @@ const products = [
     altitude: { en: "1,100–1,600 masl", ar: "1100–1600 م" },
     process: { en: "Natural & washed", ar: "مجففة ومغسولة" },
     accent: "navy",
+    price: 16,
   },
 ];
 
@@ -85,15 +96,24 @@ function scrollToId(id: string) {
 }
 
 export default function Home() {
+  const { theme, toggleTheme } = useTheme();
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("mizan-lang") as Lang) || "en");
   const [activeProduct, setActiveProduct] = useState(products[0].id);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState<Record<string, number>>({});
+  const [checkoutComplete, setCheckoutComplete] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const [waitlistState, setWaitlistState] = useState<"idle" | "error" | "success">("idle");
+  const [emailError, setEmailError] = useState("");
   const direction = lang === "ar" ? "rtl" : "ltr";
   const t = ui[lang];
   const currentProduct = useMemo(() => products.find((product) => product.id === activeProduct) ?? products[0], [activeProduct]);
+  const cartProducts = useMemo(() => products.filter((product) => cartItems[product.id]), [cartItems]);
+  const cartCount = useMemo(() => Object.values(cartItems).reduce((sum, quantity) => sum + quantity, 0), [cartItems]);
+  const cartTotal = useMemo(() => cartProducts.reduce((sum, product) => sum + product.price * cartItems[product.id], 0), [cartItems, cartProducts]);
   const navItems = [
     { id: "story", label: navLabels[lang].story, number: "01" },
     { id: "collection", label: navLabels[lang].collection, number: "02" },
@@ -130,10 +150,52 @@ export default function Home() {
 
   const handleWaitlist = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const form = event.currentTarget;
+    const input = form.elements.namedItem("email") as HTMLInputElement | null;
+    const email = input?.value.trim() || "";
+    if (!email) {
+      setEmailError(t.emailRequired);
+      setWaitlistState("error");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError(t.emailInvalid);
+      setWaitlistState("error");
+      return;
+    }
+    setEmailError("");
+    setWaitlistState("success");
     toast.success(t.joined);
   };
 
-  const requestRitual = () => toast.success(lang === "ar" ? "سيظهر الطلب هنا عند تفعيل المتجر." : "Ordering will live here when the shop is enabled.");
+  const addToCart = (productId: string) => {
+    setCartItems((items) => ({ ...items, [productId]: (items[productId] || 0) + 1 }));
+    setCheckoutComplete(false);
+    setCartOpen(true);
+    toast.success(t.cartAdded);
+  };
+
+  const updateCartQuantity = (productId: string, delta: number) => {
+    setCartItems((items) => {
+      const nextQuantity = (items[productId] || 0) + delta;
+      if (nextQuantity <= 0) {
+        const nextItems = { ...items };
+        delete nextItems[productId];
+        return nextItems;
+      }
+      return { ...items, [productId]: nextQuantity };
+    });
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCartItems((items) => {
+      const nextItems = { ...items };
+      delete nextItems[productId];
+      return nextItems;
+    });
+  };
+
+  const formatPrice = (price: number) => lang === "ar" ? `${price} $` : `US$${price}`;
 
   return (
     <div className={direction === "rtl" ? "mizan-shell rtl" : "mizan-shell"}>
@@ -152,10 +214,18 @@ export default function Home() {
         <div className="nav-actions">
           <span className="nav-status"><CircleDashed size={13} /> {t.status}</span>
           <button className="language-toggle" onClick={() => setLang(lang === "en" ? "ar" : "en")} aria-label={lang === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}><Globe2 size={14} />{lang === "en" ? "عربي" : "EN"}</button>
+          <button className="theme-toggle" onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.themeLight : t.themeDark} title={theme === "dark" ? t.themeLight : t.themeDark}>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</button>
+          <button className="cart-toggle" onClick={() => setCartOpen(true)} aria-label={`${t.cartLabel} (${cartCount})`}><ShoppingBag size={15} /><span>{cartCount}</span></button>
           <button className="nav-cta" onClick={() => scrollToId("collection")}>{t.navCta}<ArrowUpRight size={14} /></button>
           <button className="nav-menu" onClick={() => setMobileNavOpen((value) => !value)} aria-label="Toggle navigation">{mobileNavOpen ? <X size={18} /> : <Menu size={18} />}</button>
         </div>
       </header>
+
+      <div className={cartOpen ? "cart-backdrop is-open" : "cart-backdrop"} onClick={() => setCartOpen(false)} aria-hidden="true" />
+      <aside className={cartOpen ? "cart-drawer is-open" : "cart-drawer"} aria-label={t.cartTitle} aria-hidden={!cartOpen}>
+        <div className="cart-drawer-head"><div><span className="cart-kicker">MIZAN / DEMO SHOP</span><h2>{t.cartTitle}</h2></div><button className="cart-close" onClick={() => setCartOpen(false)} aria-label={t.cartContinue}><X size={19} /></button></div>
+        {checkoutComplete ? <div className="cart-success"><div className="cart-success-icon"><CheckCircle2 size={31} /></div><h3>{t.orderComplete}</h3><p>{t.orderCompleteBody}</p><button className="button button-gold" onClick={() => { setCheckoutComplete(false); setCartItems({}); }}>{t.orderReset}<ArrowUpRight size={15} /></button></div> : cartProducts.length === 0 ? <div className="cart-empty"><ShoppingBag size={28} /><h3>{t.cartEmpty}</h3><p>{t.cartEmptyHint}</p><button className="text-link cart-continue" onClick={() => { setCartOpen(false); scrollToId("collection"); }}>{t.cartContinue}<ArrowDownRight size={15} /></button></div> : <><div className="cart-items">{cartProducts.map((product) => <article className="cart-item" key={product.id}><img src={imagery.origin} alt="" /><div className="cart-item-copy"><strong>{product.name[lang]}</strong><span>{product.notes[lang]}</span><b>{formatPrice(product.price)}</b><div className="quantity-control"><button onClick={() => updateCartQuantity(product.id, -1)} aria-label={`${t.cartRemove} ${product.name[lang]}`}><Minus size={12} /></button><span>{cartItems[product.id]}</span><button onClick={() => updateCartQuantity(product.id, 1)} aria-label={`Add ${product.name[lang]}`}><Plus size={12} /></button><button className="remove-item" onClick={() => removeFromCart(product.id)} aria-label={`${t.cartRemove} ${product.name[lang]}`}><Trash2 size={13} /></button></div></div></article>)}</div><div className="cart-drawer-foot"><div className="cart-total-row"><span>{t.cartSubtotal}</span><strong>{formatPrice(cartTotal)}</strong></div><p className="cart-demo-note">{t.cartDemo}</p><button className="button button-gold cart-checkout" onClick={() => setCheckoutComplete(true)}>{t.cartCheckout}<ArrowUpRight size={15} /></button></div></>}
+      </aside>
 
       <main id="top">
         <section className="hero-section">
@@ -210,7 +280,7 @@ export default function Home() {
             </div>
             <div className={`product-card accent-${currentProduct.accent}`}>
               <div className="product-photo"><img src={imagery.origin} alt="Coffee beans and tasting setup" /><span className="origin-stamp">MIZAN<br /><b>{currentProduct.id.toUpperCase()}</b></span></div>
-              <div className="product-copy"><p className="eyebrow light"><span className="eyebrow-dot" /> {currentProduct.origin[lang]}</p><h3>{currentProduct.name[lang]}</h3><p className="product-notes">{currentProduct.notes[lang]}</p><div className="product-specs"><span><small>{t.roastLevel}</small><b>{currentProduct.roast[lang]}</b></span><span><small>{t.altitude}</small><b>{currentProduct.altitude[lang]}</b></span><span><small>{t.process}</small><b>{currentProduct.process[lang]}</b></span></div><button className="product-action" onClick={requestRitual}>{t.addToRitual}<ArrowUpRight size={16} /></button></div>
+              <div className="product-copy"><p className="eyebrow light"><span className="eyebrow-dot" /> {currentProduct.origin[lang]}</p><h3>{currentProduct.name[lang]}</h3><p className="product-notes">{currentProduct.notes[lang]}</p><div className="product-specs"><span><small>{t.roastLevel}</small><b>{currentProduct.roast[lang]}</b></span><span><small>{t.altitude}</small><b>{currentProduct.altitude[lang]}</b></span><span><small>{t.process}</small><b>{currentProduct.process[lang]}</b></span><span><small>{lang === "ar" ? "السعر التجريبي" : "Demo price"}</small><b>{formatPrice(currentProduct.price)}</b></span></div><button className="product-action" onClick={() => addToCart(currentProduct.id)}>{t.addToCart}<ShoppingBag size={15} /></button></div>
             </div>
           </div>
         </section>
@@ -233,7 +303,7 @@ export default function Home() {
         </section>
 
         <section className="join-section">
-          <div className="join-mark"><MizanMark /></div><div className="join-copy"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.joinEyebrow}</p><h2>{t.joinTitleA}<br /><em>{t.joinTitleB}</em></h2><p>{t.joinBody}</p><form onSubmit={handleWaitlist}><input type="email" required placeholder={t.emailPlaceholder} aria-label={t.emailPlaceholder} /><button className="button button-gold" type="submit">{t.joinButton}<ArrowUpRight size={16} /></button></form></div><div className="join-aside"><span>01</span><i /><span>{lang === "ar" ? "رسالة موسمية" : "Seasonal letters"}</span></div>
+          <div className="join-mark"><MizanMark /></div><div className={waitlistState === "success" ? "join-copy is-success" : "join-copy"}><p className="eyebrow light"><span className="eyebrow-dot" /> {t.joinEyebrow}</p>{waitlistState === "success" ? <div className="join-success"><div className="join-success-icon"><CheckCircle2 size={26} /></div><h2>{t.joinedTitle}</h2><p>{t.joinedBody}</p><button className="text-link light-link" onClick={() => setWaitlistState("idle")}>{t.joinAnother}<ArrowUpRight size={15} /></button></div> : <><h2>{t.joinTitleA}<br /><em>{t.joinTitleB}</em></h2><p>{t.joinBody}</p><form onSubmit={handleWaitlist} noValidate><input name="email" type="email" placeholder={t.emailPlaceholder} aria-label={t.emailPlaceholder} aria-invalid={waitlistState === "error"} aria-describedby={emailError ? "email-error" : undefined} onChange={() => { if (waitlistState === "error") { setWaitlistState("idle"); setEmailError(""); } }} /><button className="button button-gold" type="submit">{t.joinButton}<ArrowUpRight size={16} /></button></form>{emailError && <p className="email-error" id="email-error" role="alert">{emailError}</p>}</>}</div><div className="join-aside"><span>01</span><i /><span>{lang === "ar" ? "رسالة موسمية" : "Seasonal letters"}</span></div>
         </section>
       </main>
 

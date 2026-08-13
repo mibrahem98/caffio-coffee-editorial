@@ -22,13 +22,19 @@ import {
   Image as ImageIcon,
   Layers3,
   Menu,
+  Moon,
   Package,
   Palette,
+  Search,
+  SlidersHorizontal,
   Sparkles,
+  Sun,
   Type,
   X,
 } from "lucide-react";
 import { applicationCopy, navLabels, paletteLabels, promptArabic, promptTags, promptTitles, ui, type Lang } from "@/lib/brandTranslations";
+import { appCopyExtra, localeDirection, navLabelsExtra, promptCopiesExtra, promptTagsExtra, promptTitlesExtra, uiExtra } from "@/lib/localeExtras";
+import { extraUi, type ExtraUi } from "@/lib/extraLabels";
 
 const asset = {
   logo: "/manus-storage/apex-roast-logo_2e612c7e.png",
@@ -41,6 +47,7 @@ const asset = {
 const downloadable = {
   brandPdf: "/manus-storage/APEX_ROAST_brand_guidelines_f4ba978c.pdf",
   logoSvg: "/manus-storage/apex-roast-symbol_225a1f6b.svg",
+  allZip: "/manus-storage/APEX_ROAST_identity_library_6f35f210.zip",
 };
 
 const promptThumbs = [
@@ -106,29 +113,52 @@ function scrollToId(id: string) {
 
 function Home() {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("apex-roast-lang") as Lang) || "en");
+  const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("apex-roast-theme") as "light" | "dark") || "dark");
   const [activeApp, setActiveApp] = useState(applications[0].id);
   const [openPrompt, setOpenPrompt] = useState("01");
   const [copied, setCopied] = useState<string | null>(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [progress, setProgress] = useState(0);
-  const direction = lang === "ar" ? "rtl" : "ltr";
-  const t = ui[lang];
+  const [promptQuery, setPromptQuery] = useState("");
+  const [promptFilter, setPromptFilter] = useState("all");
+  const direction = localeDirection(lang);
+  const t = (lang === "fr" || lang === "es" ? uiExtra[lang] : ui[lang]) as typeof ui.en;
+  const labels = extraUi[lang] as ExtraUi;
   const currentNav = [
-    { id: "strategy", label: navLabels[lang].strategy, number: "01" },
-    { id: "dna", label: navLabels[lang].dna, number: "02" },
-    { id: "applications", label: navLabels[lang].applications, number: "03" },
-    { id: "prompts", label: navLabels[lang].prompts, number: "04" },
-    { id: "downloads", label: navLabels[lang].downloads, number: "05" },
+    { id: "strategy", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].strategy : navLabels[lang].strategy, number: "01" },
+    { id: "dna", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].dna : navLabels[lang].dna, number: "02" },
+    { id: "applications", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].applications : navLabels[lang].applications, number: "03" },
+    { id: "prompts", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].prompts : navLabels[lang].prompts, number: "04" },
+    { id: "downloads", label: lang === "fr" || lang === "es" ? navLabelsExtra[lang].downloads : navLabels[lang].downloads, number: "05" },
   ];
   const selectedAppIndex = Math.max(0, applications.findIndex((item) => item.id === activeApp));
   const selectedAppCopy = applicationCopy[selectedAppIndex];
-  const currentPrompts = prompts.map((item, index) => ({ ...item, title: promptTitles[lang][index], tag: promptTags[lang][index], prompt: lang === "ar" ? promptArabic[index] : item.prompt, thumb: promptThumbs[index] }));
+  const selectedAppExtra = lang === "fr" || lang === "es" ? appCopyExtra[lang][selectedAppIndex] : null;
+  const currentPrompts = prompts.map((item, index) => ({
+    ...item,
+    title: lang === "fr" || lang === "es" ? promptTitlesExtra[lang][index] : promptTitles[lang][index],
+    tag: lang === "fr" || lang === "es" ? promptTagsExtra[lang][index] : promptTags[lang][index],
+    prompt: lang === "ar" ? promptArabic[index] : lang === "fr" || lang === "es" ? promptCopiesExtra[lang][index] : item.prompt,
+    thumb: promptThumbs[index],
+  }));
+  const filteredPrompts = currentPrompts.filter((item) => {
+    const query = promptQuery.trim().toLocaleLowerCase(lang);
+    const haystack = `${item.title} ${item.tag} ${item.prompt}`.toLocaleLowerCase(lang);
+    const matchesQuery = !query || haystack.includes(query);
+    const matchesFilter = promptFilter === "all" || item.tag === promptFilter;
+    return matchesQuery && matchesFilter;
+  });
 
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = direction;
     localStorage.setItem("apex-roast-lang", lang);
   }, [lang, direction]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem("apex-roast-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -173,7 +203,8 @@ function Home() {
         </nav>
         <div className="nav-actions">
           <span className="nav-status"><CircleDashed size={13} /> {t.status}</span>
-          <button className="language-toggle" onClick={() => setLang(lang === "en" ? "ar" : "en")} aria-label={lang === "en" ? "Switch to Arabic" : "التبديل إلى الإنجليزية"}><Globe2 size={14} />{lang === "en" ? "عربي" : "EN"}</button>
+          <label className="language-control"><Globe2 size={14} /><select value={lang} onChange={(event) => setLang(event.target.value as Lang)} aria-label="Select language"><option value="en">EN</option><option value="ar">عربي</option><option value="fr">FR</option><option value="es">ES</option></select></label>
+          <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label={theme === "dark" ? labels.lightMode : labels.darkMode}>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</button>
           <button className="nav-menu" onClick={() => setMobileNavOpen((value) => !value)} aria-label="Toggle navigation">
             {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -249,7 +280,7 @@ function Home() {
 
         <section className="applications-section section-light" id="applications">
           <div className="section-intro"><div className="section-number">03<span>/</span>04</div><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.appsEyebrow}</p><h2>{t.appsTitleA}<br /><em>{t.appsTitleB}</em></h2></div></div>
-          <div className="applications-layout"><div className="app-tabs">{applications.map((item, index) => <button key={item.id} className={activeApp === item.id ? "app-tab active" : "app-tab"} onClick={() => setActiveApp(item.id)}><span>0{index + 1}</span>{lang === "ar" ? applicationCopy[index][1] : applicationCopy[index][0]}<ArrowUpRight size={15} /></button>)}<div className="app-note"><Sparkles size={15} /> {t.appNote}</div></div><div className={`application-card tint-${selectedApp.tint}`}><img src={selectedApp.image} alt={lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]} /><div className="application-overlay"><p className="eyebrow light"><span className="eyebrow-dot" /> {lang === "ar" ? selectedAppCopy[3] : selectedAppCopy[2]}</p><h3>{lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]}</h3><p>{lang === "ar" ? selectedAppCopy[7] : selectedAppCopy[6]}</p><span className="application-arrow"><ArrowUpRight size={19} /></span></div></div></div>
+          <div className="applications-layout"><div className="app-tabs">{applications.map((item, index) => <button key={item.id} className={activeApp === item.id ? "app-tab active" : "app-tab"} onClick={() => setActiveApp(item.id)}><span>0{index + 1}</span>{lang === "fr" || lang === "es" ? appCopyExtra[lang][index][0] : lang === "ar" ? applicationCopy[index][1] : applicationCopy[index][0]}<ArrowUpRight size={15} /></button>)}<div className="app-note"><Sparkles size={15} /> {t.appNote}</div></div><div className={`application-card tint-${selectedApp.tint}`}><img src={selectedApp.image} alt={selectedAppExtra ? selectedAppExtra[2] : lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]} /><div className="application-overlay"><p className="eyebrow light"><span className="eyebrow-dot" /> {selectedAppExtra ? selectedAppExtra[1] : lang === "ar" ? selectedAppCopy[3] : selectedAppCopy[2]}</p><h3>{selectedAppExtra ? selectedAppExtra[2] : lang === "ar" ? selectedAppCopy[5] : selectedAppCopy[4]}</h3><p>{selectedAppExtra ? selectedAppExtra[3] : lang === "ar" ? selectedAppCopy[7] : selectedAppCopy[6]}</p><span className="application-arrow"><ArrowUpRight size={19} /></span></div></div></div>
           <div className="application-footnote"><span>03</span><p>{t.appFoot}</p><ArrowDownRight size={18} /></div>
         </section>
 
@@ -257,7 +288,8 @@ function Home() {
           <div className="chapter-rail"><span>04</span><i /><span>05</span></div>
           <div className="section-intro dark-intro"><div className="section-number">04<span>/</span>05</div><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.promptEyebrow}</p><h2>{t.promptTitleA}<br /><em>{t.promptTitleB}</em></h2></div></div>
           <div className="prompt-header"><p className="body-copy light-copy">{t.promptBody}</p><div className="prompt-meta"><span><Clipboard size={15} /> {t.promptCount}</span><span><Layers3 size={15} /> {t.oneDna}</span></div></div>
-          <div className="prompt-list">{currentPrompts.map((item) => { const isOpen = openPrompt === item.number; return <article className={isOpen ? "prompt-item is-open" : "prompt-item"} key={item.number}><button className="prompt-trigger" onClick={() => setOpenPrompt(isOpen ? "" : item.number)} aria-expanded={isOpen}><span className="prompt-number">{item.number}</span><span className="prompt-title">{item.title}</span><span className="prompt-thumb" aria-hidden="true"><img src={item.thumb} alt="" /><span>{t.preview}</span></span><span className="prompt-tag">{item.tag}</span>{isOpen ? <ChevronDown size={17} /> : <ArrowUpRight size={17} />}</button>{isOpen && <div className="prompt-detail"><p>{item.prompt}</p><button className="copy-button" onClick={() => copyPrompt(item.number, item.prompt)}>{copied === item.number ? <Check size={15} /> : <Copy size={15} />}{copied === item.number ? t.copied : t.copyPrompt}</button></div>}</article>; })}</div>
+          <div className="prompt-controls"><label className="prompt-search"><Search size={16} /><input value={promptQuery} onChange={(event) => setPromptQuery(event.target.value)} placeholder={labels.searchPrompts} aria-label={labels.searchPrompts} /></label><label className="prompt-filter"><SlidersHorizontal size={15} /><span>{labels.filterBy}</span><select value={promptFilter} onChange={(event) => setPromptFilter(event.target.value)} aria-label={labels.filterBy}><option value="all">{labels.allTypes}</option>{prompts.map((item) => <option key={item.tag} value={item.tag}>{item.tag}</option>)}</select></label><span className="prompt-result-count">{filteredPrompts.length} / {prompts.length} {labels.showing}</span>{(promptQuery || promptFilter !== "all") && <button className="prompt-reset" onClick={() => { setPromptQuery(""); setPromptFilter("all"); }}>{labels.reset}</button>}</div>
+          <div className="prompt-list">{filteredPrompts.length ? filteredPrompts.map((item) => { const isOpen = openPrompt === item.number; return <article className={isOpen ? "prompt-item is-open" : "prompt-item"} key={item.number}><button className="prompt-trigger" onClick={() => setOpenPrompt(isOpen ? "" : item.number)} aria-expanded={isOpen}><span className="prompt-number">{item.number}</span><span className="prompt-title">{item.title}</span><span className="prompt-thumb" aria-hidden="true"><img src={item.thumb} alt="" /><span>{t.preview}</span></span><span className="prompt-tag">{item.tag}</span>{isOpen ? <ChevronDown size={17} /> : <ArrowUpRight size={17} />}</button>{isOpen && <div className="prompt-detail"><p>{item.prompt}</p><button className="copy-button" onClick={() => copyPrompt(item.number, item.prompt)}>{copied === item.number ? <Check size={15} /> : <Copy size={15} />}{copied === item.number ? t.copied : t.copyPrompt}</button></div>}</article>; }) : <div className="prompt-empty">{labels.noResults}</div>}</div>
         </section>
 
         <section className="downloads-section section-light" id="downloads">
@@ -268,6 +300,7 @@ function Home() {
             <article className="download-card"><div className="download-icon"><Layers3 size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "متجهي / قابل للتحرير" : "Vector / editable"}</span><h3>{t.logoSvg}</h3><p>{t.logoSvgBody}</p></div><a className="download-link" href={downloadable.logoSvg} download><Download size={16} /> {t.downloadSvg}</a></article>
             <article className="download-card"><div className="download-icon"><ImageIcon size={23} /></div><div><span className="card-kicker">{lang === "ar" ? "PNG / معاينة" : "PNG / preview"}</span><h3>{t.logoPng}</h3><p>{t.logoPngBody}</p></div><a className="download-link" href={asset.logo} download><Download size={16} /> {t.downloadPng}</a></article>
           </div>
+          <a className="download-all" href={downloadable.allZip} download><Package size={18} /><span>{labels.downloadAll}</span><small>ZIP / complete identity library</small><ArrowUpRight size={18} /></a>
         </section>
 
         <section className="handoff-section">

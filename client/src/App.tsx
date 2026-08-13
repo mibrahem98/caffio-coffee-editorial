@@ -5,8 +5,12 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
+import { FavoritesProvider } from "./contexts/FavoritesContext";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
+import OrderTracking from "./pages/OrderTracking";
+import FieldNotes from "./pages/FieldNotes";
+import Favorites from "./pages/Favorites";
 
 
 function Router() {
@@ -14,6 +18,9 @@ function Router() {
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/coffee/:id"} component={ProductDetail} />
+      <Route path={"/track"} component={OrderTracking} />
+      <Route path={"/notes"} component={FieldNotes} />
+      <Route path={"/favorites"} component={Favorites} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
@@ -31,10 +38,12 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" switchable>
         <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Router />
-          </TooltipProvider>
+          <FavoritesProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </FavoritesProvider>
         </CartProvider>
       </ThemeProvider>
     </ErrorBoundary>

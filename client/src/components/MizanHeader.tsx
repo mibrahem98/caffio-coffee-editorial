@@ -1,4 +1,4 @@
-import { Globe2, Heart, Menu, Moon, PackageSearch, ShoppingBag, Sun, X } from "lucide-react";
+import { Globe2, Heart, Menu, Moon, PackageSearch, ShoppingBag, Sun, UserRound, X } from "lucide-react";
 import { useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCart } from "@/contexts/CartContext";
@@ -6,8 +6,8 @@ import { useFavorites } from "@/contexts/FavoritesContext";
 import type { Lang } from "@/lib/mizanCatalog";
 
 const copy = {
-  en: { story: "Story", collection: "Collection", ritual: "Ritual", notes: "Field notes", faq: "FAQ", explore: "Explore coffee", light: "Light mode", dark: "Dark mode", cart: "Open cart", favorites: "Saved coffees", tracking: "Track demo order" },
-  ar: { story: "القصة", collection: "المجموعة", ritual: "الطقس", notes: "ملاحظات الحقل", faq: "الأسئلة الشائعة", explore: "استكشف القهوة", light: "الوضع الفاتح", dark: "الوضع الليلي", cart: "فتح السلة", favorites: "القهوة المفضلة", tracking: "تتبع الطلب التجريبي" },
+  en: { story: "Story", collection: "Collection", ritual: "Ritual", notes: "Field notes", faq: "FAQ", explore: "Explore coffee", light: "Light mode", dark: "Dark mode", cart: "Open cart", favorites: "Saved coffees", tracking: "Track demo order", profile: "Local profile" },
+  ar: { story: "القصة", collection: "المجموعة", ritual: "الطقس", notes: "ملاحظات الحقل", faq: "الأسئلة الشائعة", explore: "استكشف القهوة", light: "الوضع الفاتح", dark: "الوضع الليلي", cart: "فتح السلة", favorites: "القهوة المفضلة", tracking: "تتبع الطلب التجريبي", profile: "الملف المحلي" },
 };
 
 export default function MizanHeader({ lang, onLangChange, home = true }: { lang: Lang; onLangChange: (lang: Lang) => void; home?: boolean }) {
@@ -33,6 +33,7 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
         <button className="icon-button" onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.light : t.dark} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</button>
         <a className="cart-button" href="/favorites" aria-label={`${t.favorites} (${favorites.length})`} title={t.favorites}><Heart size={15} fill={favorites.length ? "currentColor" : "none"} /><span>{favorites.length}</span></a>
         <a className="icon-button" href="/track" aria-label={t.tracking} title={t.tracking}><PackageSearch size={15} /></a>
+        <a className="icon-button" href="/profile" aria-label={t.profile} title={t.profile}><UserRound size={15} /></a>
         <button className="cart-button" onClick={() => window.dispatchEvent(new CustomEvent("mizan:open-cart"))} aria-label={`${t.cart} (${count})`}><ShoppingBag size={15} /><span>{count}</span></button>
         <a className="nav-cta" href={link("collection")}>{t.explore}<span>↗</span></a>
         <button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle navigation">{mobileOpen ? <X size={18} /> : <Menu size={18} />}</button>

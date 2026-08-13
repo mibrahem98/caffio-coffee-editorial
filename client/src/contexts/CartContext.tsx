@@ -1,16 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { coffeeProducts } from "@/lib/mizanCatalog";
+import { addItem, advanceDemoOrder, createDemoOrder, getItemCount, updateItem, type CartItems as DemoCartItems, type DemoOrderDraft } from "@/lib/demoCommerce";
 
-type CartItems = Record<string, number>;
-
-export type DemoOrder = {
-  id: string;
-  createdAt: string;
-  items: CartItems;
-  total: number;
-  discountCode?: string;
-  statusIndex: number;
-};
+export type CartItems = DemoCartItems;
+export type DemoOrder = DemoOrderDraft;
 
 type CartContextValue = {
   items: CartItems;
@@ -19,13 +12,29 @@ type CartContextValue = {
   update: (productId: string, delta: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
+  orders: DemoOrder[];
   lastOrder: DemoOrder | null;
   createOrder: (total: number, discountCode?: string) => DemoOrder;
   advanceOrder: () => void;
   clearOrder: () => void;
+  clearOrders: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
+
+function loadOrders(): DemoOrder[] {
+  try {
+    const storedOrders = localStorage.getItem("mizan-demo-orders");
+    if (storedOrders) {
+      const parsed = JSON.parse(storedOrders);
+      if (Array.isArray(parsed)) return parsed;
+    }
+    const legacy = localStorage.getItem("mizan-demo-order");
+    return legacy ? [JSON.parse(legacy)] : [];
+  } catch {
+    return [];
+  }
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItems>(() => {
@@ -36,59 +45,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       return {};
     }
   });
-  const [lastOrder, setLastOrder] = useState<DemoOrder | null>(() => {
-    try {
-      const stored = localStorage.getItem("mizan-demo-order");
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [orders, setOrders] = useState<DemoOrder[]>(loadOrders);
+  const lastOrder = orders[0] ?? null;
 
   useEffect(() => {
     localStorage.setItem("mizan-cart", JSON.stringify(items));
   }, [items]);
 
   useEffect(() => {
-    if (lastOrder) localStorage.setItem("mizan-demo-order", JSON.stringify(lastOrder));
+    localStorage.setItem("mizan-demo-orders", JSON.stringify(orders));
+    if (orders[0]) localStorage.setItem("mizan-demo-order", JSON.stringify(orders[0]));
     else localStorage.removeItem("mizan-demo-order");
-  }, [lastOrder]);
+  }, [orders]);
 
   const value = useMemo<CartContextValue>(() => ({
     items,
-    count: Object.values(items).reduce((total, quantity) => total + quantity, 0),
-    add: (productId) => setItems((current) => ({ ...current, [productId]: (current[productId] || 0) + 1 })),
-    update: (productId, delta) => setItems((current) => {
-      const nextQuantity = (current[productId] || 0) + delta;
-      if (nextQuantity <= 0) {
-        const next = { ...current };
-        delete next[productId];
-        return next;
-      }
-      return { ...current, [productId]: nextQuantity };
-    }),
-    remove: (productId) => setItems((current) => {
-      const next = { ...current };
-      delete next[productId];
-      return next;
-    }),
+    count: getItemCount(items),
+    add: (productId) => setItems((current) => addItem(current, productId)),
+    update: (productId, delta) => setItems((current) => updateItem(current, productId, delta)),
+    remove: (productId) => setItems((current) => updateItem(current, productId, -current[productId])),
     clear: () => setItems({}),
+    orders,
     lastOrder,
     createOrder: (total, discountCode) => {
-      const order: DemoOrder = {
-        id: `MZ-${Date.now().toString(36).toUpperCase()}`,
-        createdAt: new Date().toISOString(),
-        items: { ...items },
-        total,
-        discountCode,
-        statusIndex: 0,
-      };
-      setLastOrder(order);
+      const order = createDemoOrder(items, total, discountCode);
+      setOrders((current) => [order, ...current.filter((item) => item.id !== order.id)].slice(0, 12));
       return order;
     },
-    advanceOrder: () => setLastOrder((current) => current ? { ...current, statusIndex: Math.min(3, current.statusIndex + 1) } : current),
-    clearOrder: () => setLastOrder(null),
-  }), [items, lastOrder]);
+    advanceOrder: () => setOrders((current) => current.length ? [advanceDemoOrder(current[0]), ...current.slice(1)] : current),
+    clearOrder: () => setOrders((current) => current.slice(1)),
+    clearOrders: () => setOrders([]),
+  }), [items, lastOrder, orders]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

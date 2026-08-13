@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { toggleFavorite } from "@/lib/demoCommerce";
 
 type FavoritesContextValue = {
   favorites: string[];
@@ -26,7 +27,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<FavoritesContextValue>(() => ({
     favorites,
     isFavorite: (productId) => favorites.includes(productId),
-    toggle: (productId) => setFavorites((current) => current.includes(productId) ? current.filter((id) => id !== productId) : [...current, productId]),
+    toggle: (productId) => setFavorites((current) => toggleFavorite(current, productId)),
     clear: () => setFavorites([]),
   }), [favorites]);
 

@@ -11,6 +11,7 @@ import ProductDetail from "./pages/ProductDetail";
 import OrderTracking from "./pages/OrderTracking";
 import FieldNotes from "./pages/FieldNotes";
 import Favorites from "./pages/Favorites";
+import Profile from "./pages/Profile";
 
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       <Route path={"/track"} component={OrderTracking} />
       <Route path={"/notes"} component={FieldNotes} />
       <Route path={"/favorites"} component={Favorites} />
+      <Route path={"/profile"} component={Profile} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

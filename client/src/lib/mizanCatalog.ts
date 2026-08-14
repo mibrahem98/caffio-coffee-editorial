@@ -1,3 +1,5 @@
+import type { ResponsiveImageKey } from "./responsiveImages";
+
 export type Lang = "en" | "ar";
 
 export type Bilingual = { en: string; ar: string };
@@ -7,6 +9,7 @@ export type CoffeeProduct = {
   name: Bilingual;
   shortName: Bilingual;
   image: string;
+  imageKey: ResponsiveImageKey;
   ogImage: string;
   profile: Bilingual;
   status: Bilingual;
@@ -55,7 +58,8 @@ export const coffeeProducts: CoffeeProduct[] = [
     id: "alto",
     name: { en: "ALTO / Seasonal Lot", ar: "ALTO / المحصول الموسمي" },
     shortName: { en: "ALTO", ar: "ALTO" },
-    image: "https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=1200&q=88",
+    image: "/manus-storage/alto-800_eea7da9e.webp",
+    imageKey: "alto",
     ogImage: "/manus-storage/caffio-alto-og_3ea1405c.jpg",
     profile: { en: "Light / awaiting cupping sheet", ar: "خفيف / بانتظار بطاقة التذوق" },
     status: { en: "Origin record in progress", ar: "سجل المنشأ قيد الإعداد" },
@@ -75,7 +79,8 @@ export const coffeeProducts: CoffeeProduct[] = [
     id: "sombra",
     name: { en: "SOMBRA / Seasonal Lot", ar: "SOMBRA / المحصول الموسمي" },
     shortName: { en: "SOMBRA", ar: "SOMBRA" },
-    image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1200&q=88",
+    image: "/manus-storage/sombra-800_b78abe3a.webp",
+    imageKey: "sombra",
     ogImage: "/manus-storage/caffio-sombra-og_3c75d4cf.jpg",
     profile: { en: "Medium / awaiting cupping sheet", ar: "متوسط / بانتظار بطاقة التذوق" },
     status: { en: "Origin record in progress", ar: "سجل المنشأ قيد الإعداد" },
@@ -95,7 +100,8 @@ export const coffeeProducts: CoffeeProduct[] = [
     id: "mizan-house",
     name: { en: "CAFFIO / House Espresso", ar: "كافيو / إسبريسو البيت" },
     shortName: { en: "HOUSE ESPRESSO", ar: "إسبريسو البيت" },
-    image: "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=1200&q=88",
+    image: "/manus-storage/house-800_96242ff1.webp",
+    imageKey: "house",
     ogImage: "/manus-storage/caffio-house-espresso-og_e3da63b0.jpg",
     profile: { en: "Medium-dark / awaiting roast sheet", ar: "متوسط داكن / بانتظار بطاقة التحميص" },
     status: { en: "Blend record in progress", ar: "سجل الخلطة قيد الإعداد" },

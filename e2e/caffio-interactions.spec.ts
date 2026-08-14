@@ -25,8 +25,20 @@ test("homepage prioritizes its hero image and defers non-critical catalog imager
   await page.goto("/");
   await expect(page.locator(".hero-image img")).toHaveAttribute("fetchpriority", "high");
   await expect(page.locator(".hero-image img")).toHaveAttribute("decoding", "async");
+  await expect(page.locator(".hero-image source[type='image/avif']")).toHaveAttribute("srcset", /hero-480_.*\.avif/);
+  await expect(page.getByTestId("product-card-alto").locator("source[type='image/webp']")).toHaveAttribute("srcset", /alto-480_.*\.webp/);
   await expect(page.getByTestId("product-card-alto").locator("img")).toHaveAttribute("loading", "lazy");
   await expect(page.locator(".notes-grid article img").first()).toHaveAttribute("loading", "lazy");
+});
+
+test("deferred responsive images load after their sections enter the viewport", async ({ page }) => {
+  await page.goto("/");
+  const ritualImage = page.locator(".ritual-photo img");
+  await ritualImage.scrollIntoViewIfNeeded();
+  await expect.poll(() => ritualImage.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true);
+  const journalImage = page.locator(".notes-grid article img").first();
+  await journalImage.scrollIntoViewIfNeeded();
+  await expect.poll(() => journalImage.evaluate((image) => image.complete && image.naturalWidth > 0)).toBe(true);
 });
 
 test("FAQ accordion exposes one answer at a time and supports keyboard activation", async ({ page }) => {
@@ -40,7 +52,14 @@ test("FAQ accordion exposes one answer at a time and supports keyboard activatio
   await pricingQuestion.press("Enter");
   await expect(pricingQuestion).toHaveAttribute("aria-expanded", "true");
   await expect(firstQuestion).toHaveAttribute("aria-expanded", "false");
-  await expect(page.locator("#faq-panel-1")).toHaveAttribute("aria-hidden", "false");
+  await expect(page.locator("#faq-panel-commerce")).toHaveAttribute("aria-hidden", "false");
+
+  const discovery = page.getByTestId("faq-discovery");
+  await discovery.getByRole("button", { name: "Records & reviews" }).click();
+  await expect(accordion.getByRole("button")).toHaveCount(1);
+  await discovery.getByRole("button", { name: "All" }).click();
+  await discovery.getByRole("textbox", { name: "Search questions" }).fill("subscription");
+  await expect(accordion.getByRole("button", { name: "Is Caffio Society ready for paid subscriptions?" })).toBeVisible();
 });
 
 test("scroll reveals stay visible without transitions when reduced motion is requested", async ({ page }) => {
@@ -72,7 +91,7 @@ test("keyboard users can skip the homepage navigation and every public route ren
   await skipLink.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
-  for (const route of ["/", "/coffee/alto", "/notes", "/favorites", "/track", "/profile", "/case-study", "/society"]) {
+  for (const route of ["/", "/coffee/alto", "/notes", "/favorites", "/track", "/profile", "/case-study", "/society", "/payments"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
     await expect(page.locator("h1").first()).toBeVisible();
@@ -95,6 +114,15 @@ test("saved-coffee empty state explains local storage and offers two valid next 
   await expect(emptyState.getByText("No account or personal profile is created")).toBeVisible();
   await expect(emptyState.getByRole("link", { name: "Explore the collection" })).toHaveAttribute("href", "/#collection");
   await expect(emptyState.getByRole("link", { name: "Read the field notes" })).toHaveAttribute("href", "/notes");
+});
+
+test("payment activity shows a verified-only empty state without fabricating any transaction", async ({ page }) => {
+  await page.goto("/payments");
+  const activity = page.getByTestId("payment-activity-empty");
+  await expect(activity).toBeVisible();
+  await expect(activity.getByText("No verified payments yet.")).toBeVisible();
+  await expect(activity.getByText(/nothing has been charged or stored/i)).toBeVisible();
+  await expect(activity.getByRole("link", { name: "Open demo order tracking" })).toHaveAttribute("href", "/track");
 });
 
 test("native share receives the current product URL", async ({ page }) => {

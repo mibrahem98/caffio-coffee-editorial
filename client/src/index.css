@@ -44,8 +44,11 @@ a { color: inherit; }
 
 .mizan-site { min-height: 100vh; overflow: hidden; background: var(--ivory); color: var(--ink); }
 .reading-progress { position: fixed; z-index: 100; top: 0; left: 0; height: 3px; background: var(--gold); transition: width 140ms linear; }
+.skip-link { position: fixed; z-index: 110; top: 12px; left: 50%; padding: 10px 14px; background: var(--ivory); color: var(--charcoal); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; transform: translate(-50%, -160%); transition: transform 160ms var(--ease-out); }
+.skip-link:focus { transform: translate(-50%, 0); }
 :where(a, button, input, select, summary):focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
 .mizan-nav { position: fixed; z-index: 50; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; height: 78px; padding: 0 5vw; color: var(--ivory); background: linear-gradient(180deg, rgba(15, 20, 21, .9), transparent); }
+.mizan-nav.is-scrolled { border-bottom: 1px solid rgba(184, 145, 82, .18); background: rgba(15, 20, 21, .94); box-shadow: 0 10px 30px rgba(0, 0, 0, .16); backdrop-filter: blur(14px); }
 .mizan-wordmark { display: flex; align-items: center; gap: 11px; min-width: 250px; color: inherit; text-decoration: none; }
 .mizan-wordmark strong { display: block; font-size: 14px; letter-spacing: .24em; line-height: 1; }
 .mizan-wordmark small { display: block; margin-top: 6px; color: rgba(242, 235, 221, .58); font-size: 8px; letter-spacing: .14em; }
@@ -576,6 +579,16 @@ html.dark .field-article-body h2, html.dark .field-article-head strong, html.dar
 .favorites-empty > svg, .tracking-empty > svg { color: var(--gold); }
 .favorites-empty h2, .tracking-empty h2 { margin: 22px 0 13px; color: var(--ink); font-size: clamp(50px, 6vw, 84px); }
 .favorites-empty p, .tracking-empty p { max-width: 420px; margin: 0 0 26px; color: rgba(30, 34, 36, .61); font-size: 12px; line-height: 1.8; }
+.favorites-empty { min-height: 510px; background: linear-gradient(135deg, rgba(184, 145, 82, .08), transparent 48%); }
+.favorites-empty .eyebrow { margin: 20px 0 11px; color: rgba(30, 34, 36, .55); }
+.favorites-empty-mark { display: grid; place-items: center; gap: 6px; width: 86px; height: 86px; border: 1px solid rgba(184, 145, 82, .58); border-radius: 50%; color: var(--gold); }
+.favorites-empty-mark span { color: var(--brown); font-size: 8px; font-weight: 700; letter-spacing: .13em; }
+.favorites-empty-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 19px; margin: 0 0 27px; }
+.favorites-empty-points span { display: inline-flex; align-items: center; gap: 7px; color: rgba(30, 34, 36, .56); font-size: 10px; }
+.favorites-empty-points svg { color: var(--gold); }
+.favorites-empty-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; }
+html.dark .favorites-empty { background: linear-gradient(135deg, rgba(184, 145, 82, .12), transparent 48%); }
+html.dark .favorites-empty .eyebrow, html.dark .favorites-empty-points span, html.dark .favorites-empty-mark span { color: rgba(242, 235, 221, .62); }
 html.dark .favorites-toolbar, html.dark .favorite-card p, html.dark .favorites-empty p, html.dark .tracking-empty p { color: rgba(242, 235, 221, .62); }
 html.dark .favorite-card h2 { color: var(--ink); }
 html.dark .favorite-add { color: var(--gold); }
@@ -659,6 +672,8 @@ html.dark .field-notes-main, html.dark .favorites-main, html.dark .tracking-main
   .favorite-card > div { padding-top: 7px; }
   .favorite-card > div > div { flex-wrap: wrap; gap: 10px; }
   .favorite-remove { margin-left: 0; }
+  .favorites-empty { min-height: 460px; padding-right: 7vw; padding-left: 7vw; }
+  .favorites-empty-actions { flex-direction: column; gap: 16px; }
   .order-summary { grid-template-columns: 1fr; }
   .order-summary > div, .order-summary > div:last-child { grid-column: auto; border-right: 0; border-bottom: 1px solid var(--line); border-top: 0; }
   .order-summary > div:last-child { border-bottom: 0; }

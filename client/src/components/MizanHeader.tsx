@@ -1,5 +1,5 @@
 import { Globe2, Heart, Menu, Moon, PackageSearch, ShoppingBag, Sun, UserRound, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCart } from "@/contexts/CartContext";
 import { useFavorites } from "@/contexts/FavoritesContext";
@@ -12,6 +12,7 @@ const copy = {
 
 export default function MizanHeader({ lang, onLangChange, home = true }: { lang: Lang; onLangChange: (lang: Lang) => void; home?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(!home);
   const { theme, toggleTheme } = useTheme();
   const { count } = useCart();
   const { favorites } = useFavorites();
@@ -19,8 +20,15 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
   const link = (id: string) => home ? `#${id}` : `/#${id}`;
   const navHref = (id: string) => id === "notes" ? "/notes" : id === "caseStudy" ? "/case-study" : id === "society" ? "/society" : link(id);
 
+  useEffect(() => {
+    const updateHeaderContrast = () => setHasScrolled(!home || window.scrollY > 12);
+    updateHeaderContrast();
+    window.addEventListener("scroll", updateHeaderContrast, { passive: true });
+    return () => window.removeEventListener("scroll", updateHeaderContrast);
+  }, [home]);
+
   return (
-    <header className="mizan-nav">
+    <header className={hasScrolled ? "mizan-nav is-scrolled" : "mizan-nav"}>
       <a className="mizan-wordmark" href={home ? "#top" : "/"} aria-label="Caffio Coffee home" onClick={() => setMobileOpen(false)}>
         <span className="mizan-symbol" aria-hidden="true"><i /><b /><em /></span>
         <span><strong>CAFFIO</strong><small>COFFEE / SPECIALTY ROASTERS</small></span>

@@ -32,6 +32,38 @@ test("mobile navigation control references and opens the primary navigation", as
   await expect(page.locator("#primary-navigation")).toHaveClass(/is-open/);
 });
 
+test("keyboard users can skip the homepage navigation and every public route renders a main landmark", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#main-content")).toBeFocused();
+
+  for (const route of ["/", "/coffee/alto", "/notes", "/favorites", "/track", "/profile", "/case-study", "/society"]) {
+    await page.goto(route);
+    await expect(page.locator("main")).toBeVisible();
+    await expect(page.locator("h1").first()).toBeVisible();
+  }
+});
+
+test("fixed navigation gains a contrast surface after scrolling into light editorial content", async ({ page }) => {
+  await page.goto("/");
+  const header = page.locator("header.mizan-nav");
+  await expect(header).not.toHaveClass(/is-scrolled/);
+  await page.evaluate(() => window.scrollTo({ top: 1000 }));
+  await expect(header).toHaveClass(/is-scrolled/);
+});
+
+test("saved-coffee empty state explains local storage and offers two valid next actions", async ({ page }) => {
+  await page.goto("/favorites");
+  const emptyState = page.getByTestId("favorites-empty");
+  await expect(emptyState).toBeVisible();
+  await expect(emptyState.getByText("Saved only in this browser")).toBeVisible();
+  await expect(emptyState.getByText("No account or personal profile is created")).toBeVisible();
+  await expect(emptyState.getByRole("link", { name: "Explore the collection" })).toHaveAttribute("href", "/#collection");
+  await expect(emptyState.getByRole("link", { name: "Read the field notes" })).toHaveAttribute("href", "/notes");
+});
+
 test("native share receives the current product URL", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "share", {

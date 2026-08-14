@@ -58,8 +58,23 @@ test("FAQ accordion exposes one answer at a time and supports keyboard activatio
   await discovery.getByRole("button", { name: "Records & reviews" }).click();
   await expect(accordion.getByRole("button")).toHaveCount(1);
   await discovery.getByRole("button", { name: "All" }).click();
-  await discovery.getByRole("textbox", { name: "Search questions" }).fill("subscription");
+  await discovery.getByRole("combobox", { name: "Search questions" }).fill("subscription");
   await expect(accordion.getByRole("button", { name: "Is Caffio Society ready for paid subscriptions?" })).toBeVisible();
+});
+
+test("FAQ search exposes accessible autocomplete suggestions and opens the selected answer", async ({ page }) => {
+  await page.goto("/");
+  const search = page.getByRole("combobox", { name: "Search questions" });
+  await search.fill("subscription");
+  await expect(search).toHaveAttribute("aria-expanded", "true");
+  const suggestions = page.getByRole("listbox", { name: "Question suggestions" });
+  await expect(suggestions.getByRole("option")).toHaveCount(1);
+  await search.press("ArrowDown");
+  await expect(search).toHaveAttribute("aria-activedescendant", "faq-suggestion-society");
+  await search.press("Enter");
+  await expect(page.getByRole("button", { name: "Is Caffio Society ready for paid subscriptions?" })).toHaveAttribute("aria-expanded", "true");
+  await search.fill("unmatched phrase");
+  await expect(suggestions.getByRole("option", { name: "No matching question suggestion" })).toHaveAttribute("aria-disabled", "true");
 });
 
 test("scroll reveals stay visible without transitions when reduced motion is requested", async ({ page }) => {
@@ -123,6 +138,20 @@ test("payment activity shows a verified-only empty state without fabricating any
   await expect(activity.getByText("No verified payments yet.")).toBeVisible();
   await expect(activity.getByText(/nothing has been charged or stored/i)).toBeVisible();
   await expect(activity.getByRole("link", { name: "Open demo order tracking" })).toHaveAttribute("href", "/track");
+});
+
+test("advanced product search filters and sorts collection results while persisting query state", async ({ page }) => {
+  await page.goto("/search?q=alto");
+  await expect(page.getByRole("heading", { name: /Find your/i })).toBeVisible();
+  await expect(page.getByText("ALTO / Seasonal Lot")).toBeVisible();
+  await expect(page).toHaveURL(/q=alto/);
+  await page.getByLabel("Roast").selectOption("espresso");
+  await expect(page.getByText("No coffees match this view.")).toBeVisible();
+  await page.getByRole("button", { name: "Reset search" }).click();
+  await expect(page.locator(".search-results-head > p")).toHaveText("3 coffees found");
+  await page.getByLabel("Sort by").selectOption("price-desc");
+  await expect(page).toHaveURL(/sort=price-desc/);
+  await expect(page.locator('a[href="/search"]').first()).toHaveAttribute("href", "/search");
 });
 
 test("native share receives the current product URL", async ({ page }) => {

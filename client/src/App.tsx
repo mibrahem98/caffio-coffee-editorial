@@ -17,6 +17,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const CaseStudy = lazy(() => import("./pages/CaseStudy"));
 const CaffioSociety = lazy(() => import("./pages/CaffioSociety"));
 const PaymentActivity = lazy(() => import("./pages/PaymentActivity"));
+const ProductSearch = lazy(() => import("./pages/ProductSearch"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RouteLoader() {
@@ -36,6 +37,7 @@ function Router() {
       <Route path={"/case-study"} component={CaseStudy} />
       <Route path={"/society"} component={CaffioSociety} />
       <Route path={"/payments"} component={PaymentActivity} />
+      <Route path={"/search"} component={ProductSearch} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

@@ -14,9 +14,10 @@ import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import ScrollMotion from "./components/ScrollMotion";
 import CaseStudy from "./pages/CaseStudy";
-
+import CaffioSociety from "./pages/CaffioSociety";
 
 function Router() {
+  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
@@ -26,6 +27,7 @@ function Router() {
       <Route path={"/favorites"} component={Favorites} />
       <Route path={"/profile"} component={Profile} />
       <Route path={"/case-study"} component={CaseStudy} />
+      <Route path={"/society"} component={CaffioSociety} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

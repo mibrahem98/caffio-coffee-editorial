@@ -35,7 +35,8 @@ export default function PageMeta({ product, lang }: { product?: CoffeeProduct; l
       ? `${product.shortName[lang || "en"]} — ${product.profile[lang || "en"]}. Caffio product record with origin, process, brew cues, and source status.`
       : DEFAULT_DESCRIPTION;
     const url = `${window.location.origin}${product ? `/coffee/${product.id}` : "/"}`;
-    const image = product?.image || DEFAULT_IMAGE;
+    const imagePath = product?.ogImage || DEFAULT_IMAGE;
+    const image = imagePath.startsWith("http") ? imagePath : new URL(imagePath, window.location.origin).href;
     const imageAlt = product ? `${product.shortName[lang || "en"]} coffee by Caffio` : "Caffio specialty coffee ritual";
 
     document.title = title;

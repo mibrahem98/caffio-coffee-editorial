@@ -7,6 +7,7 @@ export type CoffeeProduct = {
   name: Bilingual;
   shortName: Bilingual;
   image: string;
+  ogImage: string;
   profile: Bilingual;
   status: Bilingual;
   weight: string;
@@ -55,6 +56,7 @@ export const coffeeProducts: CoffeeProduct[] = [
     name: { en: "ALTO / Seasonal Lot", ar: "ALTO / المحصول الموسمي" },
     shortName: { en: "ALTO", ar: "ALTO" },
     image: "https://images.unsplash.com/photo-1498804103079-a6351b050096?auto=format&fit=crop&w=1200&q=88",
+    ogImage: "/manus-storage/caffio-alto-og_3ea1405c.jpg",
     profile: { en: "Light / awaiting cupping sheet", ar: "خفيف / بانتظار بطاقة التذوق" },
     status: { en: "Origin record in progress", ar: "سجل المنشأ قيد الإعداد" },
     weight: "250 g",
@@ -74,6 +76,7 @@ export const coffeeProducts: CoffeeProduct[] = [
     name: { en: "SOMBRA / Seasonal Lot", ar: "SOMBRA / المحصول الموسمي" },
     shortName: { en: "SOMBRA", ar: "SOMBRA" },
     image: "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1200&q=88",
+    ogImage: "/manus-storage/caffio-sombra-og_3c75d4cf.jpg",
     profile: { en: "Medium / awaiting cupping sheet", ar: "متوسط / بانتظار بطاقة التذوق" },
     status: { en: "Origin record in progress", ar: "سجل المنشأ قيد الإعداد" },
     weight: "250 g",
@@ -90,9 +93,10 @@ export const coffeeProducts: CoffeeProduct[] = [
   },
   {
     id: "mizan-house",
-    name: { en: "MIZAN / House Espresso", ar: "ميزان / إسبريسو البيت" },
+    name: { en: "CAFFIO / House Espresso", ar: "كافيو / إسبريسو البيت" },
     shortName: { en: "HOUSE ESPRESSO", ar: "إسبريسو البيت" },
     image: "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=1200&q=88",
+    ogImage: "/manus-storage/caffio-house-espresso-og_e3da63b0.jpg",
     profile: { en: "Medium-dark / awaiting roast sheet", ar: "متوسط داكن / بانتظار بطاقة التحميص" },
     status: { en: "Blend record in progress", ar: "سجل الخلطة قيد الإعداد" },
     weight: "250 g",

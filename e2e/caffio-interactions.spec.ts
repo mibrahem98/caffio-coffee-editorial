@@ -151,6 +151,7 @@ test("advanced product search filters and sorts collection results while persist
   await expect(page.locator(".search-results-head > p")).toHaveText("3 coffees found");
   await page.getByLabel("Sort by").selectOption("price-desc");
   await expect(page).toHaveURL(/sort=price-desc/);
+  await expect(page.getByTestId("search-result-status")).toContainText("Sorted by: Price: high to low");
   await expect(page.locator('a[href="/search"]').first()).toHaveAttribute("href", "/search");
 });
 
@@ -177,6 +178,23 @@ test("product search keeps tasting-note filtering unavailable until documented n
   await expect(page.locator(".search-results-body")).toHaveAttribute("aria-busy", "false", { timeout: 1000 });
 });
 
+test("product search exposes removable active refinements, a live result status, and source-aware guidance", async ({ page }) => {
+  await page.goto("/search?q=alto&roast=light");
+  const active = page.getByTestId("active-search-filters");
+  await expect(active).toBeVisible();
+  await expect(active.getByRole("button", { name: /Roast: Light/i })).toBeVisible();
+  await expect(page.getByTestId("search-result-status")).toContainText("1 coffees found · 2 active refinements");
+  await active.getByRole("button", { name: /Roast: Light/i }).click();
+  await expect(page.getByLabel("Roast")).toHaveValue("all");
+  await expect(page.locator(".product-search-input input")).toHaveValue("alto");
+  await active.getByRole("button", { name: /Search: alto/i }).click();
+  await expect(page.locator(".product-search-input input")).toHaveValue("");
+  await expect(active).toHaveCount(0);
+  const guidance = page.getByTestId("search-guidance");
+  await expect(guidance.getByText("Tasting filters remain unavailable until a verified batch record is attached.")).toBeVisible();
+  await expect(guidance.getByRole("link", { name: "Open source protocol" })).toHaveAttribute("href", "/sources");
+});
+
 test("product search restores filters from the same browser without creating a profile and shows related catalog picks", async ({ page }) => {
   await page.goto("/search");
   await page.evaluate(() => localStorage.removeItem("caffio-product-search-filters-v1"));
@@ -197,8 +215,24 @@ test("product search restores filters from the same browser without creating a p
   await expect(page.getByLabel("Roast")).toHaveValue("all");
   await expect(page.locator(".product-search-input input")).toHaveValue("alto");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("caffio-product-search-filters-v1"))).toBeNull();
+  await expect(page.getByTestId("search-result-status")).toContainText("Saved filter preferences cleared.");
   await page.goto("/search?q=alto&roast=all");
   await expect(page.getByTestId("related-products").getByRole("link")).toHaveCount(1);
+});
+
+test("search refinements and source guidance retain Arabic RTL parity", async ({ page }) => {
+  await page.goto("/search?q=alto&roast=light");
+  await page.getByLabel("Select language").selectOption("ar");
+  await expect(page.locator(".search-site")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("active-search-filters")).toHaveAttribute("aria-label", "التصفية الحالية");
+  await expect(page.getByTestId("search-guidance").getByRole("link", { name: "فتح بروتوكول المصادر" })).toHaveAttribute("href", "/sources");
+});
+
+test("public source protocol exposes content-evidence boundaries without product claims", async ({ page }) => {
+  await page.goto("/sources");
+  await expect(page.getByRole("heading", { name: /Evidence before/i })).toBeVisible();
+  await expect(page.getByText("Does not verify a farm, product, or batch claim by itself.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open reference" }).first()).toHaveAttribute("href", "https://sca.coffee/research/coffee-standards");
 });
 
 test("product detail keeps tasting notes pending until its batch becomes verified", async ({ page }) => {

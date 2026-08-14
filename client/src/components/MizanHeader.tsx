@@ -25,18 +25,24 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
         <span className="mizan-symbol" aria-hidden="true"><i /><b /><em /></span>
         <span><strong>CAFFIO</strong><small>COFFEE / SPECIALTY ROASTERS</small></span>
       </a>
-      <nav className={mobileOpen ? "mizan-nav-links is-open" : "mizan-nav-links"} aria-label="Primary navigation">
+      <nav id="primary-navigation" className={mobileOpen ? "mizan-nav-links is-open" : "mizan-nav-links"} aria-label="Primary navigation">
         {["story", "collection", "ritual", "notes", "faq", "caseStudy", "society"].map((id, index) => <a key={id} href={navHref(id)} onClick={() => setMobileOpen(false)}><span>{String(index + 1).padStart(2, "0")}</span>{t[id as keyof typeof t]}</a>)}
+        <div className="mobile-utility-links" aria-label={lang === "ar" ? "أدوات الحساب والسلة" : "Account and cart tools"}>
+          <button type="button" onClick={() => toggleTheme?.()}><span>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</span>{theme === "dark" ? t.light : t.dark}</button>
+          <a href="/favorites" onClick={() => setMobileOpen(false)}><span><Heart size={15} /></span>{t.favorites}</a>
+          <a href="/track" onClick={() => setMobileOpen(false)}><span><PackageSearch size={15} /></span>{t.tracking}</a>
+          <a href="/profile" onClick={() => setMobileOpen(false)}><span><UserRound size={15} /></span>{t.profile}</a>
+        </div>
       </nav>
       <div className="mizan-nav-actions">
         <label className="locale-toggle"><Globe2 size={14} /><select value={lang} onChange={(event) => onLangChange(event.target.value as Lang)} aria-label="Select language"><option value="en">EN</option><option value="ar">عربي</option></select></label>
-        <button className="icon-button" onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.light : t.dark} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</button>
-        <a className="cart-button" href="/favorites" aria-label={`${t.favorites} (${favorites.length})`} title={t.favorites}><Heart size={15} fill={favorites.length ? "currentColor" : "none"} /><span>{favorites.length}</span></a>
-        <a className="icon-button" href="/track" aria-label={t.tracking} title={t.tracking}><PackageSearch size={15} /></a>
-        <a className="icon-button" href="/profile" aria-label={t.profile} title={t.profile}><UserRound size={15} /></a>
-        <button className="cart-button" onClick={() => window.dispatchEvent(new CustomEvent("mizan:open-cart"))} aria-label={`${t.cart} (${count})`}><ShoppingBag size={15} /><span>{count}</span></button>
+        <button className="icon-button utility-icon" data-utility-label={theme === "dark" ? t.light : t.dark} onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.light : t.dark} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</button>
+        <a className="cart-button utility-icon favorite-utility" data-utility-label={t.favorites} href="/favorites" aria-label={`${t.favorites} (${favorites.length})`} title={t.favorites}><Heart size={16} fill={favorites.length ? "currentColor" : "none"} /><span>{favorites.length}</span></a>
+        <a className="icon-button utility-icon" data-utility-label={t.tracking} href="/track" aria-label={t.tracking} title={t.tracking}><PackageSearch size={16} /></a>
+        <a className="icon-button utility-icon" data-utility-label={t.profile} href="/profile" aria-label={t.profile} title={t.profile}><UserRound size={16} /></a>
+        <button className="cart-button utility-icon cart-utility" data-utility-label={t.cart} onClick={() => window.dispatchEvent(new CustomEvent("mizan:open-cart"))} aria-label={`${t.cart} (${count})`}><ShoppingBag size={16} /><span>{count}</span></button>
         <a className="nav-cta" href={link("collection")}>{t.explore}<span>↗</span></a>
-        <button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle navigation">{mobileOpen ? <X size={18} /> : <Menu size={18} />}</button>
+        <button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={mobileOpen} aria-controls="primary-navigation">{mobileOpen ? <X size={18} /> : <Menu size={18} />}</button>
       </div>
     </header>
   );

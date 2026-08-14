@@ -12,6 +12,26 @@ test("product card elevates on hover", async ({ page }, testInfo) => {
   expect(transform).not.toBe("none");
 });
 
+test("homepage actions lead to working collection, Society, source, and field-note destinations", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("hero-collection-link")).toHaveAttribute("href", "#collection");
+  await expect(page.getByTestId("hero-society-link")).toHaveAttribute("href", "/society");
+  await expect(page.getByRole("link", { name: "Read the source protocol" })).toHaveAttribute("href", "/case-study");
+  await expect(page.getByRole("link", { name: "Read the note" }).first()).toHaveAttribute("href", "/notes");
+  await expect(page.getByLabel("Open cart (0)")).toBeVisible();
+});
+
+test("mobile navigation control references and opens the primary navigation", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  const menu = page.getByRole("button", { name: "Toggle navigation" });
+  await expect(menu).toHaveAttribute("aria-controls", "primary-navigation");
+  await expect(page.locator("#primary-navigation")).toHaveAttribute("aria-label", "Primary navigation");
+  await menu.click();
+  await expect(menu).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator("#primary-navigation")).toHaveClass(/is-open/);
+});
+
 test("native share receives the current product URL", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "share", {

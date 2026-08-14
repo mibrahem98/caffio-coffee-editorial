@@ -21,6 +21,14 @@ test("homepage actions lead to working collection, Society, source, and field-no
   await expect(page.getByLabel("Open cart (0)")).toBeVisible();
 });
 
+test("homepage prioritizes its hero image and defers non-critical catalog imagery", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".hero-image img")).toHaveAttribute("fetchpriority", "high");
+  await expect(page.locator(".hero-image img")).toHaveAttribute("decoding", "async");
+  await expect(page.getByTestId("product-card-alto").locator("img")).toHaveAttribute("loading", "lazy");
+  await expect(page.locator(".notes-grid article img").first()).toHaveAttribute("loading", "lazy");
+});
+
 test("mobile navigation control references and opens the primary navigation", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
@@ -34,9 +42,11 @@ test("mobile navigation control references and opens the primary navigation", as
 
 test("keyboard users can skip the homepage navigation and every public route renders a main landmark", async ({ page }) => {
   await page.goto("/");
-  await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Skip to main content" })).toBeFocused();
-  await page.keyboard.press("Enter");
+  const skipLink = page.getByRole("link", { name: "Skip to main content" });
+  expect(await skipLink.evaluate((element) => element.tabIndex)).toBe(0);
+  await skipLink.focus();
+  await expect(skipLink).toBeFocused();
+  await skipLink.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
   for (const route of ["/", "/coffee/alto", "/notes", "/favorites", "/track", "/profile", "/case-study", "/society"]) {

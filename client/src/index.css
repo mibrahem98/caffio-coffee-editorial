@@ -43,6 +43,11 @@ h1, h2, h3 { font-weight: 400; }
 a { color: inherit; }
 
 .mizan-site { min-height: 100vh; overflow: hidden; background: var(--ivory); color: var(--ink); }
+.route-loader { display: grid; min-height: 100vh; place-content: center; gap: 14px; background: var(--charcoal); color: var(--ivory); text-align: center; }
+.route-loader-mark { display: block; width: 34px; height: 34px; margin: 0 auto; border: 1px solid var(--gold); border-radius: 50%; border-top-color: transparent; animation: route-spin 780ms linear infinite; }
+.route-loader p { margin: 0; color: rgba(242, 235, 221, .7); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; }
+@keyframes route-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .route-loader-mark { animation: none; border-top-color: var(--gold); } }
 .reading-progress { position: fixed; z-index: 100; top: 0; left: 0; height: 3px; background: var(--gold); transition: width 140ms linear; }
 .skip-link { position: fixed; z-index: 110; top: 12px; left: 50%; padding: 10px 14px; background: var(--ivory); color: var(--charcoal); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; transform: translate(-50%, -160%); transition: transform 160ms var(--ease-out); }
 .skip-link:focus { transform: translate(-50%, 0); }

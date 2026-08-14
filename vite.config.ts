@@ -167,6 +167,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("/node_modules/react/") || id.includes("/node_modules/react-dom/") || id.includes("/node_modules/wouter/")) return "framework";
+          if (id.includes("/node_modules/lucide-react/") || id.includes("/node_modules/sonner/")) return "interface";
+          if (id.includes("/node_modules/@tanstack/") || id.includes("/node_modules/@trpc/")) return "data-client";
+          return "vendor";
+        },
+      },
+    },
   },
   server: {
     host: true,

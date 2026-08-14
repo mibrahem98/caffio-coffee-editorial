@@ -1,20 +1,26 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import { lazy, Suspense } from "react";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
 import { FavoritesProvider } from "./contexts/FavoritesContext";
-import Home from "./pages/Home";
-import ProductDetail from "./pages/ProductDetail";
-import OrderTracking from "./pages/OrderTracking";
-import FieldNotes from "./pages/FieldNotes";
-import Favorites from "./pages/Favorites";
-import Profile from "./pages/Profile";
 import ScrollMotion from "./components/ScrollMotion";
-import CaseStudy from "./pages/CaseStudy";
-import CaffioSociety from "./pages/CaffioSociety";
+
+const Home = lazy(() => import("./pages/Home"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const OrderTracking = lazy(() => import("./pages/OrderTracking"));
+const FieldNotes = lazy(() => import("./pages/FieldNotes"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Profile = lazy(() => import("./pages/Profile"));
+const CaseStudy = lazy(() => import("./pages/CaseStudy"));
+const CaffioSociety = lazy(() => import("./pages/CaffioSociety"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+function RouteLoader() {
+  return <main className="route-loader" aria-busy="true" aria-live="polite"><span className="route-loader-mark" aria-hidden="true" /><p>Loading Caffio</p></main>;
+}
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -49,7 +55,9 @@ function App() {
             <TooltipProvider>
               <Toaster />
               <ScrollMotion />
-              <Router />
+              <Suspense fallback={<RouteLoader />}>
+                <Router />
+              </Suspense>
             </TooltipProvider>
           </FavoritesProvider>
         </CartProvider>

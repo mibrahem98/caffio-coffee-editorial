@@ -19,6 +19,13 @@ describe("product discovery", () => {
     expect(picks.every((product) => product.id !== coffeeProducts[0].id)).toBe(true);
   });
 
+  it("uses shared tasting notes only when both product batches are verified", () => {
+    const anchor = { ...coffeeProducts[0], roastTone: "isolated", brewMethods: [{ en: "Rare brew", ar: "تحضير نادر" }], batch: { ...coffeeProducts[0].batch, tastingStatus: "verified" as const, tastingNotes: [{ en: "Cocoa", ar: "كاكاو" }] } };
+    const tastingMatch = { ...coffeeProducts[1], roastTone: "different", brewMethods: [{ en: "Other brew", ar: "تحضير آخر" }], batch: { ...coffeeProducts[1].batch, tastingStatus: "verified" as const, tastingNotes: [{ en: "Cocoa", ar: "كاكاو" }] } };
+    const pendingMatch = { ...tastingMatch, id: "pending-match", batch: { ...tastingMatch.batch, tastingStatus: "pending" as const } };
+    expect(relatedProducts(anchor, [anchor, pendingMatch, tastingMatch])).toEqual([tastingMatch]);
+  });
+
   it("returns no fallback products when catalog metadata has no meaningful relation", () => {
     const isolated = { ...coffeeProducts[0], roastTone: "isolated", brewMethods: [{ en: "Rare brew", ar: "تحضير نادر" }] };
     expect(relatedProducts(isolated, coffeeProducts)).toEqual([]);

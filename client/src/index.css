@@ -601,6 +601,8 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .search-filter-head span { display: inline-flex; align-items: center; gap: 8px; }
 .search-filter-head button { border: 0; background: transparent; color: rgba(30, 34, 36, .58); cursor: pointer; font-size: 9px; text-decoration: underline; }
 .filter-memory { margin: 0 0 13px; color: rgba(30, 34, 36, .55); font-size: 9px; line-height: 1.5; }
+.clear-saved-filters { display: block; margin: -8px 7vw 18px auto; border: 1px solid rgba(184, 145, 82, .5); background: transparent; color: var(--brown); cursor: pointer; font: inherit; font-size: 9px; letter-spacing: .06em; padding: 8px 10px; text-transform: uppercase; }
+.clear-saved-filters:hover { background: rgba(184, 145, 82, .1); }
 .search-filters label { display: grid; gap: 7px; padding: 16px 0; border-top: 1px solid var(--line); }
 .search-filters label > span, .search-results-head label > span { color: rgba(30, 34, 36, .58); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
 .search-filters label small { color: rgba(30, 34, 36, .56); font-size: 9px; line-height: 1.45; }
@@ -656,6 +658,7 @@ html.dark .search-filter-head, html.dark .search-results-head > p, html.dark .se
 html.dark .search-filter-head button, html.dark .search-filters label > span, html.dark .search-results-head label > span, html.dark .search-product-card p, html.dark .search-product-card small, html.dark .search-empty p { color: rgba(242, 235, 221, .6); }
 html.dark .search-filters label small { color: rgba(242, 235, 221, .6); }
 html.dark .filter-memory, html.dark .search-related > p:not(.eyebrow), html.dark .tasting-pending { color: rgba(242, 235, 221, .62); }
+html.dark .clear-saved-filters { color: var(--ivory); }
 html.dark .search-related { border-color: var(--dark-line); }
 html.dark .search-related a { border-color: var(--dark-line); color: var(--ivory); }
 html.dark .tasting-pending { background: rgba(184, 145, 82, .11); }

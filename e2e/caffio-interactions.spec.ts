@@ -191,6 +191,12 @@ test("product search restores filters from the same browser without creating a p
   await page.getByRole("button", { name: "Clear filters" }).click();
   await expect(page.getByLabel("Roast")).toHaveValue("all");
   await expect.poll(() => page.evaluate(() => localStorage.getItem("caffio-product-search-filters-v1"))).toContain('"roast":"all"');
+  await page.getByLabel("Roast").selectOption("espresso");
+  await page.locator(".product-search-input input").fill("alto");
+  await page.getByTestId("clear-saved-filter-preferences").click();
+  await expect(page.getByLabel("Roast")).toHaveValue("all");
+  await expect(page.locator(".product-search-input input")).toHaveValue("alto");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("caffio-product-search-filters-v1"))).toBeNull();
   await page.goto("/search?q=alto&roast=all");
   await expect(page.getByTestId("related-products").getByRole("link")).toHaveCount(1);
 });

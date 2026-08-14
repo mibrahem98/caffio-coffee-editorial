@@ -177,6 +177,32 @@ test("product search keeps tasting-note filtering unavailable until documented n
   await expect(page.locator(".search-results-body")).toHaveAttribute("aria-busy", "false", { timeout: 1000 });
 });
 
+test("product search restores filters from the same browser without creating a profile and shows related catalog picks", async ({ page }) => {
+  await page.goto("/search");
+  await page.evaluate(() => localStorage.removeItem("caffio-product-search-filters-v1"));
+  await page.getByLabel("Roast").selectOption("espresso");
+  await expect(page.getByTestId("saved-search-filters")).toHaveText("Filters saved on this browser");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("caffio-product-search-filters-v1"))).toContain('"roast":"espresso"');
+  await page.goto("/search");
+  await expect(page.getByLabel("Roast")).toHaveValue("espresso");
+  const related = page.getByTestId("related-products");
+  await expect(related).toBeVisible();
+  await expect(related.getByText("No related catalog match is documented for this view yet.")).toBeVisible();
+  await page.getByRole("button", { name: "Clear filters" }).click();
+  await expect(page.getByLabel("Roast")).toHaveValue("all");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("caffio-product-search-filters-v1"))).toContain('"roast":"all"');
+  await page.goto("/search?q=alto&roast=all");
+  await expect(page.getByTestId("related-products").getByRole("link")).toHaveCount(1);
+});
+
+test("product detail keeps tasting notes pending until its batch becomes verified", async ({ page }) => {
+  await page.goto("/coffee/alto");
+  await expect(page.getByTestId("pending-tasting-notes")).toHaveText(/Awaiting a verified batch tasting record/i);
+  await expect(page.getByTestId("verified-tasting-notes")).toHaveCount(0);
+  await page.locator(".batch-card summary").click();
+  await expect(page.getByText("No verified tasting notes")).toBeVisible();
+});
+
 test("native share receives the current product URL", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "share", {

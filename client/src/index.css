@@ -600,6 +600,7 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .search-filter-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 19px; color: var(--brown); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
 .search-filter-head span { display: inline-flex; align-items: center; gap: 8px; }
 .search-filter-head button { border: 0; background: transparent; color: rgba(30, 34, 36, .58); cursor: pointer; font-size: 9px; text-decoration: underline; }
+.filter-memory { margin: 0 0 13px; color: rgba(30, 34, 36, .55); font-size: 9px; line-height: 1.5; }
 .search-filters label { display: grid; gap: 7px; padding: 16px 0; border-top: 1px solid var(--line); }
 .search-filters label > span, .search-results-head label > span { color: rgba(30, 34, 36, .58); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
 .search-filters label small { color: rgba(30, 34, 36, .56); font-size: 9px; line-height: 1.45; }
@@ -638,11 +639,26 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .search-empty > svg { color: var(--gold); }
 .search-empty h2 { margin: 20px 0 10px; font-size: clamp(42px, 5vw, 70px); }
 .search-empty p { max-width: 500px; margin: 0 0 24px; color: rgba(30, 34, 36, .64); font-size: 13px; line-height: 1.8; }
+.search-related { margin-top: 50px; padding-top: 28px; border-top: 1px solid var(--line); }
+.search-related > p:not(.eyebrow) { max-width: 650px; margin: 9px 0 18px; color: rgba(30, 34, 36, .62); font-size: 11px; line-height: 1.7; }
+.search-related > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.search-related a { display: grid; grid-template-columns: 1fr auto; gap: 7px 12px; padding: 14px; border: 1px solid var(--line); color: var(--ink); text-decoration: none; transition: background 160ms var(--ease-out), transform 160ms var(--ease-out); }
+.search-related a:hover { background: rgba(184, 145, 82, .09); transform: translateY(-2px); }
+.search-related a span { color: var(--gold); font-size: 8px; letter-spacing: .1em; }
+.search-related a strong { font-size: 12px; line-height: 1.45; }
+.search-related a svg { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--gold); }
+ .tasting-pending { max-width: 390px; margin: 0; padding: 17px; border-left: 2px solid var(--gold); background: rgba(184, 145, 82, .08); color: rgba(30, 34, 36, .68); font-size: 12px; line-height: 1.75; }
+.batch-tasting-notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.batch-tasting-notes span { padding: 7px 9px; border: 1px solid rgba(184, 145, 82, .4); color: var(--brown); font-size: 10px; }
 html.dark .product-search-main { background: var(--charcoal); }
 html.dark .search-filters, html.dark .search-filters label, html.dark .search-results-head { border-color: var(--dark-line); }
 html.dark .search-filter-head, html.dark .search-results-head > p, html.dark .search-product-card h2, html.dark .search-product-card strong, html.dark .search-empty { color: var(--ivory); }
 html.dark .search-filter-head button, html.dark .search-filters label > span, html.dark .search-results-head label > span, html.dark .search-product-card p, html.dark .search-product-card small, html.dark .search-empty p { color: rgba(242, 235, 221, .6); }
 html.dark .search-filters label small { color: rgba(242, 235, 221, .6); }
+html.dark .filter-memory, html.dark .search-related > p:not(.eyebrow), html.dark .tasting-pending { color: rgba(242, 235, 221, .62); }
+html.dark .search-related { border-color: var(--dark-line); }
+html.dark .search-related a { border-color: var(--dark-line); color: var(--ivory); }
+html.dark .tasting-pending { background: rgba(184, 145, 82, .11); }
 html.dark .search-filters select, html.dark .search-results-head select { border-color: rgba(242, 235, 221, .35); color: var(--ivory); }
 html.dark .search-product-card { border-color: var(--dark-line); background: rgba(242, 235, 221, .035); }
 @media (max-width: 850px) {
@@ -658,6 +674,7 @@ html.dark .search-product-card { border-color: var(--dark-line); background: rgb
   .search-filters label { padding: 16px 0; }
   .search-product-grid { grid-template-columns: 1fr; }
   .search-skeleton-grid { grid-template-columns: 1fr; }
+  .search-related > div { grid-template-columns: 1fr; }
   .search-product-card { grid-template-columns: 112px minmax(0, 1fr); min-height: 205px; }
   .search-skeleton-card { grid-template-columns: 112px minmax(0, 1fr); min-height: 205px; }
   .search-product-card > div { padding: 16px; }

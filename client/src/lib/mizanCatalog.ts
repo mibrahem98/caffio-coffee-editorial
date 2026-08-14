@@ -30,10 +30,16 @@ export type BatchRecord = {
   recordId: string;
   lotLabel: Bilingual;
   verification: Bilingual;
+  tastingStatus: "pending" | "verified";
+  tastingNotes?: Bilingual[];
   sourceType: Bilingual;
   evidence: Bilingual;
   reviewedAt: Bilingual;
 };
+
+export function getVerifiedTastingNotes(product: CoffeeProduct): Bilingual[] {
+  return product.batch.tastingStatus === "verified" ? product.batch.tastingNotes || [] : [];
+}
 
 export type BrewArticle = {
   id: string;
@@ -73,7 +79,7 @@ export const coffeeProducts: CoffeeProduct[] = [
     tastingNotes: [pending, pending, pending],
     brewMethods: [{ en: "Pour-over", ar: "ترشيح" }, { en: "AeroPress", ar: "إيروبرس" }],
     sourceLabel: { en: "Product card / source required before publishing origin claims", ar: "بطاقة المنتج / يلزم المصدر قبل نشر ادعاءات المنشأ" },
-    batch: { recordId: "MZN-ALTO-01", lotLabel: { en: "Seasonal lot / draft", ar: "محصول موسمي / مسودة" }, verification: { en: "Needs source review", ar: "يحتاج مراجعة المصدر" }, sourceType: { en: "Batch card or producer document", ar: "بطاقة دفعة أو مستند المنتج" }, evidence: { en: "No supporting file attached", ar: "لم يُرفق مستند داعم" }, reviewedAt: { en: "Not reviewed", ar: "لم تتم المراجعة" } },
+    batch: { recordId: "MZN-ALTO-01", lotLabel: { en: "Seasonal lot / draft", ar: "محصول موسمي / مسودة" }, verification: { en: "Needs source review", ar: "يحتاج مراجعة المصدر" }, tastingStatus: "pending", sourceType: { en: "Batch card or producer document", ar: "بطاقة دفعة أو مستند المنتج" }, evidence: { en: "No supporting file attached", ar: "لم يُرفق مستند داعم" }, reviewedAt: { en: "Not reviewed", ar: "لم تتم المراجعة" } },
   },
   {
     id: "sombra",
@@ -94,7 +100,7 @@ export const coffeeProducts: CoffeeProduct[] = [
     tastingNotes: [pending, pending, pending],
     brewMethods: [{ en: "Pour-over", ar: "ترشيح" }, { en: "French press", ar: "فرنش برس" }],
     sourceLabel: { en: "Product card / source required before publishing origin claims", ar: "بطاقة المنتج / يلزم المصدر قبل نشر ادعاءات المنشأ" },
-    batch: { recordId: "MZN-SOMBRA-01", lotLabel: { en: "Seasonal lot / draft", ar: "محصول موسمي / مسودة" }, verification: { en: "Needs source review", ar: "يحتاج مراجعة المصدر" }, sourceType: { en: "Batch card or producer document", ar: "بطاقة دفعة أو مستند المنتج" }, evidence: { en: "No supporting file attached", ar: "لم يُرفق مستند داعم" }, reviewedAt: { en: "Not reviewed", ar: "لم تتم المراجعة" } },
+    batch: { recordId: "MZN-SOMBRA-01", lotLabel: { en: "Seasonal lot / draft", ar: "محصول موسمي / مسودة" }, verification: { en: "Needs source review", ar: "يحتاج مراجعة المصدر" }, tastingStatus: "pending", sourceType: { en: "Batch card or producer document", ar: "بطاقة دفعة أو مستند المنتج" }, evidence: { en: "No supporting file attached", ar: "لم يُرفق مستند داعم" }, reviewedAt: { en: "Not reviewed", ar: "لم تتم المراجعة" } },
   },
   {
     id: "mizan-house",
@@ -115,7 +121,7 @@ export const coffeeProducts: CoffeeProduct[] = [
     tastingNotes: [pending, pending, pending],
     brewMethods: [{ en: "Espresso", ar: "إسبريسو" }, { en: "Moka pot", ar: "موكا بوت" }],
     sourceLabel: { en: "Blend card / source required before publishing origin claims", ar: "بطاقة الخلطة / يلزم المصدر قبل نشر ادعاءات المنشأ" },
-    batch: { recordId: "MZN-HOUSE-01", lotLabel: { en: "House espresso / draft", ar: "إسبريسو البيت / مسودة" }, verification: { en: "Needs source review", ar: "يحتاج مراجعة المصدر" }, sourceType: { en: "Blend card or producer document", ar: "بطاقة خلطة أو مستند المنتج" }, evidence: { en: "No supporting file attached", ar: "لم يُرفق مستند داعم" }, reviewedAt: { en: "Not reviewed", ar: "لم تتم المراجعة" } },
+    batch: { recordId: "MZN-HOUSE-01", lotLabel: { en: "House espresso / draft", ar: "إسبريسو البيت / مسودة" }, verification: { en: "Needs source review", ar: "يحتاج مراجعة المصدر" }, tastingStatus: "pending", sourceType: { en: "Blend card or producer document", ar: "بطاقة خلطة أو مستند المنتج" }, evidence: { en: "No supporting file attached", ar: "لم يُرفق مستند داعم" }, reviewedAt: { en: "Not reviewed", ar: "لم تتم المراجعة" } },
   },
 ];
 

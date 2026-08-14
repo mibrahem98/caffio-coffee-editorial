@@ -5,32 +5,43 @@ export default function ScrollMotion() {
   const [location] = useLocation();
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      const elements = Array.from(document.querySelectorAll<HTMLElement>("section, .product-tile, .notes-grid article, .field-article, .batch-card, .profile-column, .share-product"));
+    const selector = "section, .hero-signal, .principle-grid article, .product-tile, .notes-grid article, .faq-item, .field-article, .batch-card, .profile-column, .share-product";
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frame = 0;
+    const observer = !reduceMotion && "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer?.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" }) : null;
+
+    const prepareReveals = () => {
+      const elements = Array.from(document.querySelectorAll<HTMLElement>(selector));
       elements.forEach((element, index) => {
-        if (element.classList.contains("mizan-hero")) return;
+        if (element.classList.contains("mizan-hero") || element.classList.contains("reveal-on-scroll")) return;
         element.classList.add("reveal-on-scroll");
         element.style.setProperty("--reveal-delay", `${Math.min(index % 5, 4) * 45}ms`);
+        if (reduceMotion || !observer) element.classList.add("is-visible");
+        else observer.observe(element);
       });
+    };
 
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (reduceMotion || !("IntersectionObserver" in window)) {
-        elements.forEach((element) => element.classList.add("is-visible"));
-        return;
-      }
+    const schedulePrepare = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(prepareReveals);
+    };
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" });
-      elements.forEach((element) => observer.observe(element));
-      return () => observer.disconnect();
-    });
-    return () => window.cancelAnimationFrame(frame);
+    const mutations = new MutationObserver(schedulePrepare);
+    mutations.observe(document.body, { childList: true, subtree: true });
+    schedulePrepare();
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      mutations.disconnect();
+      observer?.disconnect();
+    };
   }, [location]);
 
   return null;

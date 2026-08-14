@@ -39,6 +39,11 @@ const heroSignals = {
   ],
 };
 
+const societyFaq = {
+  en: { question: "Is Caffio Society ready for paid subscriptions?", answer: "Not yet. Society currently creates a local demo record only. It remains clearly marked as a simulation until Stripe, webhook verification, pricing, and fulfillment rules are approved." },
+  ar: { question: "هل مجتمع كافيو جاهز لاشتراك مدفوع؟", answer: "ليس بعد. ينشئ المجتمع حاليًا سجلًا تجريبيًا محليًا فقط، وسيبقى موسومًا كمحاكاة إلى أن يعتمد Stripe والتحقق عبر webhook والأسعار وقواعد التنفيذ." },
+};
+
 function MizanHome() {
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem("mizan-lang") as Lang) || "en");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -47,6 +52,7 @@ function MizanHome() {
   const [progress, setProgress] = useState(0);
   const [waitlistState, setWaitlistState] = useState<"idle" | "error" | "success">("idle");
   const [emailError, setEmailError] = useState("");
+  const [openFaq, setOpenFaq] = useState(0);
   const t = useMemo(() => Object.fromEntries(Object.entries(copy[lang]).map(([key, value]) => [key, value.replaceAll("MIZAN", "CAFFIO").replaceAll("ميزان", "كافيو")])) as typeof copy[typeof lang], [lang]);
   const { add } = useCart();
   const direction = lang === "ar" ? "rtl" : "ltr";
@@ -68,6 +74,7 @@ function MizanHome() {
     return matchesFilter && (!query.trim() || haystack.includes(query.trim().toLowerCase()));
   }), [activeFilter, lang, query]);
   const compareProducts = compareIds.map((id) => coffeeProducts.find((product) => product.id === id) || coffeeProducts[0]);
+  const faqItems = [[t.faq1, t.faq1Body], [t.faq2, t.faq2Body], [t.faq3, t.faq3Body], [societyFaq[lang].question, societyFaq[lang].answer]];
 
   const handleWaitlist = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,7 +107,7 @@ function MizanHome() {
 
       <section className="notes-section section-light" id="notes"><div className="section-intro"><span className="section-number">04<span>/</span>06</span><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.notesEyebrow}</p><h2>{t.notesA}<br /><em>{t.notesB}</em></h2></div></div><div className="notes-grid"><article><img src={images.journalOne} alt="Coffee beans on a tactile surface" loading="lazy" decoding="async" /><div><span>01 / CONTENT</span><h3>{t.note1}</h3><p>{t.note1Body}</p><a href="/notes">{t.read}<ArrowUpRight size={14} /></a></div></article><article><img src={images.journalTwo} alt="Pour-over coffee preparation" loading="lazy" decoding="async" /><div><span>02 / BREW</span><h3>{t.note2}</h3><p>{t.note2Body}</p><a href="/notes">{t.read}<ArrowUpRight size={14} /></a></div></article><article><img src={images.journalThree} alt="Coffee beside a window" loading="lazy" decoding="async" /><div><span>03 / FRESHNESS</span><h3>{t.note3}</h3><p>{t.note3Body}</p><a href="/notes">{t.read}<ArrowUpRight size={14} /></a></div></article></div></section>
 
-      <section className="faq-section section-dark" id="faq"><div className="section-intro dark-intro"><span className="section-number">05<span>/</span>06</span><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.faqEyebrow}</p><h2>{t.faqA}<br /><em>{t.faqB}</em></h2></div></div><div className="faq-list"><details open><summary>{t.faq1}<ChevronDown size={17} /></summary><p>{t.faq1Body}</p></details><details><summary>{t.faq2}<ChevronDown size={17} /></summary><p>{t.faq2Body}</p></details><details><summary>{t.faq3}<ChevronDown size={17} /></summary><p>{t.faq3Body}</p></details></div></section>
+      <section className="faq-section section-dark" id="faq"><div className="section-intro dark-intro"><span className="section-number">05<span>/</span>06</span><div><p className="eyebrow light"><span className="eyebrow-dot" /> {t.faqEyebrow}</p><h2>{t.faqA}<br /><em>{t.faqB}</em></h2></div></div><div className="faq-list" data-testid="faq-accordion">{faqItems.map(([question, answer], index) => { const isOpen = openFaq === index; const panelId = `faq-panel-${index}`; return <article className={isOpen ? "faq-item is-open" : "faq-item"} key={String(question)}><button className="faq-trigger" type="button" aria-expanded={isOpen} aria-controls={panelId} onClick={() => setOpenFaq(isOpen ? -1 : index)}><span><small>{String(index + 1).padStart(2, "0")}</small>{question}</span><ChevronDown size={17} aria-hidden="true" /></button><div className="faq-answer" id={panelId} aria-hidden={!isOpen}><div><p>{answer}</p></div></div></article>; })}</div></section>
 
       <section className="join-section" id="join"><div className="join-mark"><span className="mizan-symbol large" aria-hidden="true"><i /><b /><em /></span></div><div className="join-copy"><p className="eyebrow light"><span className="eyebrow-dot" /> {t.joinEyebrow}</p>{waitlistState === "success" ? <div className="join-success"><div className="success-icon"><CheckCircle2 size={28} /></div><h2>{t.joinedTitle}</h2><p>{t.joinedBody}</p><button className="text-link light-link" onClick={() => setWaitlistState("idle")}>{t.useAnother}<ArrowUpRight size={15} /></button></div> : <><h2>{t.joinA}<br /><em>{t.joinB}</em></h2><p>{t.joinBody}</p><form onSubmit={handleWaitlist} noValidate><input name="email" type="email" placeholder={t.email} aria-label={t.email} aria-invalid={waitlistState === "error"} aria-describedby={emailError ? "email-error" : undefined} onChange={() => { setEmailError(""); setWaitlistState("idle"); }} /><button className="button button-gold" type="submit">{t.join}<ArrowUpRight size={16} /></button></form>{emailError && <span className="email-error" id="email-error" role="alert">{emailError}</span>}</>}</div><div className="join-aside"><span>01</span><i /><span>{lang === "ar" ? "رسائل موسمية" : "Seasonal letters"}</span></div></section>
     </main>

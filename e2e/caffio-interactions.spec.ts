@@ -29,6 +29,29 @@ test("homepage prioritizes its hero image and defers non-critical catalog imager
   await expect(page.locator(".notes-grid article img").first()).toHaveAttribute("loading", "lazy");
 });
 
+test("FAQ accordion exposes one answer at a time and supports keyboard activation", async ({ page }) => {
+  await page.goto("/");
+  const accordion = page.getByTestId("faq-accordion");
+  const firstQuestion = accordion.getByRole("button", { name: "How do I choose a coffee?" });
+  const pricingQuestion = accordion.getByRole("button", { name: "Are the prices and checkout live?" });
+  await expect(firstQuestion).toHaveAttribute("aria-expanded", "true");
+  await expect(pricingQuestion).toHaveAttribute("aria-expanded", "false");
+  await pricingQuestion.focus();
+  await pricingQuestion.press("Enter");
+  await expect(pricingQuestion).toHaveAttribute("aria-expanded", "true");
+  await expect(firstQuestion).toHaveAttribute("aria-expanded", "false");
+  await expect(page.locator("#faq-panel-1")).toHaveAttribute("aria-hidden", "false");
+});
+
+test("scroll reveals stay visible without transitions when reduced motion is requested", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const reveal = page.locator(".hero-signal").first();
+  await expect(reveal).toHaveClass(/is-visible/);
+  const duration = await reveal.evaluate((element) => getComputedStyle(element).transitionDuration);
+  expect(Number.parseFloat(duration)).toBeLessThanOrEqual(0.001);
+});
+
 test("mobile navigation control references and opens the primary navigation", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");

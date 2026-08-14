@@ -154,6 +154,29 @@ test("advanced product search filters and sorts collection results while persist
   await expect(page.locator('a[href="/search"]').first()).toHaveAttribute("href", "/search");
 });
 
+test("product search keeps a bounded local recent-search list that the visitor can clear", async ({ page }) => {
+  await page.addInitScript(() => localStorage.removeItem("caffio-recent-product-searches-v1"));
+  await page.goto("/search");
+  const input = page.getByLabel("Search coffee, profile, or brew method");
+  await input.fill("alto");
+  const recent = page.getByTestId("recent-searches");
+  await expect(recent).toBeVisible({ timeout: 1500 });
+  await expect(recent.getByRole("button", { name: "alto" })).toBeVisible();
+  await expect(recent.getByText("Saved in this browser only. No account or profile is created.")).toBeVisible();
+  await recent.getByRole("button", { name: "Clear recent searches" }).click();
+  await expect(recent).toHaveCount(0);
+});
+
+test("product search keeps tasting-note filtering unavailable until documented notes exist and shows a skeleton while updating", async ({ page }) => {
+  await page.goto("/search");
+  const tasting = page.getByLabel("Tasting note");
+  await expect(tasting).toBeDisabled();
+  await expect(page.getByText("Tasting-note filters unlock only after a verified batch record is attached.")).toBeVisible();
+  await page.getByLabel("Roast").selectOption("espresso");
+  await expect(page.locator(".search-skeleton-grid")).toBeVisible();
+  await expect(page.locator(".search-results-body")).toHaveAttribute("aria-busy", "false", { timeout: 1000 });
+});
+
 test("native share receives the current product URL", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "share", {

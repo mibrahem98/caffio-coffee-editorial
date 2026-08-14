@@ -588,6 +588,13 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .product-search-input input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ivory); font-size: 15px; }
 .product-search-input input::placeholder { color: rgba(242, 235, 221, .48); }
 .product-search-input button { display: grid; place-items: center; background: transparent; color: var(--gold); cursor: pointer; }
+.recent-searches { display: grid; gap: 8px; max-width: 760px; margin-top: 15px; padding: 12px 0 0; border-top: 1px solid rgba(242, 235, 221, .16); }
+.recent-searches > div { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.recent-searches > div > span { display: inline-flex; align-items: center; gap: 7px; color: var(--gold); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.recent-searches > div > button { border: 0; background: transparent; color: rgba(242, 235, 221, .58); cursor: pointer; font-size: 9px; text-decoration: underline; }
+.recent-searches > p { margin: 0; color: rgba(242, 235, 221, .53); font-size: 10px; }
+.recent-searches ul { display: flex; flex-wrap: wrap; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.recent-searches li button { border: 1px solid rgba(184, 145, 82, .4); background: rgba(184, 145, 82, .08); color: var(--ivory); cursor: pointer; font-size: 10px; padding: 7px 9px; }
 .search-results-section { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 5vw; padding: 66px 7vw 120px; }
 .search-filters { align-self: start; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .search-filter-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 19px; color: var(--brown); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
@@ -595,8 +602,19 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .search-filter-head button { border: 0; background: transparent; color: rgba(30, 34, 36, .58); cursor: pointer; font-size: 9px; text-decoration: underline; }
 .search-filters label { display: grid; gap: 7px; padding: 16px 0; border-top: 1px solid var(--line); }
 .search-filters label > span, .search-results-head label > span { color: rgba(30, 34, 36, .58); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.search-filters label small { color: rgba(30, 34, 36, .56); font-size: 9px; line-height: 1.45; }
 .search-filters select, .search-results-head select { width: 100%; border: 0; border-bottom: 1px solid rgba(30, 34, 36, .35); outline: 0; background: transparent; color: var(--ink); cursor: pointer; font-size: 12px; padding: 0 0 8px; }
 .search-results { min-width: 0; }
+.search-results-body { position: relative; min-height: 230px; }
+.search-results-body.is-updating > :not(.search-skeleton-grid) { opacity: .18; pointer-events: none; }
+.search-skeleton-grid { position: absolute; z-index: 2; inset: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; }
+.search-skeleton-card { display: grid; grid-template-columns: 150px minmax(0, 1fr); min-height: 230px; border: 1px solid var(--line); background: rgba(255, 255, 255, .3); overflow: hidden; }
+.search-skeleton-card > i, .search-skeleton-card b { display: block; background: linear-gradient(100deg, rgba(184, 145, 82, .08) 20%, rgba(184, 145, 82, .26) 40%, rgba(184, 145, 82, .08) 60%); background-size: 200% 100%; animation: search-skeleton-pulse 1.1s linear infinite; }
+.search-skeleton-card > span { display: grid; align-content: center; gap: 13px; padding: 21px; }
+.search-skeleton-card b:nth-child(1) { width: 42%; height: 8px; }
+.search-skeleton-card b:nth-child(2) { width: 78%; height: 25px; }
+.search-skeleton-card b:nth-child(3) { width: 62%; height: 10px; }
+@keyframes search-skeleton-pulse { to { background-position: -200% 0; } }
 .search-results-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
 .search-results-head > p { display: inline-flex; align-items: center; gap: 8px; margin: 0; color: var(--brown); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
 .search-results-head > p svg { color: var(--gold); }
@@ -624,6 +642,7 @@ html.dark .product-search-main { background: var(--charcoal); }
 html.dark .search-filters, html.dark .search-filters label, html.dark .search-results-head { border-color: var(--dark-line); }
 html.dark .search-filter-head, html.dark .search-results-head > p, html.dark .search-product-card h2, html.dark .search-product-card strong, html.dark .search-empty { color: var(--ivory); }
 html.dark .search-filter-head button, html.dark .search-filters label > span, html.dark .search-results-head label > span, html.dark .search-product-card p, html.dark .search-product-card small, html.dark .search-empty p { color: rgba(242, 235, 221, .6); }
+html.dark .search-filters label small { color: rgba(242, 235, 221, .6); }
 html.dark .search-filters select, html.dark .search-results-head select { border-color: rgba(242, 235, 221, .35); color: var(--ivory); }
 html.dark .search-product-card { border-color: var(--dark-line); background: rgba(242, 235, 221, .035); }
 @media (max-width: 850px) {
@@ -638,10 +657,15 @@ html.dark .search-product-card { border-color: var(--dark-line); background: rgb
   .search-filters { grid-template-columns: 1fr; gap: 0; }
   .search-filters label { padding: 16px 0; }
   .search-product-grid { grid-template-columns: 1fr; }
+  .search-skeleton-grid { grid-template-columns: 1fr; }
   .search-product-card { grid-template-columns: 112px minmax(0, 1fr); min-height: 205px; }
+  .search-skeleton-card { grid-template-columns: 112px minmax(0, 1fr); min-height: 205px; }
   .search-product-card > div { padding: 16px; }
   .search-results-head { align-items: flex-start; flex-direction: column; }
   .search-results-head label { min-width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .search-skeleton-card > i, .search-skeleton-card b { animation: none; }
 }
 
 /* Follow-up features: tracking, field notes, and saved coffees */

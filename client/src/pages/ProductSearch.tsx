@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowUpRight, ChevronDown, Clock3, Filter, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, ChevronDown, Clock3, Filter, Scale, Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import CartDrawer from "@/components/CartDrawer";
@@ -130,7 +130,7 @@ export default function ProductSearch() {
   useEffect(() => {
     if (!isUpdating) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const timer = window.setTimeout(() => setIsUpdating(false), reduced ? 0 : 180);
+    const timer = window.setTimeout(() => setIsUpdating(false), reduced ? 0 : 220);
     return () => window.clearTimeout(timer);
   }, [isUpdating, query, roast, brew, tasting, price, sort]);
 
@@ -202,9 +202,10 @@ export default function ProductSearch() {
             <div className="search-results-head"><p><Filter size={15} /> {results.length} {t.results}</p><label><span>{t.sort}</span><select value={sort} onChange={(event) => { setStatusAction("sort"); startUpdate(); setSort(event.target.value as Sort); }}><option value="featured">{t.featured}</option><option value="price-asc">{t.priceAsc}</option><option value="price-desc">{t.priceDesc}</option><option value="name">{t.name}</option></select><ChevronDown size={14} /></label></div>
             <div className={isUpdating ? "search-results-body is-updating" : "search-results-body"} aria-busy={isUpdating}>
               {isUpdating && <div className="search-skeleton-grid" aria-hidden="true">{Array.from({ length: 3 }).map((_, index) => <div className="search-skeleton-card" key={index}><i /><span><b /><b /><b /></span></div>)}</div>}
-              {results.length ? <div className="search-product-grid">{results.map((product) => <article className="search-product-card" key={product.id}><ResponsiveImage image={responsiveImages[product.imageKey]} alt={`${product.shortName[lang]} coffee`} loading="lazy" decoding="async" /><div><span>{t.sourcePending}</span><h2>{product.name[lang]}</h2><p>{product.profile[lang]}</p><small>{product.brewMethods.map((method) => method[lang]).join(" · ")}</small><div><strong>{t.demo} / {formatPrice(product.price, lang)}</strong><Link className="text-link" href={`/coffee/${product.id}`}>{t.details}<ArrowUpRight size={14} /></Link></div></div></article>)}</div> : <div className="search-empty" role="status"><Search size={28} /><h2>{t.noTitle}</h2><p>{t.noBody}</p><button className="button button-gold" type="button" onClick={reset}>{t.reset}<ArrowUpRight size={15} /></button></div>}
+              {results.length ? <div className="search-product-grid">{results.map((product) => <article className="search-product-card" key={product.id}><ResponsiveImage image={responsiveImages[product.imageKey]} alt={`${product.shortName[lang]} coffee`} loading="lazy" decoding="async" /><div><span>{t.sourcePending}</span><h2>{product.name[lang]}</h2><p>{product.profile[lang]}</p><small>{product.brewMethods.map((method) => method[lang]).join(" · ")}</small><div><strong>{t.demo} / {formatPrice(product.price, lang)}</strong><Link className="text-link" href={`/coffee/${product.id}`}>{t.details}<ArrowUpRight size={14} /></Link></div></div></article>)}</div> : <div className="search-empty" role="status"><Search size={28} /><h2>{t.noTitle}</h2><p>{t.noBody}</p><div><button className="button button-gold" type="button" onClick={reset}>{t.reset}<ArrowUpRight size={15} /></button><Link className="text-link" href="/compare">{lang === "ar" ? "قارن قهوتين بدلًا من ذلك" : "Compare two coffees instead"}<ArrowUpRight size={14} /></Link></div></div>}
             </div>
             <section className="search-guidance" data-testid="search-guidance"><p className="eyebrow"><span className="eyebrow-dot" /> {t.guidance}</p><p>{t.guidanceBody}</p><Link className="text-link" href="/sources">{t.guidanceLink}<ArrowUpRight size={14} /></Link></section>
+            {results[0] && <Link className="search-compare-entry" data-testid="compare-from-search" href={`/compare?a=${results[0].id}`}><Scale size={17} aria-hidden="true" /><span><small>{lang === "ar" ? "قرار أوضح" : "A clearer decision"}</small><strong>{lang === "ar" ? "قارن هذه القهوة بأخرى" : "Compare this coffee with another"}</strong></span><ArrowUpRight size={16} aria-hidden="true" /></Link>}
             {results.length > 0 && <section className="search-related" data-testid="related-products"><p className="eyebrow"><span className="eyebrow-dot" /> {t.related}</p><p>{t.relatedBody}</p>{related.length ? <div>{related.map((product) => <Link key={product.id} href={`/coffee/${product.id}`}><span>{product.shortName[lang]}</span><strong>{product.profile[lang]}</strong><ArrowUpRight size={14} /></Link>)}</div> : <p className="search-related-empty" role="status">{t.relatedEmpty}</p>}</section>}
           </div>
         </section>

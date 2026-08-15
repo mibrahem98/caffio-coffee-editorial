@@ -235,6 +235,41 @@ test("public source protocol exposes content-evidence boundaries without product
   await expect(page.getByRole("link", { name: "Open reference" }).first()).toHaveAttribute("href", "https://sca.coffee/research/coffee-standards");
 });
 
+test("shareable comparison renders two records, preserves its pair in the URL, and keeps tasting notes pending", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", { configurable: true, value: async (payload: unknown) => { (window as Window & { comparisonShare?: unknown }).comparisonShare = payload; } });
+  });
+  await page.goto("/compare?a=alto&b=sombra");
+  await expect(page.getByTestId("product-comparison-table")).toBeVisible();
+  await expect(page.getByText("Awaiting verified batch tasting record")).toHaveCount(2);
+  await page.getByRole("button", { name: "Share comparison" }).click();
+  await expect(page.getByRole("status")).toContainText("Share sheet opened.");
+  await expect.poll(() => page.evaluate(() => (window as Window & { comparisonShare?: { url?: string } }).comparisonShare?.url)).toContain("/compare?a=alto&b=sombra");
+  await page.getByLabel("Second coffee").selectOption("mizan-house");
+  await expect(page).toHaveURL(/a=alto&b=mizan-house/);
+});
+
+test("comparison entry points and empty search state guide visitors to a clear next step", async ({ page }) => {
+  await page.goto("/coffee/alto");
+  await expect(page.getByTestId("compare-from-detail")).toHaveAttribute("href", "/compare?a=alto");
+  await page.goto("/search?q=not-a-catalog-coffee");
+  await expect(page.locator(".search-results-body")).toHaveAttribute("aria-busy", "false");
+  await expect(page.getByLabel("Roast")).toBeVisible();
+  await expect(page.getByText("No coffees match this view.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reset search" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Compare two coffees instead" })).toHaveAttribute("href", "/compare");
+  await page.goto("/search?q=alto");
+  await expect(page.getByTestId("compare-from-search")).toHaveAttribute("href", "/compare?a=alto");
+});
+
+test("comparison retains Arabic RTL parity and its pending-evidence boundary", async ({ page }) => {
+  await page.goto("/compare?a=alto&b=sombra");
+  await page.getByLabel("Select language").selectOption("ar");
+  await expect(page.locator(".comparison-site")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByText("بانتظار سجل تذوق موثّق للدفعة")).toHaveCount(2);
+  await expect(page.getByRole("link", { name: "افتح بروتوكول المصادر" })).toHaveAttribute("href", "/sources");
+});
+
 test("product detail keeps tasting notes pending until its batch becomes verified", async ({ page }) => {
   await page.goto("/coffee/alto");
   await expect(page.getByTestId("pending-tasting-notes")).toHaveText(/Awaiting a verified batch tasting record/i);

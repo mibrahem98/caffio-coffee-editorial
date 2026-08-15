@@ -238,15 +238,28 @@ test("public source protocol exposes content-evidence boundaries without product
 test("shareable comparison renders two records, preserves its pair in the URL, and keeps tasting notes pending", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(navigator, "share", { configurable: true, value: async (payload: unknown) => { (window as Window & { comparisonShare?: unknown }).comparisonShare = payload; } });
+    Object.defineProperty(window, "print", { configurable: true, value: () => { (window as Window & { comparisonPrinted?: boolean }).comparisonPrinted = true; } });
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: () => "blob:comparison-test" });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: () => undefined });
   });
   await page.goto("/compare?a=alto&b=sombra");
   await expect(page.getByTestId("product-comparison-table")).toBeVisible();
   await expect(page.getByText("Awaiting verified batch tasting record")).toHaveCount(2);
+  const recipes = page.getByTestId("comparison-recipes");
+  await expect(recipes).toBeVisible();
+  await expect(recipes.getByText("Pour-over").first()).toBeVisible();
+  await expect(recipes.getByText("French press")).toBeVisible();
   await page.getByRole("button", { name: "Share comparison" }).click();
   await expect(page.getByRole("status")).toContainText("Share sheet opened.");
   await expect.poll(() => page.evaluate(() => (window as Window & { comparisonShare?: { url?: string } }).comparisonShare?.url)).toContain("/compare?a=alto&b=sombra");
+  await page.getByTestId("export-comparison-image").click();
+  await expect(page.getByRole("status")).toContainText("Comparison image download started.");
+  await page.getByTestId("print-comparison-pdf").click();
+  await expect(page.getByRole("status")).toContainText("Choose “Save as PDF” in the browser print dialog.");
+  await expect.poll(() => page.evaluate(() => (window as Window & { comparisonPrinted?: boolean }).comparisonPrinted)).toBe(true);
   await page.getByLabel("Second coffee").selectOption("mizan-house");
   await expect(page).toHaveURL(/a=alto&b=mizan-house/);
+  await expect(recipes.getByText("Moka pot")).toBeVisible();
 });
 
 test("comparison entry points and empty search state guide visitors to a clear next step", async ({ page }) => {

@@ -694,7 +694,11 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .comparison-workspace .comparison-selects label span { color: rgba(30, 34, 36, .58); }
 .comparison-workspace .comparison-selects select { border-color: var(--line); background: transparent; color: var(--ink); }
 .comparison-actions { display: flex; align-items: center; gap: 16px; margin: 0 0 24px; }
-.comparison-actions .button { display: inline-flex; align-items: center; gap: 8px; }
+.comparison-actions > div { display: flex; flex-wrap: wrap; gap: 9px; }
+.comparison-actions .button, .comparison-export-button { display: inline-flex; align-items: center; gap: 8px; }
+.comparison-export-button { border: 1px solid rgba(184, 145, 82, .5); background: transparent; color: var(--brown); cursor: pointer; font: inherit; font-size: 10px; letter-spacing: .04em; padding: 12px 14px; transition: background 160ms var(--ease-out), transform 160ms var(--ease-out); }
+.comparison-export-button:hover { background: rgba(184, 145, 82, .1); transform: translateY(-1px); }
+.comparison-export-button:active { transform: scale(.97); }
 .comparison-actions p { min-height: 18px; margin: 0; color: var(--brown); font-size: 11px; }
 .comparison-table { overflow: hidden; border-top: 1px solid var(--line); }
 .comparison-table > div { display: grid; grid-template-columns: minmax(150px, .72fr) minmax(0, 1fr) minmax(0, 1fr); border-bottom: 1px solid var(--line); }
@@ -710,6 +714,25 @@ html.dark .payment-status small, html.dark .payment-status > p, html.dark .payme
 .comparison-empty { padding: 64px 0; color: var(--brown); }
 .comparison-empty h2 { margin: 18px 0 10px; color: var(--ink); font-size: clamp(38px, 5vw, 64px); }
 .comparison-empty p { max-width: 560px; margin: 0; color: rgba(30, 34, 36, .66); font-size: 13px; line-height: 1.8; }
+.comparison-recipes { margin-top: 56px; padding-top: 30px; border-top: 1px solid var(--line); }
+.comparison-recipes-head { display: flex; align-items: start; justify-content: space-between; gap: 22px; margin-bottom: 24px; }
+.comparison-recipes-head h2 { margin: 8px 0 10px; color: var(--ink); font-size: clamp(32px, 4vw, 54px); line-height: .98; }
+.comparison-recipes-head > div > p:last-child { max-width: 640px; margin: 0; color: rgba(30, 34, 36, .66); font-size: 12px; line-height: 1.75; }
+.comparison-recipes-head > svg { color: var(--gold); }
+.comparison-recipe-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.comparison-recipe-grid > article { border: 1px solid var(--line); background: rgba(255, 255, 255, .24); }
+.comparison-recipe-grid > article > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; border-bottom: 1px solid var(--line); }
+.comparison-recipe-grid > article > header span { color: var(--brown); font-family: var(--font-serif); font-size: 22px; }
+.comparison-recipe-grid > article > header strong { color: rgba(30, 34, 36, .55); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.comparison-recipe-grid section { padding: 18px; border-bottom: 1px solid var(--line); }
+.comparison-recipe-grid section:last-child { border-bottom: 0; }
+.comparison-recipe-grid h3 { margin: 0 0 8px; color: var(--ink); font-size: 18px; }
+.comparison-recipe-grid section > p { margin: 0 0 14px; color: rgba(30, 34, 36, .66); font-size: 11px; line-height: 1.7; }
+.comparison-recipe-grid dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.comparison-recipe-grid dl div { padding: 9px; background: rgba(184, 145, 82, .07); }
+.comparison-recipe-grid dt { color: rgba(30, 34, 36, .53); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
+.comparison-recipe-grid dd { margin: 4px 0 0; color: var(--ink); font-size: 11px; }
+.comparison-no-recipe { margin: 0; padding: 20px; color: rgba(30, 34, 36, .62); font-size: 12px; line-height: 1.7; }
 .detail-compare-link { display: inline-flex; align-items: center; gap: 6px; color: var(--brown); font-size: 10px; font-weight: 700; text-decoration: none; }
 .detail-compare-link:hover { text-decoration: underline; }
 .search-related { margin-top: 50px; padding-top: 28px; border-top: 1px solid var(--line); }
@@ -746,6 +769,13 @@ html.dark .comparison-table strong { border-color: var(--dark-line); }
 html.dark .comparison-table .comparison-table-head { background: rgba(184, 145, 82, .12); }
 html.dark .comparison-table .comparison-table-head strong { color: var(--gold); }
 html.dark .comparison-evidence { background: rgba(184, 145, 82, .1); }
+html.dark .comparison-export-button { color: var(--ivory); }
+html.dark .comparison-recipes { border-color: var(--dark-line); }
+html.dark .comparison-recipes-head h2, html.dark .comparison-recipe-grid h3, html.dark .comparison-recipe-grid dd { color: var(--ivory); }
+html.dark .comparison-recipes-head > div > p:last-child, html.dark .comparison-recipe-grid section > p, html.dark .comparison-no-recipe, html.dark .comparison-recipe-grid > article > header strong, html.dark .comparison-recipe-grid dt { color: rgba(242, 235, 221, .65); }
+html.dark .comparison-recipe-grid > article, html.dark .comparison-recipe-grid > article > header, html.dark .comparison-recipe-grid section { border-color: var(--dark-line); }
+html.dark .comparison-recipe-grid > article { background: rgba(242, 235, 221, .035); }
+html.dark .comparison-recipe-grid dl div { background: rgba(184, 145, 82, .12); }
 html.dark .source-rule h2 { color: var(--ivory); }
 html.dark .source-rule > div > p:last-child, html.dark .source-registry p, html.dark .source-registry-head { color: rgba(242, 235, 221, .67); }
 html.dark .source-registry { border-color: var(--dark-line); }
@@ -782,7 +812,11 @@ html.dark .search-product-card { border-color: var(--dark-line); background: rgb
   .comparison-table > div > * { padding: 12px 9px; }
   .comparison-table .comparison-table-head strong { font-size: 16px; }
   .comparison-actions { align-items: flex-start; flex-direction: column; }
+  .comparison-actions > div { width: 100%; }
+  .comparison-actions > div > * { flex: 1 1 150px; justify-content: center; }
   .comparison-evidence { padding: 18px; }
+  .comparison-recipes { margin-top: 40px; }
+  .comparison-recipe-grid { grid-template-columns: 1fr; }
   .search-product-card { grid-template-columns: 112px minmax(0, 1fr); min-height: 205px; }
   .search-skeleton-card { grid-template-columns: 112px minmax(0, 1fr); min-height: 205px; }
   .search-product-card > div { padding: 16px; }

@@ -5,6 +5,11 @@ import { nanoid } from "nanoid";
 import path from "path";
 import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
+import { renderRouteHead, renderRouteSnapshot } from "../comparisonDocuments";
+
+function injectRouteRender(template: string, url: string, origin: string) {
+  return template.replace("<!--route-head-->", renderRouteHead(url, origin)).replace("<!--route-html-->", renderRouteSnapshot(url, origin));
+}
 
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
@@ -33,11 +38,13 @@ export async function setupVite(app: Express, server: Server) {
       );
 
       // always reload the index.html file from disk incase it changes
+      const origin = (req as typeof req & { caffioOrigin?: string }).caffioOrigin || `${req.protocol}://${req.get("host")}`;
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`
       );
+      template = injectRouteRender(template, url, origin);
       const page = await vite.transformIndexHtml(url, template);
       res.status(200).set({ "Content-Type": "text/html" }).end(page);
     } catch (e) {
@@ -58,10 +65,12 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, { index: false }));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
-    res.sendFile(path.resolve(distPath, "index.html"));
+  app.use("*", async (req, res) => {
+    const origin = (req as typeof req & { caffioOrigin?: string }).caffioOrigin || `${req.protocol}://${req.get("host")}`;
+    const template = await fs.promises.readFile(path.resolve(distPath, "index.html"), "utf-8");
+    res.status(200).set({ "Content-Type": "text/html", "Cache-Control": "no-cache" }).end(injectRouteRender(template, req.originalUrl, origin));
   });
 }

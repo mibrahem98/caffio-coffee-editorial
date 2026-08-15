@@ -283,6 +283,28 @@ test("comparison retains Arabic RTL parity and its pending-evidence boundary", a
   await expect(page.getByRole("link", { name: "افتح بروتوكول المصادر" })).toHaveAttribute("href", "/sources");
 });
 
+test("server renders comparison metadata, a social image, and a formatted PDF without inventing tasting data", async ({ page, request }) => {
+  const comparison = await request.get("/compare?a=alto&b=sombra");
+  const html = await comparison.text();
+  expect(comparison.ok()).toBeTruthy();
+  expect(html).toContain('property="og:title" content="ALTO × SOMBRA');
+  expect(html).toContain('/compare/og.png?a=alto&amp;b=sombra');
+  expect(html).toContain("Auditable records, without inferred claims.");
+  const image = await request.get("/compare/og.png?a=alto&b=sombra");
+  expect(image.headers()["content-type"]).toContain("image/png");
+  const pdf = await request.get("/compare/pdf?a=alto&b=sombra");
+  expect(pdf.headers()["content-type"]).toContain("application/pdf");
+  const arabicComparison = await request.get("/compare?a=alto&b=sombra&lang=ar");
+  const arabicHtml = await arabicComparison.text();
+  expect(arabicHtml).toContain('property="og:locale" content="ar_AR"');
+  expect(arabicHtml).toContain("مقارنة كافيو");
+  const arabicPdf = await request.get("/compare/pdf?a=alto&b=sombra&lang=ar");
+  expect(arabicPdf.headers()["content-type"]).toContain("application/pdf");
+  expect(arabicPdf.headers()["content-disposition"]).toContain("caffio-alto-vs-sombra.pdf");
+  await page.goto("/compare?a=alto&b=sombra");
+  await expect(page.getByTestId("download-server-pdf")).toHaveAttribute("href", "/compare/pdf?a=alto&b=sombra&lang=en");
+});
+
 test("product detail keeps tasting notes pending until its batch becomes verified", async ({ page }) => {
   await page.goto("/coffee/alto");
   await expect(page.getByTestId("pending-tasting-notes")).toHaveText(/Awaiting a verified batch tasting record/i);

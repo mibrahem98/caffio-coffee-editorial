@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, tastingReflections, users } from "../drizzle/schema";
+import { InsertUser, flavorSummaries, tastingReflections, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -112,8 +112,57 @@ export async function listPendingTastingReflections(productId: string) {
   )).orderBy(desc(tastingReflections.createdAt)).limit(24);
 }
 
-export async function moderateTastingReflection(id: number, status: "approved" | "rejected") {
+export async function listTastingReflectionModerationQueue(status: "pending" | "approved" | "rejected" = "pending") {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({
+    id: tastingReflections.id,
+    productId: tastingReflections.productId,
+    rating: tastingReflections.rating,
+    comment: tastingReflections.comment,
+    status: tastingReflections.status,
+    createdAt: tastingReflections.createdAt,
+    moderatedAt: tastingReflections.moderatedAt,
+    authorName: users.name,
+  }).from(tastingReflections).leftJoin(users, eq(tastingReflections.userId, users.id)).where(
+    eq(tastingReflections.status, status),
+  ).orderBy(desc(tastingReflections.createdAt)).limit(60);
+}
+
+export async function listApprovedReflectionSignals(productId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({ id: tastingReflections.id, comment: tastingReflections.comment, rating: tastingReflections.rating, updatedAt: tastingReflections.updatedAt })
+    .from(tastingReflections)
+    .where(and(eq(tastingReflections.productId, productId), eq(tastingReflections.status, "approved")))
+    .orderBy(desc(tastingReflections.updatedAt))
+    .limit(24);
+}
+
+export async function getFlavorSummary(productId: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(flavorSummaries).where(eq(flavorSummaries.productId, productId)).limit(1);
+  return result[0];
+}
+
+export async function saveFlavorSummary(input: { productId: string; summaryEn: string; summaryAr: string; sourceCount: number; sourceFingerprint: string }) {
+  const db = await getDb();
+  if (!db) return undefined;
+  await db.insert(flavorSummaries).values(input).onDuplicateKeyUpdate({
+    set: { summaryEn: input.summaryEn, summaryAr: input.summaryAr, sourceCount: input.sourceCount, sourceFingerprint: input.sourceFingerprint, updatedAt: new Date() },
+  });
+  return getFlavorSummary(input.productId);
+}
+
+export async function clearFlavorSummary(productId: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.delete(flavorSummaries).where(eq(flavorSummaries.productId, productId));
+}
+
+export async function moderateTastingReflection(input: { id: number; status: "approved" | "rejected"; moderatedBy: number }) {
   const db = await getDb();
   if (!db) throw new Error("Tasting reflections are unavailable while the database is disconnected.");
-  await db.update(tastingReflections).set({ status, updatedAt: new Date() }).where(eq(tastingReflections.id, id));
+  await db.update(tastingReflections).set({ status: input.status, moderatedBy: input.moderatedBy, moderatedAt: new Date(), updatedAt: new Date() }).where(eq(tastingReflections.id, input.id));
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { comparisonCanonicalPath, comparisonHead, getComparisonRecord, productHead, renderRouteHead } from "./comparisonDocuments";
+import { comparisonCanonicalPath, comparisonHead, getComparisonRecord, productHead, renderRouteHead, routeHead } from "./comparisonDocuments";
 
 describe("server comparison documents", () => {
   it("builds a distinct, source-governed comparison record only for valid pairs", () => {
@@ -40,5 +40,22 @@ describe("server comparison documents", () => {
     expect(meta.locale).toBe("ar_AR");
     expect(meta.canonical).toBe("https://example.test/coffee/alto?lang=ar");
     expect(meta.body).toContain("بانتظار سجل دفعة موثّق");
+  });
+
+  it("emits auditable SSR metadata and a social card for Field Notes", () => {
+    const meta = routeHead("/notes", "https://example.test");
+    expect(meta.title).toContain("Field Notes");
+    expect(meta.canonical).toBe("https://example.test/notes");
+    expect(meta.image).toBe("https://example.test/editorial/og.png?kind=notes&lang=en");
+    expect(meta.body).toContain("batch documents");
+    expect(renderRouteHead("/notes", "https://example.test")).toContain('property="og:image"');
+  });
+
+  it("localizes case-study SSR metadata and preserves the language canonical", () => {
+    const meta = routeHead("/case-study?lang=ar", "https://example.test");
+    expect(meta.locale).toBe("ar_AR");
+    expect(meta.title).toContain("دراسة حالة كافيو");
+    expect(meta.canonical).toBe("https://example.test/case-study?lang=ar");
+    expect(meta.image).toBe("https://example.test/editorial/og.png?kind=case-study&lang=ar");
   });
 });

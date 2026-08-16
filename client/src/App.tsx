@@ -20,6 +20,7 @@ const PaymentActivity = lazy(() => import("./pages/PaymentActivity"));
 const ProductSearch = lazy(() => import("./pages/ProductSearch"));
 const Sources = lazy(() => import("./pages/Sources"));
 const ProductComparison = lazy(() => import("./pages/ProductComparison"));
+const TastingModeration = lazy(() => import("./pages/TastingModeration"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RouteLoader() {
@@ -42,6 +43,7 @@ function Router() {
       <Route path={"/search"} component={ProductSearch} />
       <Route path={"/sources"} component={Sources} />
       <Route path={"/compare"} component={ProductComparison} />
+      <Route path={"/admin/tasting"} component={TastingModeration} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

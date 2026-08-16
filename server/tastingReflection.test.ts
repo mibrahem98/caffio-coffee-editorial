@@ -2,14 +2,21 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
 const db = vi.hoisted(() => ({
+  clearFlavorSummary: vi.fn(),
+  getFlavorSummary: vi.fn(),
   getMyTastingReflection: vi.fn(),
+  listApprovedReflectionSignals: vi.fn(),
   listApprovedTastingReflections: vi.fn(),
   listPendingTastingReflections: vi.fn(),
+  listTastingReflectionModerationQueue: vi.fn(),
   moderateTastingReflection: vi.fn(),
+  saveFlavorSummary: vi.fn(),
   saveTastingReflection: vi.fn(),
 }));
+const flavor = vi.hoisted(() => ({ generateFlavorSummary: vi.fn() }));
 
 vi.mock("./db", () => db);
+vi.mock("./flavorSummary", () => flavor);
 
 import { appRouter } from "./routers";
 
@@ -47,19 +54,33 @@ describe("tasting reflections", () => {
 
   it("submits one bounded reflection through the authenticated user and leaves moderation to the backend", async () => {
     db.saveTastingReflection.mockResolvedValue({ id: 1, status: "pending", rating: 5, comment: "A careful cup." });
+    db.listApprovedReflectionSignals.mockResolvedValue([]);
     const caller = appRouter.createCaller(context());
     await caller.tastingReflection.submit({ productId: "alto", rating: 5, comment: "A careful cup." });
     expect(db.saveTastingReflection).toHaveBeenCalledWith({ userId: 11, productId: "alto", rating: 5, comment: "A careful cup." });
+    expect(db.clearFlavorSummary).toHaveBeenCalledWith("alto");
     await expect(caller.tastingReflection.submit({ productId: "alto", rating: 5, comment: "x" })).rejects.toThrow();
   });
 
-  it("reserves pending queues and moderation actions for administrators", async () => {
+  it("reserves moderation queues and state changes for administrators", async () => {
     db.listPendingTastingReflections.mockResolvedValue([]);
+    db.listTastingReflectionModerationQueue.mockResolvedValue([]);
+    db.listApprovedReflectionSignals.mockResolvedValue([{ id: 2, rating: 4, comment: "A clear finish.", updatedAt: new Date() }]);
+    flavor.generateFlavorSummary.mockResolvedValue({ summaryEn: "Reflections mention a clear finish.", summaryAr: "تذكر الانطباعات نهاية واضحة.", sourceCount: 1, sourceFingerprint: "signal" });
     const admin = appRouter.createCaller(context("admin"));
     await expect(admin.tastingReflection.pending({ productId: "alto" })).resolves.toEqual([]);
-    await admin.tastingReflection.moderate({ id: 1, status: "approved" });
-    expect(db.moderateTastingReflection).toHaveBeenCalledWith(1, "approved");
+    await expect(admin.tastingReflection.moderationQueue({ status: "pending" })).resolves.toEqual([]);
+    await admin.tastingReflection.moderate({ id: 1, productId: "alto", status: "approved" });
+    expect(db.moderateTastingReflection).toHaveBeenCalledWith({ id: 1, productId: "alto", status: "approved", moderatedBy: 11 });
+    expect(db.saveFlavorSummary).toHaveBeenCalledWith(expect.objectContaining({ productId: "alto", sourceCount: 1 }));
     const user = appRouter.createCaller(context("user"));
     await expect(user.tastingReflection.pending({ productId: "alto" })).rejects.toThrow();
+    await expect(user.tastingReflection.moderationQueue({ status: "pending" })).rejects.toThrow();
+  });
+
+  it("keeps automated flavor summaries unavailable until approved comments exist", async () => {
+    db.getFlavorSummary.mockResolvedValue(undefined);
+    const caller = appRouter.createCaller(context());
+    await expect(caller.tastingReflection.flavorSummary({ productId: "alto" })).resolves.toBeUndefined();
   });
 });

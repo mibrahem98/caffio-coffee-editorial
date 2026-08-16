@@ -21,6 +21,15 @@ test("homepage actions lead to working collection, Society, source, and field-no
   await expect(page.getByLabel("Open cart (0)")).toBeVisible();
 });
 
+test("Field Notes renders documented recipe starting points and filters them by brew method", async ({ page }) => {
+  await page.goto("/notes");
+  const articles = page.locator(".field-article");
+  await expect(articles).toHaveCount(6);
+  await page.getByRole("button", { name: "Moka pot" }).click();
+  await expect(articles).toHaveCount(1);
+  await expect(articles.getByRole("heading", { name: "A steady moka pot" })).toBeVisible();
+});
+
 test("homepage prioritizes its hero image and defers non-critical catalog imagery", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".hero-image img")).toHaveAttribute("fetchpriority", "high");
@@ -330,6 +339,21 @@ test("product detail keeps tasting notes pending until its batch becomes verifie
   await expect(page.getByTestId("verified-tasting-notes")).toHaveCount(0);
   await page.locator(".batch-card summary").click();
   await expect(page.getByText("No verified tasting notes")).toBeVisible();
+});
+
+test("administrative reflection review remains gated for a signed-out visitor", async ({ page }) => {
+  await page.goto("/admin/tasting");
+  await expect(page.getByRole("heading", { name: "This area is restricted to Caffio administrators." })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sign in to access moderation" })).toBeVisible();
+  await expect(page.locator(".moderation-list")).toHaveCount(0);
+});
+
+test("product detail labels an unavailable automated flavor summary without implying product facts", async ({ page }) => {
+  await page.goto("/coffee/alto");
+  await expect(page.getByText("No reviewed reflections are published yet.")).toBeVisible();
+  const summary = page.locator(".flavor-summary");
+  await expect(summary).toContainText("A careful automated summary appears when approved reflections are available.");
+  await expect(summary).toContainText("This is not a verified batch tasting record or product claim.");
 });
 
 test("native share receives the current product URL", async ({ page }) => {

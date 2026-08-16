@@ -285,6 +285,10 @@ check "/coffee/alto"                   "Tasting cues await a verified batch reco
 check "/coffee/alto?lang=ar"           "إيحاءات التذوق بانتظار سجل دفعة موثّق." "سجل قهوة كافيو" ogimage
 check "/compare?a=alto&b=sombra"       "Auditable records, without inferred claims." "ALTO × SOMBRA" ogimage
 check "/compare?a=alto&b=sombra&lang=ar" "سجلات قابلة للتدقيق، دون افتراضات." "مقارنة كافيو" ogimage
+check "/notes"                          "Interactive starting points for each coffee and method." "Field Notes" ogimage
+check "/notes?lang=ar"                  "نقاط بداية تفاعلية لكل قهوة وطريقة." "ملاحظات الحقل" ogimage
+check "/case-study"                     "A Neo-Minimalism 2026 concept for a luxury specialty-coffee brand" "Caffio case study" ogimage
+check "/case-study?lang=ar"             "مفهوم Neo-Minimalism 2026 لعلامة قهوة مختصة فاخرة" "دراسة حالة كافيو" ogimage
 # ---------------------------------------------------------------------------
 
 echo "== Result: PASS=$PASS FAIL=$FAIL =="

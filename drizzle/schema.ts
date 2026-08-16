@@ -32,6 +32,8 @@ export const tastingReflections = mysqlTable("tasting_reflections", {
   rating: int("rating").notNull(),
   comment: varchar("comment", { length: 280 }).notNull(),
   status: mysqlEnum("status", ["pending", "approved", "rejected"]).default("pending").notNull(),
+  moderatedBy: int("moderated_by").references(() => users.id, { onDelete: "set null" }),
+  moderatedAt: timestamp("moderated_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 }, table => [
@@ -40,3 +42,15 @@ export const tastingReflections = mysqlTable("tasting_reflections", {
 ]);
 
 export type TastingReflection = typeof tastingReflections.$inferSelect;
+
+export const flavorSummaries = mysqlTable("flavor_summaries", {
+  productId: varchar("product_id", { length: 64 }).primaryKey(),
+  summaryEn: varchar("summary_en", { length: 360 }).notNull(),
+  summaryAr: varchar("summary_ar", { length: 360 }).notNull(),
+  sourceCount: int("source_count").notNull(),
+  sourceFingerprint: varchar("source_fingerprint", { length: 128 }).notNull(),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FlavorSummary = typeof flavorSummaries.$inferSelect;

@@ -1,5 +1,6 @@
 import { FormEvent, useEffect, useState } from "react";
-import { CheckCircle2, LoaderCircle, MessageSquareText, ShieldCheck, Star } from "lucide-react";
+import { CheckCircle2, LoaderCircle, MessageSquareText, Sparkles, Star } from "lucide-react";
+import { Link } from "wouter";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin } from "@/const";
@@ -14,7 +15,7 @@ const copy = {
     body: "One short reflection per signed-in visitor and coffee. New entries are held for review before they become public; Caffio never seeds ratings or testimonials.",
     rating: "Your cup rating", comment: "A short, respectful note", placeholder: "What did you notice in your cup?", submit: "Send for review", sending: "Sending…",
     signIn: "Sign in to add a reflection", pending: "Your reflection is awaiting review.", approved: "Your reflection is published.", rejected: "Your previous reflection was not published. You can revise and resubmit it.",
-    publicNone: "No reviewed reflections are published yet.", publicSummary: "reviewed reflections", average: "average", moderation: "Review queue", approve: "Approve", reject: "Reject", noQueue: "No reflections are waiting for review.",
+    publicNone: "No reviewed reflections are published yet.", publicSummary: "reviewed reflections", average: "average", flavorEyebrow: "Automated reflection summary", flavorTitle: "What approved cup notes mention.", flavorBody: "Generated only from approved visitor reflections. This is not a verified batch tasting record or product claim.", flavorEmpty: "A careful automated summary appears when approved reflections are available.", adminLink: "Open moderation console",
     saved: "Your reflection was sent for review.", saveError: "Your reflection could not be saved. Please try again.", loading: "Loading reviewed reflections…",
   },
   ar: {
@@ -22,7 +23,7 @@ const copy = {
     body: "ملاحظة قصيرة واحدة لكل زائر مسجّل ولكل قهوة. تُراجع الملاحظات الجديدة قبل نشرها؛ لا تزرع كافيو تقييمات أو شهادات جاهزة.",
     rating: "تقييم كوبك", comment: "ملاحظة قصيرة ومحترمة", placeholder: "ما الذي لاحظته في كوبك؟", submit: "أرسل للمراجعة", sending: "جارٍ الإرسال…",
     signIn: "سجّل الدخول لإضافة انطباع", pending: "انطباعك بانتظار المراجعة.", approved: "انطباعك منشور.", rejected: "لم يُنشر انطباعك السابق. يمكنك تعديله وإعادة إرساله.",
-    publicNone: "لا توجد انطباعات مراجعة منشورة حتى الآن.", publicSummary: "انطباعات مراجعة", average: "المتوسط", moderation: "قائمة المراجعة", approve: "اعتمد", reject: "ارفض", noQueue: "لا توجد انطباعات بانتظار المراجعة.",
+    publicNone: "لا توجد انطباعات مراجعة منشورة حتى الآن.", publicSummary: "انطباعات مراجعة", average: "المتوسط", flavorEyebrow: "ملخص آلي للانطباعات", flavorTitle: "ما الذي تذكره ملاحظات الأكواب المعتمدة.", flavorBody: "يُولد من انطباعات الزوار المعتمدة فقط. لا يمثل سجل تذوق دفعة موثقًا ولا ادعاءً عن المنتج.", flavorEmpty: "يظهر تلخيص آلي متأنٍ عند توفر انطباعات معتمدة.", adminLink: "افتح لوحة المراجعة",
     saved: "أُرسل انطباعك للمراجعة.", saveError: "تعذر حفظ الانطباع. حاول مرة أخرى.", loading: "جارٍ تحميل الانطباعات المراجعة…",
   },
 };
@@ -37,7 +38,7 @@ export default function TastingReflections({ productId, lang }: Props) {
   const utils = trpc.useUtils();
   const approved = trpc.tastingReflection.listApproved.useQuery({ productId });
   const mine = trpc.tastingReflection.mine.useQuery({ productId }, { enabled: isAuthenticated });
-  const pending = trpc.tastingReflection.pending.useQuery({ productId }, { enabled: user?.role === "admin" });
+  const flavorSummary = trpc.tastingReflection.flavorSummary.useQuery({ productId });
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 
@@ -50,14 +51,9 @@ export default function TastingReflections({ productId, lang }: Props) {
   const submit = trpc.tastingReflection.submit.useMutation({
     onSuccess: async () => {
       toast.success(t.saved);
-      await Promise.all([utils.tastingReflection.mine.invalidate({ productId }), utils.tastingReflection.pending.invalidate({ productId })]);
+      await utils.tastingReflection.mine.invalidate({ productId });
     },
     onError: () => toast.error(t.saveError),
-  });
-  const moderate = trpc.tastingReflection.moderate.useMutation({
-    onSuccess: async () => {
-      await Promise.all([utils.tastingReflection.pending.invalidate({ productId }), utils.tastingReflection.listApproved.invalidate({ productId })]);
-    },
   });
 
   const statusText = mine.data?.status === "approved" ? t.approved : mine.data?.status === "rejected" ? t.rejected : mine.data?.status === "pending" ? t.pending : null;
@@ -69,12 +65,13 @@ export default function TastingReflections({ productId, lang }: Props) {
       {approved.isLoading ? <span><LoaderCircle className="spin" size={15} /> {t.loading}</span> : approved.data?.count ? <><strong>{approved.data.average}/5</strong><span>{t.average} · {approved.data.count} {t.publicSummary}</span></> : <span>{t.publicNone}</span>}
     </div>
     {approved.data?.items.length ? <div className="reflection-list">{approved.data.items.map(item => <article key={item.id} className="reflection-card"><div aria-label={`${item.rating} of 5`} className="reflection-stars">{Array.from({ length: 5 }, (_, index) => <Star key={index} size={14} fill={index < item.rating ? "currentColor" : "none"} />)}</div><p>{item.comment}</p></article>)}</div> : null}
+    <aside className="flavor-summary" aria-live="polite"><div className="flavor-summary-head"><Sparkles size={17} aria-hidden="true" /><div><p className="eyebrow"><span className="eyebrow-dot" /> {t.flavorEyebrow}</p><h3>{t.flavorTitle}</h3></div></div>{flavorSummary.data ? <p>{flavorSummary.data[lang === "ar" ? "summaryAr" : "summaryEn"]}</p> : <p>{t.flavorEmpty}</p>}<small>{t.flavorBody}</small></aside>
     {loading ? null : isAuthenticated ? <form className="reflection-form" onSubmit={onSubmit}>
       <RatingStars value={rating} onChange={setRating} label={t.rating} disabled={submit.isPending} />
       <label>{t.comment}<textarea value={comment} required minLength={2} maxLength={280} onChange={event => setComment(event.target.value)} placeholder={t.placeholder} disabled={submit.isPending} /><span>{comment.length}/280</span></label>
       {statusText ? <p className="reflection-status"><CheckCircle2 size={16} /> {statusText}</p> : null}
       <button className="button button-gold" type="submit" disabled={submit.isPending || comment.trim().length < 2}>{submit.isPending ? t.sending : t.submit}</button>
     </form> : <button className="button button-outline tasting-login" type="button" onClick={startLogin}>{t.signIn}</button>}
-    {user?.role === "admin" ? <aside className="moderation-queue"><div><ShieldCheck size={17} /><strong>{t.moderation}</strong></div>{pending.data?.length ? pending.data.map(item => <article key={item.id}><p>{item.comment}</p><small>{item.rating}/5</small><span><button type="button" onClick={() => moderate.mutate({ id: item.id, status: "approved" })}>{t.approve}</button><button type="button" onClick={() => moderate.mutate({ id: item.id, status: "rejected" })}>{t.reject}</button></span></article>) : <p>{t.noQueue}</p>}</aside> : null}
+    {user?.role === "admin" ? <Link className="text-link moderation-console-link" href="/admin/tasting">{t.adminLink}</Link> : null}
   </section>;
 }

@@ -9,6 +9,7 @@ const SITE_TITLE = "Caffio Coffee — Specialty Roasters";
 
 export type ComparisonRecord = { first: CoffeeProduct; second: CoffeeProduct; lang: Lang };
 type ProductRecord = { product: CoffeeProduct; lang: Lang };
+type EditorialKind = "notes" | "case-study";
 type RouteMeta = { title: string; description: string; canonical: string; image: string; imageAlt: string; locale: "en_US" | "ar_AR"; body: string };
 
 function asId(value: unknown) { return typeof value === "string" ? value : ""; }
@@ -52,6 +53,11 @@ function productCanonicalPath(record: ProductRecord) {
   return `/coffee/${encodeURIComponent(record.product.id)}${record.lang === "ar" ? "?lang=ar" : ""}`;
 }
 
+function editorialCanonicalPath(kind: EditorialKind, lang: Lang) {
+  const path = kind === "notes" ? "/notes" : "/case-study";
+  return `${path}${lang === "ar" ? "?lang=ar" : ""}`;
+}
+
 function defaultHead(requestUrl: URL, origin: string): RouteMeta {
   return { title: SITE_TITLE, description: "Caffio — specialty coffee shaped by craft, calm rituals, and warm precision.", canonical: `${origin}${requestUrl.pathname}`, image: `${origin}${coffeeProducts[0].ogImage}`, imageAlt: "Caffio specialty coffee ritual", locale: "en_US", body: "" };
 }
@@ -89,10 +95,29 @@ export function productHead(url: string, origin: string): RouteMeta {
   return { title, description, canonical, image, imageAlt: `${name} Caffio coffee record`, locale: isArabic ? "ar_AR" : "en_US", body };
 }
 
+function editorialHead(url: string, origin: string, kind: EditorialKind): RouteMeta {
+  const requestUrl = new URL(url, origin);
+  const lang = asLang(requestUrl.searchParams.get("lang"));
+  const isArabic = lang === "ar";
+  const content = kind === "notes"
+    ? isArabic
+      ? { title: "ملاحظات الحقل — كافيو", description: "وصفات تحضير تحريرية تفاعلية من كافيو. تبقى ادعاءات المنشأ والإيحاءات قيد التوثيق حتى إرفاق مستندات الدفعات.", eyebrow: "كافيو / ملاحظات الحقل", heading: "حضّرها مع مساحة للتجربة.", body: "نقاط بداية تفاعلية لكل قهوة وطريقة. الوصفات إرشاد تحريري وليست ادعاءً بوجود كوب مثالي واحد.", note: "هذه وصفات عمل. تبقى ادعاءات المنشأ والإيحاءات قيد التوثيق حتى إرفاق مستندات الدفعات ذات الصلة." }
+      : { title: "Field Notes — Caffio coffee", description: "Interactive Caffio brew guidance. Origin and tasting claims remain pending until relevant batch documents are attached.", eyebrow: "CAFFIO / FIELD NOTES", heading: "Brew with a little room.", body: "Interactive starting points for each coffee and method. Recipes are editorial guidance, not a claim of one perfect cup.", note: "These are working recipes. Product origin and tasting claims remain pending until the relevant batch documents are attached." }
+    : isArabic
+      ? { title: "دراسة حالة كافيو — 2026", description: "دراسة حالة رقمية لكافيو: هوية تحريرية، تجربة استخدام، وملاحظات تسليم مقيدة بالسجل المصدر.", eyebrow: "دراسة حالة / كافيو 2026", heading: "حرفة مثل القهوة. وبنية مثل العمارة.", body: "مفهوم Neo-Minimalism 2026 لعلامة قهوة مختصة فاخرة: هادئ بما يكفي للثقة، ودقيق بما يكفي للاستخدام.", note: "يفصل النظام بوضوح بين بيانات المنتج الموثقة والحقول التي تنتظر سجل مصدر." }
+      : { title: "Caffio case study — 2026", description: "Caffio’s digital case study: editorial brand direction, product UX, and source-governed delivery notes.", eyebrow: "CASE STUDY / CAFFIO 2026", heading: "Crafted like coffee. Structured like architecture.", body: "A Neo-Minimalism 2026 concept for a luxury specialty-coffee brand: quiet enough to trust, precise enough to use.", note: "The system visibly separates documented product facts from fields still awaiting a source record." };
+  const canonical = `${origin}${editorialCanonicalPath(kind, lang)}`;
+  const image = `${origin}/editorial/og.png?kind=${kind}&lang=${lang}`;
+  const body = `<main data-caffio-ssr="editorial-${kind}"><p>${ESCAPE(content.eyebrow)}</p><h1>${ESCAPE(content.heading)}</h1><p>${ESCAPE(content.body)}</p><p>${ESCAPE(content.note)}</p></main>`;
+  return { title: content.title, description: content.description, canonical, image, imageAlt: content.heading, locale: isArabic ? "ar_AR" : "en_US", body };
+}
+
 export function routeHead(url: string, origin: string): RouteMeta {
   const requestUrl = new URL(url, origin);
   if (requestUrl.pathname === "/compare") return comparisonHead(url, origin);
   if (requestUrl.pathname.startsWith("/coffee/")) return productHead(url, origin);
+  if (requestUrl.pathname === "/notes") return editorialHead(url, origin, "notes");
+  if (requestUrl.pathname === "/case-study") return editorialHead(url, origin, "case-study");
   return defaultHead(requestUrl, origin);
 }
 
@@ -114,6 +139,14 @@ function productImageSvg(record: ProductRecord) {
   const notes = getVerifiedTastingNotes(product);
   const note = notes.length ? notes.map(item => item[lang]).join(lang === "ar" ? "، " : " · ") : lang === "ar" ? "إيحاءات التذوق بانتظار سجل موثّق" : "Tasting cues await a verified record";
   return socialCardSvg({ eyebrow: "CAFFIO / PRODUCT RECORD", title: product.shortName[lang], note, lang });
+}
+
+function editorialImageSvg(kind: EditorialKind, lang: Lang) {
+  const isArabic = lang === "ar";
+  const content = kind === "notes"
+    ? { eyebrow: isArabic ? "كافيو / ملاحظات الحقل" : "CAFFIO / FIELD NOTES", title: isArabic ? "حضّرها مع مساحة للتجربة." : "Brew with a little room.", note: isArabic ? "وصفات عمل، دون افتراضات عن الدفعة" : "Working recipes, without batch assumptions" }
+    : { eyebrow: isArabic ? "دراسة حالة / كافيو 2026" : "CASE STUDY / CAFFIO 2026", title: isArabic ? "حرفة مثل القهوة. وبنية مثل العمارة." : "Crafted like coffee. Structured like architecture.", note: isArabic ? "هوية وتجربة مقيدتان بالسجل المصدر" : "Brand and UX, governed by source records" };
+  return socialCardSvg({ ...content, lang });
 }
 
 function socialCardSvg(input: { eyebrow: string; title: string; note: string; lang: Lang }) {
@@ -142,6 +175,14 @@ export function registerComparisonOutputRoutes(app: Express) {
     if (!record) return res.status(404).end();
     try {
       const png = await sharp(Buffer.from(productImageSvg(record))).png().toBuffer();
+      res.set({ "Content-Type": "image/png", "Cache-Control": "public, max-age=3600" }).end(png);
+    } catch { res.status(500).end(); }
+  });
+  app.get("/editorial/og.png", async (req: Request, res: Response) => {
+    const kind = req.query.kind === "notes" || req.query.kind === "case-study" ? req.query.kind : undefined;
+    if (!kind) return res.status(404).end();
+    try {
+      const png = await sharp(Buffer.from(editorialImageSvg(kind, asLang(req.query.lang)))).png().toBuffer();
       res.set({ "Content-Type": "image/png", "Cache-Control": "public, max-age=3600" }).end(png);
     } catch { res.status(500).end(); }
   });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { comparisonCanonicalPath, comparisonHead, getComparisonRecord, renderRouteHead } from "./comparisonDocuments";
+import { comparisonCanonicalPath, comparisonHead, getComparisonRecord, productHead, renderRouteHead } from "./comparisonDocuments";
 
 describe("server comparison documents", () => {
   it("builds a distinct, source-governed comparison record only for valid pairs", () => {
@@ -25,5 +25,20 @@ describe("server comparison documents", () => {
     expect(meta.locale).toBe("ar_AR");
     expect(meta.title).toContain("مقارنة كافيو");
     expect(meta.canonical).toBe("https://example.test/compare?a=alto&b=sombra&lang=ar");
+  });
+
+  it("emits product-specific metadata and preserves pending tasting evidence", () => {
+    const meta = productHead("/coffee/alto", "https://example.test");
+    expect(meta.title).toContain("ALTO");
+    expect(meta.canonical).toBe("https://example.test/coffee/alto");
+    expect(meta.image).toBe("https://example.test/coffee/alto/og.png?lang=en");
+    expect(meta.body).toContain("Tasting cues await a verified batch record.");
+  });
+
+  it("localizes product metadata without adding unverified tasting claims", () => {
+    const meta = productHead("/coffee/alto?lang=ar", "https://example.test");
+    expect(meta.locale).toBe("ar_AR");
+    expect(meta.canonical).toBe("https://example.test/coffee/alto?lang=ar");
+    expect(meta.body).toContain("بانتظار سجل دفعة موثّق");
   });
 });

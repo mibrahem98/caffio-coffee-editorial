@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1786882131155,
+      "tag": "0000_steep_lady_ursula",
+      "breakpoints": true
+    }
+  ]
 }

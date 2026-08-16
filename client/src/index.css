@@ -377,6 +377,41 @@ h2 { margin-bottom: 0; font-family: "DM Serif Display", serif; font-size: clamp(
 .review-section h2 { max-width: 690px; margin: 25px auto 17px; color: var(--ink); font-size: clamp(48px, 6.2vw, 92px); }
 .review-section > p { max-width: 530px; margin: 0 auto; color: rgba(30, 34, 36, .61); font-size: 13px; line-height: 1.85; }
 .review-section .text-link { margin-top: 28px; }
+.tasting-reflections { padding: 100px 9vw 110px; background: var(--ivory); border-top: 1px solid var(--line); }
+.tasting-reflections-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 26px; max-width: 920px; margin: 0 auto 30px; }
+.tasting-reflections-intro h2 { max-width: 720px; margin: 13px 0; color: var(--ink); font-size: clamp(38px, 5vw, 74px); line-height: .96; }
+.tasting-reflections-intro > div > p:last-child { max-width: 640px; margin: 0; color: rgba(30, 34, 36, .64); font-size: 13px; line-height: 1.8; }
+.tasting-reflections-intro > svg { flex: 0 0 auto; margin-top: 10px; color: var(--gold); }
+.tasting-reflections-summary { display: flex; align-items: baseline; gap: 10px; max-width: 920px; margin: 0 auto 18px; padding: 15px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: rgba(30, 34, 36, .62); font-size: 12px; }
+.tasting-reflections-summary strong { color: var(--brown); font-family: "DM Serif Display", serif; font-size: 28px; font-weight: 400; }
+.tasting-reflections-summary span { display: inline-flex; align-items: center; gap: 7px; }
+.spin { animation: caffio-spin .8s linear infinite; }
+@keyframes caffio-spin { to { transform: rotate(360deg); } }
+.reflection-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 920px; margin: 0 auto 20px; }
+.reflection-card { min-height: 114px; padding: 18px; border: 1px solid var(--line); background: rgba(242, 235, 221, .5); }
+.reflection-card p { margin: 11px 0 0; color: rgba(30, 34, 36, .75); font-size: 13px; line-height: 1.65; }
+.reflection-stars { display: flex; gap: 3px; color: var(--gold); }
+.reflection-form { display: grid; grid-template-columns: 210px minmax(0, 1fr) auto; gap: 18px; align-items: end; max-width: 920px; margin: 25px auto 0; padding: 22px; background: var(--paper); border: 1px solid var(--line); }
+.tasting-rating { margin: 0; padding: 0; border: 0; }
+.tasting-rating legend, .reflection-form label { display: grid; gap: 8px; color: var(--brown); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
+.tasting-rating > div { display: flex; gap: 4px; }
+.tasting-rating button { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; background: transparent; color: rgba(116, 85, 49, .24); cursor: pointer; transition: color 160ms var(--ease-out), transform 160ms var(--ease-out); }
+.tasting-rating button:hover, .tasting-rating button.is-selected { color: var(--gold); }
+.tasting-rating button:active { transform: scale(.9); }
+.reflection-form textarea { min-height: 74px; resize: vertical; padding: 10px; border: 1px solid var(--line); background: transparent; color: var(--ink); font: inherit; font-size: 13px; line-height: 1.5; }
+.reflection-form label > span { justify-self: end; color: rgba(30, 34, 36, .45); font-size: 9px; letter-spacing: 0; }
+.reflection-form .button { min-height: 45px; white-space: nowrap; }
+.reflection-status { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 7px; margin: -3px 0 0; color: var(--brown); font-size: 12px; }
+.tasting-login { display: flex; margin: 25px auto 0; }
+.moderation-queue { max-width: 920px; margin: 30px auto 0; padding: 19px; border: 1px dashed rgba(184, 145, 82, .64); background: rgba(184, 145, 82, .08); }
+.moderation-queue > div { display: flex; align-items: center; gap: 8px; color: var(--brown); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.moderation-queue > p { margin: 15px 0 0; color: rgba(30, 34, 36, .62); font-size: 12px; }
+.moderation-queue article { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 14px 0 0; }
+.moderation-queue article p { margin: 0; color: var(--ink); font-size: 13px; }
+.moderation-queue article small { color: var(--brown); }
+.moderation-queue article span { display: flex; gap: 7px; }
+.moderation-queue article button { padding: 7px 9px; border: 1px solid var(--line); background: transparent; color: var(--brown); font-size: 10px; cursor: pointer; }
+.moderation-queue article button:first-child { background: var(--gold); color: var(--charcoal); border-color: var(--gold); }
 .related-section { padding: 115px 9vw 130px; background: var(--paper); }
 .related-section .section-intro { max-width: 1000px; margin: 0 auto 55px; }
 .related-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 800px; margin: 0 auto; }
@@ -397,6 +432,12 @@ html.dark .story-section::before, html.dark .notes-section::before { opacity: .1
 html.dark .principle-grid article, html.dark .notes-grid article, html.dark .related-card { background: #202829; }
 html.dark .principle-grid article:hover, html.dark .notes-grid article:hover, html.dark .related-card:hover { background: #273234; }
 html.dark .story-body > p, html.dark .source-note, html.dark .principle-grid p, html.dark .ritual-copy > p, html.dark .notes-grid p, html.dark .review-section > p, html.dark .detail-copy, html.dark .detail-actions > span { color: rgba(242, 235, 221, .63); }
+html.dark .tasting-reflections { background: #151b1c; border-color: var(--line); }
+html.dark .tasting-reflections-intro h2, html.dark .reflection-card p, html.dark .moderation-queue article p { color: var(--ink); }
+html.dark .tasting-reflections-intro > div > p:last-child, html.dark .tasting-reflections-summary, html.dark .reflection-form label > span, html.dark .moderation-queue > p { color: rgba(242, 235, 221, .62); }
+html.dark .reflection-card, html.dark .reflection-form { background: #202829; border-color: var(--line); }
+html.dark .reflection-form textarea { border-color: var(--line); color: var(--ink); }
+html.dark .moderation-queue { background: rgba(184, 145, 82, .11); }
 html.dark .story-section, html.dark .notes-section, html.dark .ritual-section, html.dark .detail-notes, html.dark .related-section { background: #202829; }
 html.dark .detail-notes { --line: rgba(242, 235, 221, .16); }
 html.dark .detail-notes h2, html.dark .related-card strong { color: var(--ink); }

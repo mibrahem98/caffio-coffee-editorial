@@ -1,21 +1,30 @@
-import type { Express, Request, Response } from "express";
 import PDFDocument from "pdfkit";
 import sharp from "sharp";
+import type { Express, NextFunction, Request, Response } from "express";
 import { coffeeProducts, formatPrice, getVerifiedTastingNotes, type CoffeeProduct, type Lang } from "../client/src/lib/mizanCatalog";
 
 const PDF_ARABIC_FONT = "/usr/share/fonts/truetype/noto/NotoSansArabic-Regular.ttf";
 const ESCAPE = (value: string) => value.replace(/[&<>"']/g, character => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character] || character);
+const SITE_TITLE = "Caffio Coffee — Specialty Roasters";
 
 export type ComparisonRecord = { first: CoffeeProduct; second: CoffeeProduct; lang: Lang };
+type ProductRecord = { product: CoffeeProduct; lang: Lang };
+type RouteMeta = { title: string; description: string; canonical: string; image: string; imageAlt: string; locale: "en_US" | "ar_AR"; body: string };
 
 function asId(value: unknown) { return typeof value === "string" ? value : ""; }
 function asLang(value: unknown): Lang { return value === "ar" ? "ar" : "en"; }
+function resolveProduct(id: unknown) { return coffeeProducts.find(product => product.id === asId(id)); }
 
 export function getComparisonRecord(input: { a?: unknown; b?: unknown; lang?: unknown }): ComparisonRecord | undefined {
-  const first = coffeeProducts.find(product => product.id === asId(input.a));
-  const second = coffeeProducts.find(product => product.id === asId(input.b));
+  const first = resolveProduct(input.a);
+  const second = resolveProduct(input.b);
   if (!first || !second || first.id === second.id) return undefined;
   return { first, second, lang: asLang(input.lang) };
+}
+
+export function getProductRecord(input: { id?: unknown; lang?: unknown }): ProductRecord | undefined {
+  const product = resolveProduct(input.id);
+  return product ? { product, lang: asLang(input.lang) } : undefined;
 }
 
 function rows(record: ComparisonRecord) {
@@ -39,11 +48,18 @@ export function comparisonCanonicalPath(record: ComparisonRecord) {
   return `/compare?a=${encodeURIComponent(record.first.id)}&b=${encodeURIComponent(record.second.id)}${record.lang === "ar" ? "&lang=ar" : ""}`;
 }
 
-export function comparisonHead(url: string, origin: string) {
+function productCanonicalPath(record: ProductRecord) {
+  return `/coffee/${encodeURIComponent(record.product.id)}${record.lang === "ar" ? "?lang=ar" : ""}`;
+}
+
+function defaultHead(requestUrl: URL, origin: string): RouteMeta {
+  return { title: SITE_TITLE, description: "Caffio — specialty coffee shaped by craft, calm rituals, and warm precision.", canonical: `${origin}${requestUrl.pathname}`, image: `${origin}${coffeeProducts[0].ogImage}`, imageAlt: "Caffio specialty coffee ritual", locale: "en_US", body: "" };
+}
+
+export function comparisonHead(url: string, origin: string): RouteMeta {
   const requestUrl = new URL(url, origin);
   const record = requestUrl.pathname === "/compare" ? getComparisonRecord(Object.fromEntries(requestUrl.searchParams)) : undefined;
-  const siteTitle = "Caffio Coffee — Specialty Roasters";
-  if (!record) return { title: siteTitle, description: "Caffio — specialty coffee shaped by craft, calm rituals, and warm precision.", canonical: `${origin}${requestUrl.pathname}`, image: `${origin}${coffeeProducts[0].ogImage}`, imageAlt: "Caffio specialty coffee ritual", locale: "en_US", body: "" };
+  if (!record) return defaultHead(requestUrl, origin);
   const isArabic = record.lang === "ar";
   const pair = `${record.first.shortName[record.lang]} × ${record.second.shortName[record.lang]}`;
   const title = isArabic ? `${pair} — مقارنة كافيو` : `${pair} — Caffio coffee comparison`;
@@ -54,18 +70,56 @@ export function comparisonHead(url: string, origin: string) {
   return { title, description, canonical, image, imageAlt: `${pair} comparison`, locale: isArabic ? "ar_AR" : "en_US", body };
 }
 
+export function productHead(url: string, origin: string): RouteMeta {
+  const requestUrl = new URL(url, origin);
+  const id = requestUrl.pathname.match(/^\/coffee\/([^/]+)$/)?.[1];
+  const record = getProductRecord({ id, lang: requestUrl.searchParams.get("lang") });
+  if (!record) return defaultHead(requestUrl, origin);
+  const { product, lang } = record;
+  const isArabic = lang === "ar";
+  const name = product.name[lang];
+  const brew = product.brewMethods.map(method => method[lang]).join(isArabic ? "، " : ", ");
+  const title = isArabic ? `${name} — سجل قهوة كافيو` : `${name} — Caffio coffee record`;
+  const description = isArabic ? `سجل ${name} من كافيو. طرق التحضير المقترحة: ${brew}. تبقى بيانات الدفعة والتذوق غير المتحقق معلّقة حتى إرفاق المصدر.` : `Caffio’s ${name} record. Suggested brew methods: ${brew}. Batch-linked origin and tasting details remain pending until a source record is attached.`;
+  const canonical = `${origin}${productCanonicalPath(record)}`;
+  const image = `${origin}/coffee/${encodeURIComponent(product.id)}/og.png?lang=${lang}`;
+  const verifiedNotes = getVerifiedTastingNotes(product);
+  const evidence = verifiedNotes.length ? verifiedNotes.map(note => note[lang]).join(isArabic ? "، " : ", ") : isArabic ? "إيحاءات التذوق بانتظار سجل دفعة موثّق." : "Tasting cues await a verified batch record.";
+  const body = `<main data-caffio-ssr="product"><p>CAFFIO / PRODUCT RECORD</p><h1>${ESCAPE(name)}</h1><p>${ESCAPE(product.profile[lang])}</p><p>${ESCAPE(evidence)}</p><p>${ESCAPE(isArabic ? "سجل قابل للتدقيق، دون افتراضات." : "An auditable record, without inferred claims.")}</p></main>`;
+  return { title, description, canonical, image, imageAlt: `${name} Caffio coffee record`, locale: isArabic ? "ar_AR" : "en_US", body };
+}
+
+export function routeHead(url: string, origin: string): RouteMeta {
+  const requestUrl = new URL(url, origin);
+  if (requestUrl.pathname === "/compare") return comparisonHead(url, origin);
+  if (requestUrl.pathname.startsWith("/coffee/")) return productHead(url, origin);
+  return defaultHead(requestUrl, origin);
+}
+
 export function renderRouteHead(url: string, origin: string) {
-  const meta = comparisonHead(url, origin);
+  const meta = routeHead(url, origin);
   return `<title>${ESCAPE(meta.title)}</title><meta name="description" content="${ESCAPE(meta.description)}" /><meta property="og:title" content="${ESCAPE(meta.title)}" /><meta property="og:type" content="website" /><meta property="og:url" content="${ESCAPE(meta.canonical)}" /><meta property="og:site_name" content="Caffio Coffee" /><meta property="og:description" content="${ESCAPE(meta.description)}" /><meta property="og:image" content="${ESCAPE(meta.image)}" /><meta property="og:image:alt" content="${ESCAPE(meta.imageAlt)}" /><meta property="og:locale" content="${meta.locale}" /><meta property="og:locale:alternate" content="${meta.locale === "ar_AR" ? "en_US" : "ar_AR"}" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:title" content="${ESCAPE(meta.title)}" /><meta name="twitter:description" content="${ESCAPE(meta.description)}" /><meta name="twitter:image" content="${ESCAPE(meta.image)}" /><link rel="canonical" href="${ESCAPE(meta.canonical)}" />`;
 }
 
-export function renderRouteSnapshot(url: string, origin: string) { return comparisonHead(url, origin).body; }
+export function renderRouteSnapshot(url: string, origin: string) { return routeHead(url, origin).body; }
 
 function comparisonImageSvg(record: ComparisonRecord) {
   const pair = `${record.first.shortName[record.lang]} × ${record.second.shortName[record.lang]}`;
   const notes = record.lang === "ar" ? "المقارنة تحتفظ بحالات التوثيق" : "Evidence states retained in this comparison";
-  const direction = record.lang === "ar" ? "rtl" : "ltr";
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" direction="${direction}"><rect width="1200" height="630" fill="#1e2224"/><circle cx="1045" cy="100" r="270" fill="none" stroke="#c29b58" stroke-opacity=".35"/><circle cx="1045" cy="100" r="180" fill="none" stroke="#c29b58" stroke-opacity=".2"/><text x="74" y="95" fill="#c29b58" font-family="Manrope,Arial,sans-serif" font-size="20" letter-spacing="4">CAFFIO / SIDE-BY-SIDE</text><text x="74" y="250" fill="#f4ecdf" font-family="Georgia,serif" font-size="82">${ESCAPE(pair)}</text><line x1="74" y1="308" x2="1126" y2="308" stroke="#c29b58" stroke-opacity=".55"/><text x="74" y="372" fill="#f4ecdf" font-family="Manrope,Arial,sans-serif" font-size="28">${ESCAPE(notes)}</text><text x="74" y="524" fill="#c29b58" font-family="Manrope,Arial,sans-serif" font-size="18" letter-spacing="3">CAFFIO COFFEE / RECORDS BEFORE ASSUMPTIONS</text></svg>`;
+  return socialCardSvg({ eyebrow: "CAFFIO / SIDE-BY-SIDE", title: pair, note: notes, lang: record.lang });
+}
+
+function productImageSvg(record: ProductRecord) {
+  const { product, lang } = record;
+  const notes = getVerifiedTastingNotes(product);
+  const note = notes.length ? notes.map(item => item[lang]).join(lang === "ar" ? "، " : " · ") : lang === "ar" ? "إيحاءات التذوق بانتظار سجل موثّق" : "Tasting cues await a verified record";
+  return socialCardSvg({ eyebrow: "CAFFIO / PRODUCT RECORD", title: product.shortName[lang], note, lang });
+}
+
+function socialCardSvg(input: { eyebrow: string; title: string; note: string; lang: Lang }) {
+  const anchor = input.lang === "ar" ? "end" : "start";
+  const x = input.lang === "ar" ? 1126 : 74;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" direction="${input.lang === "ar" ? "rtl" : "ltr"}"><rect width="1200" height="630" fill="#1e2224"/><circle cx="1045" cy="100" r="270" fill="none" stroke="#c29b58" stroke-opacity=".35"/><circle cx="1045" cy="100" r="180" fill="none" stroke="#c29b58" stroke-opacity=".2"/><text x="${x}" y="95" text-anchor="${anchor}" fill="#c29b58" font-family="Manrope,Arial,sans-serif" font-size="20" letter-spacing="4">${ESCAPE(input.eyebrow)}</text><text x="${x}" y="250" text-anchor="${anchor}" fill="#f4ecdf" font-family="Georgia,serif" font-size="82">${ESCAPE(input.title)}</text><line x1="74" y1="308" x2="1126" y2="308" stroke="#c29b58" stroke-opacity=".55"/><text x="${x}" y="372" text-anchor="${anchor}" fill="#f4ecdf" font-family="Manrope,Arial,sans-serif" font-size="28">${ESCAPE(input.note)}</text><text x="${x}" y="524" text-anchor="${anchor}" fill="#c29b58" font-family="Manrope,Arial,sans-serif" font-size="18" letter-spacing="3">CAFFIO COFFEE / RECORDS BEFORE ASSUMPTIONS</text></svg>`;
 }
 
 function resolveOrigin(req: Request) {
@@ -75,7 +129,7 @@ function resolveOrigin(req: Request) {
 }
 
 export function registerComparisonOutputRoutes(app: Express) {
-  app.get("/compare/og.png", async (req, res) => {
+  app.get("/compare/og.png", async (req: Request, res: Response) => {
     const record = getComparisonRecord(req.query);
     if (!record) return res.status(404).end();
     try {
@@ -83,7 +137,15 @@ export function registerComparisonOutputRoutes(app: Express) {
       res.set({ "Content-Type": "image/png", "Cache-Control": "public, max-age=3600" }).end(png);
     } catch { res.status(500).end(); }
   });
-  app.get("/compare/pdf", (req, res) => {
+  app.get("/coffee/:id/og.png", async (req: Request, res: Response) => {
+    const record = getProductRecord({ id: req.params.id, lang: req.query.lang });
+    if (!record) return res.status(404).end();
+    try {
+      const png = await sharp(Buffer.from(productImageSvg(record))).png().toBuffer();
+      res.set({ "Content-Type": "image/png", "Cache-Control": "public, max-age=3600" }).end(png);
+    } catch { res.status(500).end(); }
+  });
+  app.get("/compare/pdf", (req: Request, res: Response) => {
     const record = getComparisonRecord(req.query);
     if (!record) return res.status(404).send("Choose two distinct Caffio records.");
     const isArabic = record.lang === "ar";
@@ -97,16 +159,15 @@ export function registerComparisonOutputRoutes(app: Express) {
     pdf.fillColor("#f4ecdf").fontSize(isArabic ? 27 : 31).text(pair, 42, 70, { width: 510, align: isArabic ? "right" : "left" });
     pdf.fillColor("#745531").fontSize(isArabic ? 10 : 9).text(isArabic ? "سجلان قابلان للتدقيق — تبقى الحقول المعلّقة معلّقة." : "Two auditable records — pending fields remain pending.", 42, 116, { width: 510, align: isArabic ? "right" : "left" });
     let y = 178;
-    const tableRows = rows(record);
-    for (const row of tableRows) {
+    for (const row of rows(record)) {
       pdf.fillColor("#efe4d2").rect(42, y, 511, 42).fill();
-      pdf.fillColor("#745531").fontSize(isArabic ? 8 : 8).text(row.label, 50, y + 8, { width: 120, align: isArabic ? "right" : "left" });
+      pdf.fillColor("#745531").fontSize(8).text(row.label, 50, y + 8, { width: 120, align: isArabic ? "right" : "left" });
       pdf.fillColor("#1e2224").fontSize(isArabic ? 8 : 9).text(row.first, 178, y + 8, { width: 170, align: isArabic ? "right" : "left" });
       pdf.text(row.second, 360, y + 8, { width: 184, align: isArabic ? "right" : "left" });
       y += 45;
     }
-    pdf.fillColor("#745531").fontSize(isArabic ? 8 : 8).text(isArabic ? "وثيقة مقارنة تجريبية. لا تمثل طلبًا أو دفعًا أو ضمانًا لتوافر المنتج." : "Demo comparison document. It does not represent an order, payment, or availability guarantee.", 42, y + 20, { width: 511, align: isArabic ? "right" : "left" });
+    pdf.fillColor("#745531").fontSize(8).text(isArabic ? "وثيقة مقارنة تجريبية. لا تمثل طلبًا أو دفعًا أو ضمانًا لتوافر المنتج." : "Demo comparison document. It does not represent an order, payment, or availability guarantee.", 42, y + 20, { width: 511, align: isArabic ? "right" : "left" });
     pdf.end();
   });
-  app.use((req, _res, next) => { (req as Request & { caffioOrigin?: string }).caffioOrigin = resolveOrigin(req); next(); });
+  app.use((req: Request, _res: Response, next: NextFunction) => { (req as Request & { caffioOrigin?: string }).caffioOrigin = resolveOrigin(req); next(); });
 }

@@ -30,6 +30,12 @@ The result is both a brand exercise and a production-minded UX case study: a res
 
 The live comparison route extends this system with side-by-side record fields, verified-only tasting behavior, field-note recipe cards, SVG export, a browser print flow, and a formatted server PDF.
 
+| Desktop comparison workflow | Mobile comparison reflow | Server PDF preview |
+|---|---|---|
+| ![Caffio desktop comparison showing the two-product table, sharing controls, PDF download, evidence boundary, and field-note recipes](https://apexroast-5n8tojyv.manus.space/manus-storage/caffio-comparison-desktop_f91217e6.png) | ![Caffio mobile comparison showing the stacked product controls, table, evidence boundary, and recipes](https://apexroast-5n8tojyv.manus.space/manus-storage/caffio-comparison-mobile_20e69905.png) | ![Caffio server comparison PDF preview](https://apexroast-5n8tojyv.manus.space/manus-storage/caffio-comparison-pdf-preview_201a23ab.png) |
+
+The captures reflect the current [shareable comparison](https://apexroast-5n8tojyv.manus.space/compare?a=alto&b=sombra) and its [server-rendered PDF](https://apexroast-5n8tojyv.manus.space/compare/pdf?a=alto&b=sombra). Both retain pending evidence states instead of filling the export with unsupported origin or tasting claims.
+
 ---
 
 ## What the Experience Demonstrates

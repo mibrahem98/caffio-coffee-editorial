@@ -305,6 +305,25 @@ test("server renders comparison metadata, a social image, and a formatted PDF wi
   await expect(page.getByTestId("download-server-pdf")).toHaveAttribute("href", "/compare/pdf?a=alto&b=sombra&lang=en");
 });
 
+test("server renders product metadata and a product-specific social image without publishing pending tasting facts", async ({ page, request }) => {
+  const product = await request.get("/coffee/alto");
+  const html = await product.text();
+  expect(product.ok()).toBeTruthy();
+  expect(html).toContain('property="og:title" content="ALTO / Seasonal Lot — Caffio coffee record"');
+  expect(html).toContain('rel="canonical" href="');
+  expect(html).toContain("/coffee/alto");
+  expect(html).toContain("Tasting cues await a verified batch record.");
+  const image = await request.get("/coffee/alto/og.png?lang=en");
+  expect(image.headers()["content-type"]).toContain("image/png");
+  const arabicProduct = await request.get("/coffee/alto?lang=ar");
+  const arabicHtml = await arabicProduct.text();
+  expect(arabicHtml).toContain('property="og:locale" content="ar_AR"');
+  expect(arabicHtml).toContain("سجل قهوة كافيو");
+  await page.goto("/coffee/alto");
+  await expect(page.getByRole("button", { name: "Sign in to add a reflection" })).toBeVisible();
+  await expect(page.getByText("No reviewed reflections are published yet.")).toBeVisible();
+});
+
 test("product detail keeps tasting notes pending until its batch becomes verified", async ({ page }) => {
   await page.goto("/coffee/alto");
   await expect(page.getByTestId("pending-tasting-notes")).toHaveText(/Awaiting a verified batch tasting record/i);

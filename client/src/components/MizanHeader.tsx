@@ -1,4 +1,4 @@
-import { Globe2, Heart, Menu, Moon, PackageSearch, ReceiptText, Search, ShoppingBag, Sun, UserRound, X } from "lucide-react";
+import { Globe2, Heart, Menu, Moon, MoreHorizontal, PackageSearch, ReceiptText, Search, ShoppingBag, Sun, UserRound, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useCart } from "@/contexts/CartContext";
@@ -6,8 +6,8 @@ import { useFavorites } from "@/contexts/FavoritesContext";
 import type { Lang } from "@/lib/mizanCatalog";
 
 const copy = {
-  en: { story: "Story", collection: "Collection", ritual: "Ritual", notes: "Field notes", faq: "FAQ", caseStudy: "Case study", society: "Society", explore: "Explore coffee", light: "Light mode", dark: "Dark mode", cart: "Open cart", search: "Search coffee", favorites: "Saved coffees", tracking: "Track demo order", payments: "Verified payment activity", profile: "Local profile" },
-  ar: { story: "القصة", collection: "المجموعة", ritual: "الطقس", notes: "ملاحظات الحقل", faq: "الأسئلة الشائعة", caseStudy: "دراسة الحالة", society: "المجتمع", explore: "استكشف القهوة", light: "الوضع الفاتح", dark: "الوضع الليلي", cart: "فتح السلة", search: "ابحث عن قهوة", favorites: "القهوة المفضلة", tracking: "تتبع الطلب التجريبي", payments: "نشاط الدفع الموثق", profile: "الملف المحلي" },
+  en: { story: "Story", collection: "Collection", ritual: "Ritual", notes: "Field notes", faq: "FAQ", caseStudy: "Case study", society: "Society", explore: "Explore coffee", light: "Light mode", dark: "Dark mode", cart: "Open cart", search: "Search coffee", favorites: "Saved coffees", tracking: "Track demo order", payments: "Verified payment activity", profile: "Local profile", more: "More tools" },
+  ar: { story: "القصة", collection: "المجموعة", ritual: "الطقس", notes: "ملاحظات الحقل", faq: "الأسئلة الشائعة", caseStudy: "دراسة الحالة", society: "المجتمع", explore: "استكشف القهوة", light: "الوضع الفاتح", dark: "الوضع الليلي", cart: "فتح السلة", search: "ابحث عن قهوة", favorites: "القهوة المفضلة", tracking: "تتبع الطلب التجريبي", payments: "نشاط الدفع الموثق", profile: "الملف المحلي", more: "أدوات إضافية" },
 };
 
 export default function MizanHeader({ lang, onLangChange, home = true }: { lang: Lang; onLangChange: (lang: Lang) => void; home?: boolean }) {
@@ -49,9 +49,14 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
         <button className="icon-button utility-icon" data-utility-label={theme === "dark" ? t.light : t.dark} onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.light : t.dark} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</button>
         <a className="icon-button utility-icon" data-utility-label={t.search} href="/search" aria-label={t.search} title={t.search}><Search size={16} /></a>
         <a className="cart-button utility-icon favorite-utility" data-utility-label={t.favorites} href="/favorites" aria-label={`${t.favorites} (${favorites.length})`} title={t.favorites}><Heart size={16} fill={favorites.length ? "currentColor" : "none"} /><span>{favorites.length}</span></a>
-        <a className="icon-button utility-icon" data-utility-label={t.tracking} href="/track" aria-label={t.tracking} title={t.tracking}><PackageSearch size={16} /></a>
-        <a className="icon-button utility-icon" data-utility-label={t.payments} href="/payments" aria-label={t.payments} title={t.payments}><ReceiptText size={16} /></a>
-        <a className="icon-button utility-icon" data-utility-label={t.profile} href="/profile" aria-label={t.profile} title={t.profile}><UserRound size={16} /></a>
+        <details className="nav-more">
+          <summary className="icon-button utility-icon" data-utility-label={t.more} aria-label={t.more} title={t.more}><MoreHorizontal size={17} /></summary>
+          <div className="nav-more-menu" role="menu" aria-label={t.more}>
+            <a href="/track" role="menuitem"><PackageSearch size={15} /><span>{t.tracking}</span></a>
+            <a href="/payments" role="menuitem"><ReceiptText size={15} /><span>{t.payments}</span></a>
+            <a href="/profile" role="menuitem"><UserRound size={15} /><span>{t.profile}</span></a>
+          </div>
+        </details>
         <button className="cart-button utility-icon cart-utility" data-utility-label={t.cart} onClick={() => window.dispatchEvent(new CustomEvent("mizan:open-cart"))} aria-label={`${t.cart} (${count})`}><ShoppingBag size={16} /><span>{count}</span></button>
         <a className="nav-cta" href={link("collection")}>{t.explore}<span>↗</span></a>
         <button className="mobile-toggle" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={mobileOpen} aria-controls="primary-navigation">{mobileOpen ? <X size={18} /> : <Menu size={18} />}</button>

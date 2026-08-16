@@ -21,6 +21,18 @@ test("homepage actions lead to working collection, Society, source, and field-no
   await expect(page.getByLabel("Open cart (0)")).toBeVisible();
 });
 
+test("desktop header groups secondary account tools behind an accessible menu", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name === "mobile-chromium", "Secondary utilities are intentionally collected in the mobile navigation panel.");
+  await page.goto("/");
+  const moreTools = page.getByTitle("More tools");
+  await expect(moreTools).toBeVisible();
+  await moreTools.click();
+  const menu = page.getByRole("menu", { name: "More tools" });
+  await expect(menu.getByRole("menuitem", { name: "Track demo order" })).toHaveAttribute("href", "/track");
+  await expect(menu.getByRole("menuitem", { name: "Verified payment activity" })).toHaveAttribute("href", "/payments");
+  await expect(menu.getByRole("menuitem", { name: "Local profile" })).toHaveAttribute("href", "/profile");
+});
+
 test("Field Notes renders documented recipe starting points and filters them by brew method", async ({ page }) => {
   await page.goto("/notes");
   const articles = page.locator(".field-article");

@@ -1,6 +1,6 @@
 # Caffio Coffee — Bilingual Specialty Coffee Editorial Experience
 
-[![Live Experience](https://img.shields.io/badge/Live-Caffio%20Coffee-C29B58?style=flat-square)](https://apexroast-5n8tojyv.manus.space/) [![Portfolio Repository](https://img.shields.io/badge/GitHub-Portfolio%20Case%20Study-1E2224?style=flat-square&logo=github)](https://github.com/mibrahem98/caffio-coffee-editorial) [![Quality](https://img.shields.io/badge/Quality-22%20Vitest%20%2B%2055%20Playwright-4E6653?style=flat-square)](#quality-assurance)
+[![Live Experience](https://img.shields.io/badge/Live-Caffio%20Coffee-C29B58?style=flat-square)](https://apexroast-5n8tojyv.manus.space/) [![Portfolio Repository](https://img.shields.io/badge/GitHub-Portfolio%20Case%20Study-1E2224?style=flat-square&logo=github)](https://github.com/mibrahem98/caffio-coffee-editorial) [![Quality](https://img.shields.io/badge/Quality-30%20Vitest%20%2B%2064%20Playwright-4E6653?style=flat-square)](#quality-assurance)
 
 > **Caffio Coffee** is a bilingual Arabic/English specialty-coffee experience that treats the product record as the center of the story. Its visual system combines quiet editorial pacing, warm neo-minimalism, and auditable content states so that the interface never turns pending origin or tasting information into a marketing claim.
 
@@ -46,7 +46,7 @@ The captures reflect the current [shareable comparison](https://apexroast-5n8toj
 | **Auditable product storytelling** | Independent product records, batch audit cards, pending evidence states, source protocol route | Demonstrates content governance embedded in UX |
 | **Product discovery** | Search URL state, active refinements, locally saved filters, verified-note gating, recent searches, related products | Shows practical search interaction design and accessible state communication |
 | **Comparison engine** | Two-product URL pairing, evidence-aware fields, recipe cards, browser sharing, SVG image export, server PDF | Demonstrates decision support, export design, and URL-driven composition |
-| **Social preview layer** | Server-rendered comparison metadata, canonical URLs, Open Graph/Twitter tags, branded PNG endpoint | Shows share-ready metadata design for crawler-facing routes |
+| **Social preview layer** | Server-rendered product, comparison, Field Notes, and Case Study metadata with canonical URLs, Open Graph/Twitter tags, branded PNG endpoints, and safe route snapshots | Shows share-ready metadata design for crawler-facing routes without exposing private UGC |
 | **Demo commerce boundary** | Local cart, promo code, checkout, society flow, tracking, favorites, profile | Demonstrates commerce UX without falsely representing payments or fulfilment |
 | **Responsive performance** | Route lazy-loading, responsive AVIF/WebP imagery, prioritized Hero, deferred non-critical media | Shows performance-aware front-end architecture |
 | **Quality discipline** | Unit tests, browser flows, mobile/RTL coverage, reduced-motion checks, type checking, production build verification | Shows a repeatable engineering workflow, not only visual output |
@@ -82,6 +82,7 @@ The project evolved in deliberate stages, each designed to add a demonstrable ca
 | **05 — Performance and interaction** | Introduced lazy routes, responsive AVIF/WebP, skeleton states, motion preferences, and automated interaction checks | responsive image system, Playwright |
 | **06 — Decision support** | Added comparison pairs, evidence-aware related products, verified-only tasting paths, and comparison recipes | `/compare?a=alto&b=sombra` |
 | **07 — Share and export** | Added browser sharing, SVG export, formatted PDF generation, server-rendered social metadata, and a dynamic PNG card | `/compare/og.png`, `/compare/pdf` |
+| **08 — Moderation and editorial discovery** | Added moderated visitor reflections, approved-only automated summaries, a standalone admin review route, and crawler-visible product/editorial metadata | `/admin/tasting`, `/coffee/:id/og.png`, `/editorial/og.png` |
 
 ---
 
@@ -96,6 +97,8 @@ The project evolved in deliberate stages, each designed to add a demonstrable ca
 | `/compare/og.png` | Dynamic social image for a comparison URL | Server-generated PNG from selected record names and evidence state |
 | `/compare/pdf` | Formatted comparison download | Server-generated PDF; not an order, invoice, or availability statement |
 | `/notes` | Field-note brew guidance | Typed editorial recipe data |
+| `/case-study` | In-product design and engineering narrative | Public portfolio narrative plus crawler-visible editorial metadata |
+| `/admin/tasting` | Protected reflection moderation workspace | Admin-only; pending feedback stays private until approved |
 | `/society` | Subscription concept prototype | Explicit local simulation; no payment, address, or delivery transaction |
 | `/track`, `/profile`, `/favorites` | Browser-local demo order and preference surfaces | No account, CRM, shipping, or payment system |
 | `/payments` | Payment activity boundary | Empty until verified provider webhook events exist |
@@ -115,7 +118,7 @@ The same comparison can then be expressed in four formats:
 3. **Print / Save as PDF** through the browser print flow.
 4. **Formatted server PDF** at `/compare/pdf`, generated from the same source-governed record fields.
 
-For social platforms, the server injects comparison-specific title, description, canonical URL, Open Graph, and Twitter metadata before JavaScript runs. It also serves a branded PNG at `/compare/og.png`. This server-rendered metadata scope currently targets comparison links; the interactive React application remains client-rendered.
+For social platforms, the server injects route-specific title, description, canonical URL, Open Graph, and Twitter metadata before JavaScript runs. Comparison routes receive `/compare/og.png`, product routes receive `/coffee/:id/og.png`, and Field Notes/Case Study use `/editorial/og.png`. The interactive React application remains client-rendered, while each supported crawler-facing route receives a small source-governed snapshot rather than private user content.
 
 ## Content Governance and Trust Boundaries
 
@@ -148,8 +151,9 @@ React 19 + Vite + TypeScript
 ├── Content model: typed bilingual catalog, batch records, field-note recipes
 ├── Quality: Vitest + Playwright + TypeScript checks + production build
 └── Express output layer
-    ├── /compare                → crawler-facing metadata + evidence-bound snapshot
+    ├── /compare, /coffee/:id   → crawler-facing metadata + evidence-bound snapshot
     ├── /compare/og.png         → branded PNG social card
+    ├── /coffee/:id/og.png and /editorial/og.png → branded route-level social cards
     └── /compare/pdf            → formatted Unicode-capable comparison PDF
 ```
 
@@ -167,7 +171,7 @@ React 19 + Vite + TypeScript
 
 ## Quality Assurance
 
-The latest portfolio release validated **22 Vitest assertions** and **55 Playwright scenarios**; one touch-hover scenario remains intentionally skipped because hover is not a reliable touch interaction. In addition, TypeScript, production build, server PDF, raw crawler HTML, Open Graph image MIME, Arabic metadata, and responsive desktop/mobile layouts were reviewed before release.
+The latest portfolio release validated **30 Vitest assertions** and **64 Playwright scenarios**; two viewport-specific checks are intentionally skipped because desktop hover and desktop-only utility grouping do not apply to touch layouts. In addition, TypeScript, production build, server PDF, raw crawler HTML, Open Graph image MIME, Arabic metadata, approved-only reflection rules, and responsive desktop/mobile layouts were reviewed before release.
 
 | Check | Examples covered |
 |---|---|
@@ -211,10 +215,10 @@ The project workflow is packaged as the **`mizan-coffee-web-workflow`** Manus sk
 The following work is intentionally not represented as complete:
 
 1. **Verified tasting data:** Publish it only after producer or cupping documents are supplied and logged in the source registry.
-2. **Full public-route React SSR:** Expand beyond comparison metadata only after auditing all browser-local state and hydration behavior across public routes.
+2. **Full public-route React SSR:** Expand beyond the current source-governed snapshots for product, comparison, and editorial routes only after auditing all browser-local state and hydration behavior across public routes.
 3. **Live commerce:** Configure a payment provider, server-side checkout, webhooks, fulfillment, cancellation, data retention, and shipping rules before claiming real subscription capability.
 4. **Structured discovery:** Add `sitemap.xml`, `robots.txt` sitemap reference, and record-backed JSON-LD only once product facts are supported.
 
-## License
+## Buyer handover and commercial readiness
 
-This repository is published as a portfolio case study. Add a project-specific license before commercial redistribution.
+For a commercial handover, review [`docs/SALE-READINESS-BRIEF.md`](./docs/SALE-READINESS-BRIEF.md) and [`docs/BUYER-HANDOVER.md`](./docs/BUYER-HANDOVER.md), then add a transaction-specific license before transferring code. These documents identify what is included, what remains demonstrative or pending, and which rights, secrets, and content records require confirmation before a buyer operates the project.

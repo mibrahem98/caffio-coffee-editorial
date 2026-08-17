@@ -1,6 +1,6 @@
 # Caffio Coffee — Bilingual Specialty Coffee Editorial Experience
 
-[![Live Experience](https://img.shields.io/badge/Live-Caffio%20Coffee-C29B58?style=flat-square)](https://apexroast-5n8tojyv.manus.space/) [![Portfolio Repository](https://img.shields.io/badge/GitHub-Portfolio%20Case%20Study-1E2224?style=flat-square&logo=github)](https://github.com/mibrahem98/caffio-coffee-editorial) [![Quality](https://img.shields.io/badge/Quality-30%20Vitest%20%2B%2064%20Playwright-4E6653?style=flat-square)](#quality-assurance)
+[![Live Experience](https://img.shields.io/badge/Live-Caffio%20Coffee-C29B58?style=flat-square)](https://apexroast-5n8tojyv.manus.space/) [![Portfolio Repository](https://img.shields.io/badge/GitHub-Portfolio%20Case%20Study-1E2224?style=flat-square&logo=github)](https://github.com/mibrahem98/caffio-coffee-editorial) [![Quality](https://img.shields.io/badge/Quality-33%20Vitest%20%2B%2070%20Playwright-4E6653?style=flat-square)](#quality-assurance)
 
 > **Caffio Coffee** is a bilingual Arabic/English specialty-coffee experience that treats the product record as the center of the story. Its visual system combines quiet editorial pacing, warm neo-minimalism, and auditable content states so that the interface never turns pending origin or tasting information into a marketing claim.
 
@@ -13,6 +13,7 @@
 | **Source protocol** | [Review evidence boundaries](https://apexroast-5n8tojyv.manus.space/sources) |
 | **Case study in product** | [Read the design case study](https://apexroast-5n8tojyv.manus.space/case-study) |
 | **Repository** | [mibrahem98/caffio-coffee-editorial](https://github.com/mibrahem98/caffio-coffee-editorial) |
+| **Full evolution log** | [Read the creation-to-current timeline](./docs/PROJECT-EVOLUTION.md) |
 
 ---
 
@@ -83,6 +84,7 @@ The project evolved in deliberate stages, each designed to add a demonstrable ca
 | **06 — Decision support** | Added comparison pairs, evidence-aware related products, verified-only tasting paths, and comparison recipes | `/compare?a=alto&b=sombra` |
 | **07 — Share and export** | Added browser sharing, SVG export, formatted PDF generation, server-rendered social metadata, and a dynamic PNG card | `/compare/og.png`, `/compare/pdf` |
 | **08 — Moderation and editorial discovery** | Added moderated visitor reflections, approved-only automated summaries, a standalone admin review route, and crawler-visible product/editorial metadata | `/admin/tasting`, `/coffee/:id/og.png`, `/editorial/og.png` |
+| **09 — Buyer readiness and audit** | Added sale handover documentation, Arabic PDF reporting, polished dark-mode/purchase-preview/reflection surfaces, and a final responsive audit that fixed hidden interactive workspaces | [Full evolution log](./docs/PROJECT-EVOLUTION.md) |
 
 ---
 
@@ -171,7 +173,7 @@ React 19 + Vite + TypeScript
 
 ## Quality Assurance
 
-The latest portfolio release validated **30 Vitest assertions** and **64 Playwright scenarios**; two viewport-specific checks are intentionally skipped because desktop hover and desktop-only utility grouping do not apply to touch layouts. In addition, TypeScript, production build, server PDF, raw crawler HTML, Open Graph image MIME, Arabic metadata, approved-only reflection rules, and responsive desktop/mobile layouts were reviewed before release.
+The latest audited release validated **33 Vitest assertions** and **70 Playwright scenarios**; two viewport-specific checks are intentionally skipped because desktop hover and desktop-only utility grouping do not apply to touch layouts. In addition, TypeScript, production build, server PDF, raw crawler HTML, Open Graph image MIME, Arabic metadata, approved-only reflection rules, and responsive desktop/mobile layouts were reviewed before release. The audit also corrected a broad scroll-reveal selector that could delay interactive workspace visibility in full-page/mobile capture contexts.
 
 | Check | Examples covered |
 |---|---|

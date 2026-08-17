@@ -127,7 +127,7 @@ test("keyboard users can skip the homepage navigation and every public route ren
   await skipLink.press("Enter");
   await expect(page.locator("#main-content")).toBeFocused();
 
-  for (const route of ["/", "/coffee/alto", "/notes", "/favorites", "/track", "/profile", "/case-study", "/society", "/payments"]) {
+  for (const route of ["/", "/coffee/alto", "/notes", "/favorites", "/track", "/profile", "/case-study", "/society", "/payments", "/search", "/compare?a=alto&b=sombra", "/sources"]) {
     await page.goto(route);
     await expect(page.locator("main")).toBeVisible();
     await expect(page.locator("h1").first()).toBeVisible();

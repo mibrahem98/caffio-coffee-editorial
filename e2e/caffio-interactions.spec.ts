@@ -413,3 +413,44 @@ test("Society completes a clearly labeled local-only subscription simulation", a
   await expect(page.getByText("Your demo rhythm is ready.")).toBeVisible();
   await expect(page.getByText(/no billing or shipping action occurred/i)).toBeVisible();
 });
+
+test("dark mode applies a polished persisted surface without changing the available routes", async ({ page }, testInfo) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.removeItem("mizan-theme"));
+  await page.reload();
+  if (testInfo.project.name === "mobile-chromium") {
+    await page.getByRole("button", { name: "Toggle navigation" }).click();
+  }
+  const themeControl = page.getByRole("button", { name: "Dark mode" });
+  await expect(themeControl).toBeVisible();
+  await themeControl.click();
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(page.locator(".mizan-site")).toHaveCSS("background-color", "rgb(18, 25, 26)");
+  await page.reload();
+  if (testInfo.project.name === "mobile-chromium") {
+    await page.getByRole("button", { name: "Toggle navigation" }).click();
+  }
+  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(page.getByRole("button", { name: "Light mode" })).toBeVisible();
+});
+
+test("homepage purchase preview routes visitors to a local-only simulation and a verified-payment boundary", async ({ page }) => {
+  await page.goto("/");
+  const preview = page.getByTestId("checkout-preview");
+  await expect(preview).toBeVisible();
+  await expect(preview.getByText("No charge is made")).toBeVisible();
+  await expect(preview.getByRole("link", { name: "Open purchase simulation" })).toHaveAttribute("href", "/society");
+  await expect(preview.getByRole("link", { name: "Read payment boundary" })).toHaveAttribute("href", "/payments");
+});
+
+test("homepage reflection showcase stays transparent when no approved visitor feedback exists", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const showcase = page.getByTestId("reflection-showcase");
+  await showcase.scrollIntoViewIfNeeded();
+  await expect(showcase).toHaveClass(/is-visible/);
+  const empty = page.getByTestId("reflection-showcase-empty");
+  await expect(empty).toBeVisible();
+  await expect(empty.getByText("No approved reflections yet.")).toBeVisible();
+  await expect(empty.getByText(/stays intentionally empty/i)).toBeVisible();
+});

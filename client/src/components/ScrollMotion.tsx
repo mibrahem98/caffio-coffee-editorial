@@ -5,7 +5,7 @@ export default function ScrollMotion() {
   const [location] = useLocation();
 
   useEffect(() => {
-    const selector = "section, .hero-signal, .principle-grid article, .product-tile, .notes-grid article, .faq-item, .field-article, .batch-card, .profile-column, .share-product";
+    const selector = "section, .hero-signal, .principle-grid article, .product-tile, .notes-grid article, .faq-item, .field-article, .batch-card, .profile-column, .share-product, .reflection-showcase-card";
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let frame = 0;
     const observer = !reduceMotion && "IntersectionObserver" in window ? new IntersectionObserver((entries) => {

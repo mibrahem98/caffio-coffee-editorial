@@ -52,11 +52,15 @@ a { color: inherit; }
 [dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] .manifesto-copy, [dir="rtl"] .product-tile h3, [dir="rtl"] .notes-grid h3, [dir="rtl"] .faq-trigger, [dir="rtl"] .flavor-summary h3 { font-family: "Noto Kufi Arabic", "Noto Sans Arabic", sans-serif; font-weight: 600; letter-spacing: 0; line-height: 1.24; }
 
 .mizan-site { min-height: 100vh; overflow: hidden; background: var(--ivory); color: var(--ink); }
-.route-loader { display: grid; min-height: 100vh; place-content: center; gap: 14px; background: var(--charcoal); color: var(--ivory); text-align: center; }
-.route-loader-mark { display: block; width: 34px; height: 34px; margin: 0 auto; border: 1px solid var(--gold); border-radius: 50%; border-top-color: transparent; animation: route-spin 780ms linear infinite; }
-.route-loader p { margin: 0; color: rgba(242, 235, 221, .7); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; }
-@keyframes route-spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .route-loader-mark { animation: none; border-top-color: var(--gold); } }
+.route-loader { display: grid; min-height: 100vh; place-content: center; gap: 16px; padding: 24px; background: radial-gradient(circle at 50% 42%, rgba(184, 145, 82, .15), transparent 26%), var(--charcoal); color: var(--ivory); text-align: center; }
+.route-loader-seal { display: grid; width: 62px; height: 62px; margin: 0 auto; border: 1px solid rgba(184, 145, 82, .56); border-radius: 50%; place-items: center; animation: route-pulse 1.4s var(--ease-in-out) infinite; }
+.route-loader-seal .mizan-symbol { transform: scale(1.15); }
+.route-loader small { color: var(--gold); font-size: 9px; letter-spacing: .17em; }
+.route-loader p { margin: 7px 0 0; color: rgba(242, 235, 221, .7); font-size: 10px; letter-spacing: .15em; text-transform: uppercase; }
+.route-transition { animation: route-enter 220ms var(--ease-out) both; }
+@keyframes route-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(184, 145, 82, .08); transform: scale(1); } 50% { box-shadow: 0 0 0 10px rgba(184, 145, 82, 0); transform: scale(1.03); } }
+@keyframes route-enter { from { opacity: .72; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .route-loader-seal, .route-transition { animation: none; } }
 .reading-progress { position: fixed; z-index: 100; top: 0; left: 0; height: 3px; background: var(--gold); transition: width 140ms linear; }
 .skip-link { position: fixed; z-index: 110; top: 12px; left: 50%; padding: 10px 14px; background: var(--ivory); color: var(--charcoal); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; transform: translate(-50%, -160%); transition: transform 160ms var(--ease-out); }
 .skip-link:focus { transform: translate(-50%, 0); }
@@ -1527,3 +1531,84 @@ html.dark .checkout-preview-grid article:hover { background: rgba(184, 145, 82, 
 }
 
 html.dark .mizan-site { background: #12191a; }
+
+.coffee-advisor { padding: 112px 9vw; background: #131c1d; color: var(--ivory); }
+.coffee-advisor-intro, .interactive-brew-intro { display: grid; grid-template-columns: 1fr .72fr; gap: 8vw; align-items: end; max-width: 1120px; margin: 0 auto; }
+.coffee-advisor-intro h2, .interactive-brew-intro h2 { margin: 10px 0 0; font-size: clamp(44px, 5.6vw, 76px); line-height: .9; }
+.coffee-advisor-intro h2 em, .interactive-brew-intro h2 em { color: var(--gold); }
+.coffee-advisor-intro > p, .interactive-brew-intro > p { max-width: 400px; margin: 0 0 7px; color: rgba(242, 235, 221, .7); font-size: var(--text-sm); line-height: 1.85; }
+.coffee-advisor-layout { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); max-width: 1120px; margin: 48px auto 0; border: 1px solid rgba(242, 235, 221, .16); }
+.coffee-advisor-form { position: relative; display: grid; align-content: start; gap: 19px; min-height: 330px; padding: 32px; background: rgba(242, 235, 221, .045); }
+.coffee-advisor-mark { display: flex; align-items: center; justify-content: space-between; margin-bottom: 17px; color: var(--gold); }
+.coffee-advisor-mark span { color: rgba(242, 235, 221, .48); font-size: 10px; letter-spacing: .14em; }
+.coffee-advisor-form label, .interactive-brew-control label { display: grid; gap: 8px; }
+.coffee-advisor-form label > span, .interactive-brew-control label > span { color: rgba(242, 235, 221, .58); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
+.coffee-advisor-form select { border-color: rgba(242, 235, 221, .24); background: rgba(242, 235, 221, .04); color: var(--ivory); }
+.coffee-advisor-form select option { color: var(--ink); }
+.coffee-advisor-form .button { justify-self: start; margin-top: 8px; }
+.coffee-advisor-result { display: flex; flex-direction: column; align-items: flex-start; min-height: 330px; padding: 32px; background: linear-gradient(135deg, rgba(184, 145, 82, .16), rgba(242, 235, 221, .02)); }
+.coffee-advisor-result-head { display: flex; width: 100%; justify-content: space-between; gap: 14px; color: var(--gold); font-size: 10px; letter-spacing: .11em; text-transform: uppercase; }
+.coffee-advisor-result-head > span { display: inline-flex; gap: 7px; align-items: center; }
+.coffee-advisor-result-head small { color: rgba(242, 235, 221, .52); font-size: 9px; letter-spacing: .08em; }
+.coffee-advisor-result h3 { margin: 42px 0 9px; color: var(--ivory); font-family: var(--font-display); font-size: clamp(34px, 4vw, 52px); font-weight: 400; letter-spacing: -.04em; line-height: .95; }
+.coffee-advisor-result > p { margin: 0; color: rgba(242, 235, 221, .66); font-size: var(--text-sm); }
+.coffee-advisor-matches { display: flex; flex-wrap: wrap; gap: 8px; margin: 25px 0; }
+.coffee-advisor-matches span { display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid rgba(242, 235, 221, .16); color: rgba(242, 235, 221, .78); font-size: 10px; }
+.coffee-advisor-result .text-link { margin-top: auto; color: var(--ivory); }
+.coffee-advisor-boundary { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; max-width: 1120px; margin: 20px auto 0; color: rgba(242, 235, 221, .72); }
+.coffee-advisor-boundary > svg { margin-top: 3px; color: var(--gold); }
+.coffee-advisor-boundary strong { color: var(--ivory); font-size: 12px; }
+.coffee-advisor-boundary p { margin: 5px 0 0; font-size: 11px; line-height: 1.75; }
+.interactive-brew-guide { padding: 112px 9vw; background: var(--ivory); border-bottom: 1px solid var(--line); }
+.interactive-brew-layout { display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); max-width: 1120px; margin: 48px auto 0; border: 1px solid var(--line); }
+.interactive-brew-control { padding: 30px; background: rgba(233, 224, 208, .58); }
+.interactive-brew-control label > span { color: rgba(30, 34, 36, .55); }
+.interactive-brew-control select { border-color: var(--line); background: rgba(255, 255, 255, .32); color: var(--ink); }
+.interactive-brew-control dl { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin: 32px 0 0; background: var(--line); }
+.interactive-brew-control dl > div { min-height: 90px; padding: 14px; background: var(--ivory); }
+.interactive-brew-control dt { display: flex; align-items: center; gap: 5px; color: rgba(30, 34, 36, .5); font-size: 9px; letter-spacing: .09em; text-transform: uppercase; }
+.interactive-brew-control dd { margin: 12px 0 0; color: var(--brown); font-family: var(--font-display); font-size: 19px; }
+.interactive-brew-stage { display: flex; flex-direction: column; min-height: 380px; padding: 30px; background: #f7f0e4; }
+.interactive-brew-progress { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: rgba(30, 34, 36, .58); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.interactive-brew-progress i { display: block; flex: 1; max-width: 210px; height: 1px; overflow: hidden; background: var(--line); }
+.interactive-brew-progress b { display: block; height: 100%; background: var(--gold); transition: width 220ms var(--ease-out); }
+.interactive-brew-step { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 26px; align-items: start; margin: 56px 0 auto; }
+.interactive-brew-step > span { color: var(--gold); font-family: var(--font-display); font-size: 52px; line-height: .8; }
+.interactive-brew-step p { max-width: 450px; margin: 0; color: var(--brown); font-family: var(--font-display); font-size: clamp(25px, 3vw, 38px); line-height: 1.08; }
+.interactive-brew-complete { max-width: 460px; margin: auto 0; }
+.interactive-brew-complete > svg { color: var(--gold); }
+.interactive-brew-complete h3 { margin: 17px 0 8px; color: var(--brown); font-family: var(--font-display); font-size: 38px; font-weight: 400; }
+.interactive-brew-complete p { margin: 0; color: rgba(30, 34, 36, .68); font-size: var(--text-sm); line-height: 1.8; }
+.interactive-brew-actions { display: flex; align-items: center; justify-content: flex-end; gap: 22px; margin-top: 34px; }
+.interactive-brew-actions .text-link { margin-right: auto; }
+.interactive-brew-tip { display: grid; grid-template-columns: .58fr 1.42fr; gap: 24px; max-width: 1120px; margin: 18px auto 0; padding-top: 17px; border-top: 1px solid var(--line); }
+.interactive-brew-tip span { color: var(--gold); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.interactive-brew-tip p { margin: 0; color: rgba(30, 34, 36, .62); font-size: 12px; line-height: 1.75; }
+html.dark .interactive-brew-guide { background: var(--charcoal); border-color: var(--dark-line); }
+html.dark .interactive-brew-intro > p, html.dark .interactive-brew-tip p, html.dark .interactive-brew-complete p { color: rgba(242, 235, 221, .67); }
+html.dark .interactive-brew-layout, html.dark .interactive-brew-tip { border-color: var(--dark-line); }
+html.dark .interactive-brew-control { background: rgba(242, 235, 221, .045); }
+html.dark .interactive-brew-control label > span, html.dark .interactive-brew-control dt, html.dark .interactive-brew-progress { color: rgba(242, 235, 221, .55); }
+html.dark .interactive-brew-control select { border-color: var(--dark-line); background: rgba(242, 235, 221, .04); color: var(--ivory); }
+html.dark .interactive-brew-control select option { color: var(--ink); }
+html.dark .interactive-brew-control dl { background: var(--dark-line); }
+html.dark .interactive-brew-control dl > div, html.dark .interactive-brew-stage { background: rgba(242, 235, 221, .035); }
+html.dark .interactive-brew-control dd, html.dark .interactive-brew-step p, html.dark .interactive-brew-complete h3 { color: var(--ivory); }
+@media (max-width: 850px) {
+  .coffee-advisor-intro, .interactive-brew-intro { grid-template-columns: 1fr; gap: 22px; }
+  .coffee-advisor-layout, .interactive-brew-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .coffee-advisor, .interactive-brew-guide { padding: 78px 7vw; }
+  .coffee-advisor-form, .coffee-advisor-result, .interactive-brew-control, .interactive-brew-stage { min-height: 0; padding: 22px; }
+  .coffee-advisor-result h3 { margin-top: 33px; }
+  .interactive-brew-control dl { grid-template-columns: 1fr 1fr; margin-top: 24px; }
+  .interactive-brew-step { gap: 18px; margin-top: 45px; }
+  .interactive-brew-step > span { font-size: 39px; }
+  .interactive-brew-actions { align-items: flex-end; flex-direction: column-reverse; }
+  .interactive-brew-actions .text-link { margin-right: 0; }
+  .interactive-brew-tip { grid-template-columns: 1fr; gap: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .interactive-brew-progress b { transition: none; }
+}

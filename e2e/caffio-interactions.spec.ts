@@ -454,3 +454,41 @@ test("homepage reflection showcase stays transparent when no approved visitor fe
   await expect(empty.getByText("No approved reflections yet.")).toBeVisible();
   await expect(empty.getByText(/stays intentionally empty/i)).toBeVisible();
 });
+
+test("record-guided coffee assistant explains a deterministic match without inventing tasting data", async ({ page }) => {
+  await page.goto("/");
+  const advisor = page.getByTestId("coffee-advisor");
+  await advisor.scrollIntoViewIfNeeded();
+  await advisor.getByLabel("Brew method").selectOption("Espresso");
+  await advisor.getByLabel("Roast direction").selectOption("espresso");
+  await advisor.getByRole("button", { name: "Show starting points" }).click();
+  await expect(advisor.getByRole("heading", { name: "CAFFIO / House Espresso" })).toBeVisible();
+  await expect(advisor.getByText("Listed for your brew method")).toBeVisible();
+  await expect(advisor.getByText("Matches your roast direction")).toBeVisible();
+  await expect(advisor.getByText(/Pending origin and tasting fields are never used/i)).toBeVisible();
+  await expect(advisor.getByRole("link", { name: "Open record" })).toHaveAttribute("href", "/coffee/mizan-house");
+});
+
+test("interactive brew guide progresses through an existing field-note recipe and restarts accessibly", async ({ page }) => {
+  await page.goto("/");
+  const guide = page.getByTestId("interactive-brew-guide");
+  await guide.scrollIntoViewIfNeeded();
+  await guide.getByLabel("Choose a recipe").selectOption("mizan-espresso");
+  await expect(guide.getByText("Step 1 of 3")).toBeVisible();
+  await expect(guide.getByText("Distribute evenly and tamp level.")).toBeVisible();
+  await guide.getByRole("button", { name: "Next step" }).click();
+  await expect(guide.getByText("Watch time and yield before changing dose.")).toBeVisible();
+  await guide.getByRole("button", { name: "Next step" }).click();
+  await guide.getByRole("button", { name: "Next step" }).click();
+  await expect(guide.getByRole("heading", { name: "Starting point complete" })).toBeVisible();
+  await guide.getByRole("button", { name: "Start again" }).click();
+  await expect(guide.getByText("Step 1 of 3")).toBeVisible();
+});
+
+test("route transition is restrained and disables motion when reduced motion is requested", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/notes");
+  await expect(page.locator(".route-transition")).toBeVisible();
+  const animationName = await page.locator(".route-transition").evaluate((element) => getComputedStyle(element).animationName);
+  expect(animationName).toBe("none");
+});

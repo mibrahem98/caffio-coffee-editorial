@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { lazy, Suspense } from "react";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -24,7 +24,7 @@ const TastingModeration = lazy(() => import("./pages/TastingModeration"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function RouteLoader() {
-  return <main className="route-loader" aria-busy="true" aria-live="polite"><span className="route-loader-mark" aria-hidden="true" /><p>Loading Caffio</p></main>;
+  return <main className="route-loader" aria-busy="true" aria-live="polite" aria-label="Loading Caffio page"><div className="route-loader-seal" aria-hidden="true"><span className="mizan-symbol"><i /><b /><em /></span></div><div><small>CAFFIO COFFEE</small><p>Loading the next record</p></div></main>;
 }
 
 function Router() {
@@ -51,6 +51,11 @@ function Router() {
   );
 }
 
+function RouteTransition() {
+  const [location] = useLocation();
+  return <div className="route-transition" key={location}><Router /></div>;
+}
+
 // NOTE: About Theme
 // - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
 //   to keep consistent foreground/background color across components
@@ -66,7 +71,7 @@ function App() {
               <Toaster />
               <ScrollMotion />
               <Suspense fallback={<RouteLoader />}>
-                <Router />
+                <RouteTransition />
               </Suspense>
             </TooltipProvider>
           </FavoritesProvider>

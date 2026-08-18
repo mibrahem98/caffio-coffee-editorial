@@ -492,3 +492,26 @@ test("route transition is restrained and disables motion when reduced motion is 
   const animationName = await page.locator(".route-transition").evaluate((element) => getComputedStyle(element).animationName);
   expect(animationName).toBe("none");
 });
+
+test("unknown routes recover through the bilingual Caffio system without exposing a diagnostic stack", async ({ page }) => {
+  await page.goto("/missing-forensic-route");
+  const recovery = page.getByTestId("not-found-recovery");
+  await expect(recovery).toBeVisible();
+  await expect(recovery.getByText("CAFFIO / RECORD NOT FOUND")).toBeVisible();
+  await expect(recovery.getByRole("link", { name: "Return to Caffio" })).toHaveAttribute("href", "/");
+  await expect(recovery.getByRole("link", { name: "Open source protocol" })).toHaveAttribute("href", "/sources");
+  await expect(page.locator("pre")).toHaveCount(0);
+});
+
+test("malformed browser-local records are discarded before cart state reaches the interface", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("mizan-cart", JSON.stringify({ alto: 2, unknown: 5, sombra: "4", sol: -3 }));
+    localStorage.setItem("mizan-favorites", JSON.stringify(["alto", "unknown", 4]));
+    localStorage.setItem("mizan-demo-orders", JSON.stringify([{ id: "", createdAt: "invalid", items: { alto: 1 }, total: -1, statusIndex: 99 }]));
+  });
+  await page.goto("/");
+  await expect(page.getByLabel("Open cart (2)")).toBeVisible();
+  await page.goto("/favorites");
+  await expect(page.getByTestId("favorite-card-alto")).toBeVisible();
+  await expect(page.getByText("unknown")).toHaveCount(0);
+});

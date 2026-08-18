@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { coffeeProducts } from "@/lib/mizanCatalog";
-import { addItem, advanceDemoOrder, createDemoOrder, getItemCount, updateItem, type CartItems as DemoCartItems, type DemoOrderDraft } from "@/lib/demoCommerce";
+import { addItem, advanceDemoOrder, createDemoOrder, getItemCount, normalizeCartItems, normalizeDemoOrders, updateItem, type CartItems as DemoCartItems, type DemoOrderDraft } from "@/lib/demoCommerce";
 
 export type CartItems = DemoCartItems;
 export type DemoOrder = DemoOrderDraft;
@@ -21,30 +21,32 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
+const catalogIds = coffeeProducts.map((product) => product.id);
+const catalogIdSet = new Set(catalogIds);
 
-function loadOrders(): DemoOrder[] {
+function readLocalJson(key: string): unknown {
   try {
-    const storedOrders = localStorage.getItem("mizan-demo-orders");
-    if (storedOrders) {
-      const parsed = JSON.parse(storedOrders);
-      if (Array.isArray(parsed)) return parsed;
-    }
-    const legacy = localStorage.getItem("mizan-demo-order");
-    return legacy ? [JSON.parse(legacy)] : [];
-  } catch {
-    return [];
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : null;
+  } catch (error) {
+    if (import.meta.env.DEV) console.warn(`[Cart] Ignored malformed local value for ${key}`, error);
+    return null;
   }
 }
 
+function loadItems(): CartItems {
+  return normalizeCartItems(readLocalJson("mizan-cart"), catalogIds);
+}
+
+function loadOrders(): DemoOrder[] {
+  const modern = readLocalJson("mizan-demo-orders");
+  if (Array.isArray(modern)) return normalizeDemoOrders(modern, catalogIds);
+  const legacy = readLocalJson("mizan-demo-order");
+  return normalizeDemoOrders(legacy ? [legacy] : [], catalogIds);
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItems>(() => {
-    try {
-      const stored = localStorage.getItem("mizan-cart");
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
-  });
+  const [items, setItems] = useState<CartItems>(loadItems);
   const [orders, setOrders] = useState<DemoOrder[]>(loadOrders);
   const lastOrder = orders[0] ?? null;
 
@@ -61,9 +63,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<CartContextValue>(() => ({
     items,
     count: getItemCount(items),
-    add: (productId) => setItems((current) => addItem(current, productId)),
-    update: (productId, delta) => setItems((current) => updateItem(current, productId, delta)),
-    remove: (productId) => setItems((current) => updateItem(current, productId, -current[productId])),
+    add: (productId) => { if (catalogIdSet.has(productId)) setItems((current) => addItem(current, productId)); },
+    update: (productId, delta) => { if (catalogIdSet.has(productId)) setItems((current) => updateItem(current, productId, delta)); },
+    remove: (productId) => { if (catalogIdSet.has(productId)) setItems((current) => updateItem(current, productId, -getItemCount({ [productId]: current[productId] }))); },
     clear: () => setItems({}),
     orders,
     lastOrder,

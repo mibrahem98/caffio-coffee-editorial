@@ -21,6 +21,27 @@ test("homepage actions lead to working collection, Society, source, and field-no
   await expect(page.getByLabel("Open cart (0)")).toBeVisible();
 });
 
+test("direct language toggle switches Arabic and English without a selection control", async ({ page }) => {
+  await page.goto("/");
+  const languageToggle = page.getByTestId("direct-language-toggle");
+  await expect(languageToggle).toHaveText("العربية");
+  await expect(page.locator(".locale-toggle select")).toHaveCount(0);
+
+  await languageToggle.click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "ar");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(languageToggle).toHaveText("English");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("mizan-lang"))).toBe("ar");
+
+  await page.goto("/coffee/sombra");
+  await expect(page.locator("html")).toHaveAttribute("dir", "rtl");
+  await expect(page.getByTestId("direct-language-toggle")).toHaveText("English");
+
+  await page.getByTestId("direct-language-toggle").click();
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+  await expect(page.locator("html")).toHaveAttribute("dir", "ltr");
+});
+
 test("sitemap, robots, and global JSON-LD expose source-governed public discovery only", async ({ page }) => {
   const sitemap = await page.request.get("/sitemap.xml");
   await expect(sitemap).toBeOK();
@@ -284,7 +305,7 @@ test("product search restores filters from the same browser without creating a p
 
 test("search refinements and source guidance retain Arabic RTL parity", async ({ page }) => {
   await page.goto("/search?q=alto&roast=light");
-  await page.getByLabel("Select language").selectOption("ar");
+  await page.getByTestId("direct-language-toggle").click();
   await expect(page.locator(".search-site")).toHaveAttribute("dir", "rtl");
   await expect(page.getByTestId("active-search-filters")).toHaveAttribute("aria-label", "التصفية الحالية");
   await expect(page.getByTestId("search-guidance").getByRole("link", { name: "فتح بروتوكول المصادر" })).toHaveAttribute("href", "/sources");
@@ -339,7 +360,7 @@ test("comparison entry points and empty search state guide visitors to a clear n
 
 test("comparison retains Arabic RTL parity and its pending-evidence boundary", async ({ page }) => {
   await page.goto("/compare?a=alto&b=sombra");
-  await page.getByLabel("Select language").selectOption("ar");
+  await page.getByTestId("direct-language-toggle").click();
   await expect(page.locator(".comparison-site")).toHaveAttribute("dir", "rtl");
   await expect(page.getByText("بانتظار سجل تذوق موثّق للدفعة")).toHaveCount(2);
   await expect(page.getByRole("link", { name: "افتح بروتوكول المصادر" })).toHaveAttribute("href", "/sources");

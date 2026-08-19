@@ -17,8 +17,16 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
   const { count } = useCart();
   const { favorites } = useFavorites();
   const t = copy[lang];
+  const nextLang: Lang = lang === "en" ? "ar" : "en";
+  const languageLabel = nextLang === "ar" ? "العربية" : "English";
   const link = (id: string) => home ? `#${id}` : `/#${id}`;
   const navHref = (id: string) => id === "notes" ? "/notes" : id === "caseStudy" ? "/case-study" : id === "society" ? "/society" : link(id);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    localStorage.setItem("mizan-lang", lang);
+  }, [lang]);
 
   useEffect(() => {
     const updateHeaderContrast = () => setHasScrolled(!home || window.scrollY > 12);
@@ -45,7 +53,9 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
         </div>
       </nav>
       <div className="mizan-nav-actions">
-        <label className="locale-toggle"><Globe2 size={14} /><select value={lang} onChange={(event) => onLangChange(event.target.value as Lang)} aria-label="Select language"><option value="en">EN</option><option value="ar">عربي</option></select></label>
+        <button className="locale-toggle" type="button" onClick={() => onLangChange(nextLang)} aria-label={lang === "en" ? "Switch to Arabic" : "Switch to English"} aria-pressed={lang === "ar"} data-testid="direct-language-toggle">
+          <Globe2 size={14} aria-hidden="true" /><span lang={nextLang} dir={nextLang === "ar" ? "rtl" : "ltr"}>{languageLabel}</span>
+        </button>
         <button className="icon-button utility-icon" data-utility-label={theme === "dark" ? t.light : t.dark} onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.light : t.dark} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</button>
         <a className="icon-button utility-icon" data-utility-label={t.search} href="/search" aria-label={t.search} title={t.search}><Search size={16} /></a>
         <a className="cart-button utility-icon favorite-utility" data-utility-label={t.favorites} href="/favorites" aria-label={`${t.favorites} (${favorites.length})`} title={t.favorites}><Heart size={16} fill={favorites.length ? "currentColor" : "none"} /><span>{favorites.length}</span></a>

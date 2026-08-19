@@ -36,9 +36,10 @@ export const appRouter = router({
       const average = count ? Math.round((items.reduce((sum, item) => sum + item.rating, 0) / count) * 10) / 10 : null;
       return { items, count, average };
     }),
-    flavorSummary: publicProcedure.input(z.object({ productId })).query(({ input }) => getFlavorSummary(input.productId)),
+    flavorSummary: publicProcedure.input(z.object({ productId })).query(async ({ input }) =>
+      (await getFlavorSummary(input.productId)) ?? null),
     mine: protectedProcedure.input(z.object({ productId })).query(({ ctx, input }) =>
-      getMyTastingReflection(ctx.user.id, input.productId)),
+      getMyTastingReflection(ctx.user.id, input.productId).then(reflection => reflection ?? null)),
     submit: protectedProcedure.input(z.object({
       productId,
       rating: z.number().int().min(1).max(5),

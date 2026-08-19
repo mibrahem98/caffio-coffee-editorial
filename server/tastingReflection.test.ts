@@ -81,6 +81,13 @@ describe("tasting reflections", () => {
   it("keeps automated flavor summaries unavailable until approved comments exist", async () => {
     db.getFlavorSummary.mockResolvedValue(undefined);
     const caller = appRouter.createCaller(context());
-    await expect(caller.tastingReflection.flavorSummary({ productId: "alto" })).resolves.toBeUndefined();
+    await expect(caller.tastingReflection.flavorSummary({ productId: "alto" })).resolves.toBeNull();
+  });
+
+  it("returns an explicit empty reflection when the signed-in visitor has not submitted one", async () => {
+    db.getMyTastingReflection.mockResolvedValue(undefined);
+    const caller = appRouter.createCaller(context());
+    await expect(caller.tastingReflection.mine({ productId: "sombra" })).resolves.toBeNull();
+    expect(db.getMyTastingReflection).toHaveBeenCalledWith(11, "sombra");
   });
 });

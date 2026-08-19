@@ -1468,6 +1468,23 @@ html.dark .society-live-notice button { color: rgba(242, 235, 221, .45); }
 .reflection-showcase-intro > svg { color: var(--gold); }
 .reflection-showcase-intro > p { max-width: 350px; margin: 0; color: rgba(30, 34, 36, .67); font-size: var(--text-sm); line-height: 1.9; }
 .reflection-showcase-intro .text-link { width: fit-content; margin-top: 4px; }
+.conversion-proof-stack { display: grid; gap: 18px; }
+.conversion-benefits { padding: 25px 27px 23px; border: 1px solid rgba(30, 34, 36, .14); background: rgba(242, 235, 221, .62); }
+.conversion-benefits-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; }
+.conversion-benefits-head .eyebrow { margin: 0; }
+.conversion-benefits-head h3 { max-width: 470px; margin: 9px 0 0; color: var(--brown); font-family: var(--font-display); font-size: clamp(27px, 3vw, 39px); font-weight: 400; letter-spacing: -.045em; line-height: .96; }
+.conversion-benefits-head > svg { flex: 0 0 auto; color: var(--gold); }
+.conversion-benefit-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin-top: 24px; }
+.conversion-benefit-tabs button { display: flex; min-width: 0; align-items: center; gap: 8px; padding: 10px; border: 1px solid rgba(30, 34, 36, .13); background: transparent; color: rgba(30, 34, 36, .62); font-family: var(--font-sans); font-size: 9px; letter-spacing: .04em; line-height: 1.35; text-align: start; transition: color 180ms var(--ease-out), background 180ms var(--ease-out), transform 180ms var(--ease-out); }
+.conversion-benefit-tabs button:hover, .conversion-benefit-tabs button.is-active { background: var(--charcoal); color: var(--ivory); }
+.conversion-benefit-tabs button:active { transform: scale(.97); }
+.conversion-benefit-tabs button > span { overflow: hidden; text-overflow: ellipsis; }
+.conversion-benefit-detail { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 13px; align-items: start; margin-top: 12px; padding: 16px 0; border-block: 1px solid rgba(184, 145, 82, .24); }
+.conversion-benefit-icon { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(184, 145, 82, .52); color: var(--gold); }
+.conversion-benefit-detail h4 { margin: 0; color: var(--brown); font-family: var(--font-display); font-size: 22px; font-weight: 400; line-height: 1.05; }
+.conversion-benefit-detail p { margin: 8px 0 0; color: rgba(30, 34, 36, .65); font-size: 11px; line-height: 1.75; }
+.conversion-benefit-actions { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 14px; }
+.conversion-benefit-actions a { display: inline-flex; align-items: center; gap: 6px; color: var(--brown); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .reflection-showcase-panel { min-height: 214px; padding: 27px; border: 1px solid rgba(184, 145, 82, .45); background: linear-gradient(135deg, rgba(184, 145, 82, .1), rgba(233, 224, 208, .64)); box-shadow: 14px 14px 0 rgba(184, 145, 82, .09); }
 .reflection-showcase-status { margin: 0; color: rgba(30, 34, 36, .58); font-size: var(--text-sm); }
 .reflection-showcase-summary { display: flex; align-items: end; gap: 13px; padding-bottom: 22px; border-bottom: 1px solid rgba(184, 145, 82, .28); }
@@ -1504,6 +1521,12 @@ html.dark .reflection-showcase-summary span, html.dark .reflection-showcase-stat
 html.dark .reflection-showcase-card { border-color: var(--dark-line); background: rgba(242, 235, 221, .045); }
 html.dark .reflection-showcase-card:hover { box-shadow: 0 14px 26px rgba(0, 0, 0, .24); }
 html.dark .reflection-showcase-card p { color: rgba(242, 235, 221, .76); }
+html.dark .conversion-benefits { border-color: var(--dark-line); background: rgba(242, 235, 221, .045); }
+html.dark .conversion-benefits-head h3, html.dark .conversion-benefit-detail h4, html.dark .conversion-benefit-actions a { color: var(--gold); }
+html.dark .conversion-benefit-tabs button { border-color: var(--dark-line); color: rgba(242, 235, 221, .62); }
+html.dark .conversion-benefit-tabs button:hover, html.dark .conversion-benefit-tabs button.is-active { background: rgba(184, 145, 82, .2); color: var(--ivory); }
+html.dark .conversion-benefit-detail { border-color: rgba(184, 145, 82, .28); }
+html.dark .conversion-benefit-detail p { color: rgba(242, 235, 221, .67); }
 html.dark .checkout-preview { border-color: var(--dark-line); }
 html.dark .checkout-preview-grid { background: var(--dark-line); }
 html.dark .checkout-preview-grid article { background: rgba(242, 235, 221, .045); }
@@ -1520,6 +1543,9 @@ html.dark .checkout-preview-grid article:hover { background: rgba(184, 145, 82, 
   .reflection-showcase-panel { padding: 20px; box-shadow: 8px 8px 0 rgba(184, 145, 82, .09); }
   .reflection-showcase-cards, .checkout-preview-grid { grid-template-columns: 1fr; }
   .reflection-showcase-card { padding: 14px; }
+  .conversion-benefits { padding: 20px; }
+  .conversion-benefit-tabs { grid-template-columns: 1fr; }
+  .conversion-benefit-tabs button { padding: 11px; }
   .checkout-preview-grid { margin-top: 36px; }
   .checkout-preview-grid article { min-height: 0; padding: 21px; }
   .checkout-preview-grid h3 { margin-top: 25px; }
@@ -1527,7 +1553,7 @@ html.dark .checkout-preview-grid article:hover { background: rgba(184, 145, 82, 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reflection-showcase-card, .checkout-preview-grid article { transition: none; }
+  .reflection-showcase-card, .checkout-preview-grid article, .conversion-benefit-tabs button { transition: none; }
 }
 
 /* Safe recovery surfaces use the same quiet editorial system as public routes. */

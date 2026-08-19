@@ -455,6 +455,17 @@ test("homepage reflection showcase stays transparent when no approved visitor fe
   await expect(empty.getByText(/stays intentionally empty/i)).toBeVisible();
 });
 
+test("homepage conversion section explains real experience benefits without seeding reviews", async ({ page }) => {
+  await page.goto("/");
+  const benefits = page.getByTestId("conversion-benefits");
+  await benefits.scrollIntoViewIfNeeded();
+  await expect(benefits.getByText("Why the experience converts")).toBeVisible();
+  await benefits.getByRole("button", { name: /Records stay visible/i }).click();
+  await expect(page.getByTestId("conversion-benefit-detail")).toContainText("Known, pending, and visitor feedback stay separate.");
+  await expect(page.getByTestId("reflection-showcase-empty")).toBeVisible();
+  await expect(page.getByTestId("reflection-showcase")).not.toContainText("5.0/5");
+});
+
 test("record-guided coffee assistant explains a deterministic match without inventing tasting data", async ({ page }) => {
   await page.goto("/");
   const advisor = page.getByTestId("coffee-advisor");

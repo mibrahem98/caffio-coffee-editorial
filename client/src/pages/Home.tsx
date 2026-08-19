@@ -41,6 +41,21 @@ const societyFaq = {
   ar: { question: "هل مجتمع كافيو جاهز لاشتراك مدفوع؟", answer: "ليس بعد. ينشئ المجتمع حاليًا سجلًا تجريبيًا محليًا فقط، وسيبقى موسومًا كمحاكاة إلى أن يعتمد Stripe والتحقق عبر webhook والأسعار وقواعد التنفيذ." },
 };
 
+const buyerFaq = {
+  en: [
+    { id: "buyer-included", question: "What can a buyer review in this build?", answer: "The current source repository, public routes, documented test suite, handover materials, and listed sale bundle are available for review. Provider accounts, domains, trademarks, and third-party licences remain separate buyer decisions." },
+    { id: "buyer-live-commerce", question: "Can this build process live payments or shipping today?", answer: "No. Cart, Society, tracking, profile, and payment surfaces are clearly labelled local or demo until the buyer connects providers, signs webhooks, and adopts operating rules." },
+    { id: "buyer-bilingual", question: "How is bilingual delivery handled?", answer: "The public experience supports English and Arabic with RTL/LTR direction. The buyer should still review their own future product content and legal copy in both languages." },
+    { id: "buyer-quality", question: "Which quality checks can a buyer rerun?", answer: "The repository documents repeatable unit, type, build, browser, dependency, route, and visual checks. Their results describe the reviewed release; they are not a warranty of future operation." },
+  ],
+  ar: [
+    { id: "buyer-included", question: "ما الذي يستطيع المشتري مراجعته في هذه النسخة؟", answer: "يمكن مراجعة مستودع المصدر الحالي، والمسارات العامة، وحزمة الاختبارات الموثقة، ومواد التسليم، وحزمة البيع المدرجة. تبقى حسابات المزودين والنطاقات والعلامات التجارية وتراخيص الأطراف الثالثة قرارات مستقلة للمشتري." },
+    { id: "buyer-live-commerce", question: "هل تعالج النسخة دفعًا أو شحنًا حيًا اليوم؟", answer: "لا. تُوسم السلة والمجتمع والتتبع والملف ونشاط الدفع بوضوح كمحلية أو تجريبية إلى أن يربط المشتري المزودين ويوقّع webhooks ويعتمد قواعد التشغيل." },
+    { id: "buyer-bilingual", question: "كيف يُدار التسليم ثنائي اللغة؟", answer: "تدعم التجربة العامة العربية والإنجليزية باتجاه RTL/LTR المناسب. ويبقى على المشتري مراجعة محتوى المنتجات والنسخ القانونية المستقبلية باللغتين." },
+    { id: "buyer-quality", question: "ما فحوص الجودة التي يستطيع المشتري إعادة تشغيلها؟", answer: "يوثق المستودع فحوص الوحدة والأنواع والبناء والمتصفح والتبعيات والمسارات والمراجعة البصرية القابلة للتكرار. تصف نتائجها الإصدار المُراجع ولا تمثل ضمانًا للتشغيل المستقبلي." },
+  ],
+};
+
 const faqDiscovery = {
   en: { search: "Search questions", all: "All", choosing: "Choosing coffee", commerce: "Orders & payment", trust: "Records & reviews", society: "Society", results: "answers shown", empty: "No answer matches that search. Try another category or phrase.", suggestionEmpty: "No matching question suggestion" },
   ar: { search: "ابحث في الأسئلة", all: "الكل", choosing: "اختيار القهوة", commerce: "الطلبات والدفع", trust: "السجلات والمراجعات", society: "المجتمع", results: "إجابة ظاهرة", empty: "لا توجد إجابة مطابقة. جرّب فئة أو عبارة أخرى.", suggestionEmpty: "لا يوجد اقتراح سؤال مطابق" },
@@ -84,6 +99,7 @@ function MizanHome() {
     { id: "commerce", category: "commerce", question: t.faq2, answer: t.faq2Body },
     { id: "trust", category: "trust", question: t.faq3, answer: t.faq3Body },
     { id: "society", category: "society", question: societyFaq[lang].question, answer: societyFaq[lang].answer },
+    ...buyerFaq[lang].map((item) => ({ ...item, category: "buyer" })),
   ];
   const faqLabels = faqDiscovery[lang];
   const filteredFaqItems = faqItems.filter((item) => {

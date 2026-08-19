@@ -98,6 +98,19 @@ test("FAQ search exposes accessible autocomplete suggestions and opens the selec
   await expect(suggestions.getByRole("option", { name: "No matching question suggestion" })).toHaveAttribute("aria-disabled", "true");
 });
 
+test("buyer FAQ explains delivery boundaries without seeding customer review content", async ({ page }) => {
+  await page.goto("/");
+  const search = page.getByRole("combobox", { name: "Search questions" });
+  await search.fill("buyer review");
+
+  await expect(page.getByRole("option", { name: "What can a buyer review in this build?" })).toBeVisible();
+  await search.press("ArrowDown");
+  await search.press("Enter");
+  await expect(page.getByRole("button", { name: "What can a buyer review in this build?" })).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByText("Provider accounts, domains, trademarks, and third-party licences remain separate buyer decisions.")).toBeVisible();
+  await expect(page.getByText(/customer rating|verified buyer review/i)).toHaveCount(0);
+});
+
 test("scroll reveals stay visible without transitions when reduced motion is requested", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
@@ -361,11 +374,16 @@ test("administrative reflection review remains gated for a signed-out visitor", 
 });
 
 test("product detail labels an unavailable automated flavor summary without implying product facts", async ({ page }) => {
+  const queryErrors: string[] = [];
+  page.on("console", message => {
+    if (message.type() === "error" && message.text().includes("Query data cannot be undefined")) queryErrors.push(message.text());
+  });
   await page.goto("/coffee/alto");
   await expect(page.getByText("No reviewed reflections are published yet.")).toBeVisible();
   const summary = page.locator(".flavor-summary");
   await expect(summary).toContainText("A careful automated summary appears when approved reflections are available.");
   await expect(summary).toContainText("This is not a verified batch tasting record or product claim.");
+  expect(queryErrors).toEqual([]);
 });
 
 test("native share receives the current product URL", async ({ page }) => {

@@ -38,7 +38,10 @@ export default function TastingReflections({ productId, lang }: Props) {
   const utils = trpc.useUtils();
   const approved = trpc.tastingReflection.listApproved.useQuery({ productId });
   const mine = trpc.tastingReflection.mine.useQuery({ productId }, { enabled: isAuthenticated });
-  const flavorSummary = trpc.tastingReflection.flavorSummary.useQuery({ productId });
+  const flavorSummary = trpc.tastingReflection.flavorSummary.useQuery(
+    { productId },
+    { enabled: approved.isSuccess && approved.data.count > 0 },
+  );
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
 

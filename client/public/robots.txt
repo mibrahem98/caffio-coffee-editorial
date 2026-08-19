@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /favorites
+Disallow: /payments
+Disallow: /profile
+Disallow: /search
+Disallow: /society
+Disallow: /track
+
+Sitemap: https://apexroast-5n8tojyv.manus.space/sitemap.xml

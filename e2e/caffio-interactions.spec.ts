@@ -21,6 +21,34 @@ test("homepage actions lead to working collection, Society, source, and field-no
   await expect(page.getByLabel("Open cart (0)")).toBeVisible();
 });
 
+test("sitemap, robots, and global JSON-LD expose source-governed public discovery only", async ({ page }) => {
+  const sitemap = await page.request.get("/sitemap.xml");
+  await expect(sitemap).toBeOK();
+  const sitemapText = await sitemap.text();
+  expect(sitemapText).toContain("https://apexroast-5n8tojyv.manus.space/coffee/alto");
+  expect(sitemapText).toContain("https://apexroast-5n8tojyv.manus.space/notes");
+  expect(sitemapText).not.toContain("/admin/tasting");
+  expect(sitemapText).not.toContain("/payments");
+
+  const robots = await page.request.get("/robots.txt");
+  await expect(robots).toBeOK();
+  const robotsText = await robots.text();
+  expect(robotsText).toMatch(/Sitemap: https:\/\/apexroast-5n8tojyv\.manus\.space\/sitemap\.xml/);
+  expect(robotsText).toMatch(/Disallow: \/admin\//);
+
+  await page.goto("/");
+  const payloads = await page.locator('script[type="application/ld+json"]').evaluateAll(scripts =>
+    scripts.map(script => JSON.parse(script.textContent || "{}")),
+  );
+  const graph = payloads.flatMap(payload => Array.isArray(payload["@graph"]) ? payload["@graph"] : [payload]);
+  expect(graph).toEqual(expect.arrayContaining([
+    expect.objectContaining({ "@type": "WebSite", name: "MIZAN Coffee" }),
+    expect.objectContaining({ "@type": "Organization", name: "MIZAN Coffee" }),
+  ]));
+  expect(JSON.stringify(graph)).not.toContain('"Product"');
+  expect(JSON.stringify(graph)).not.toContain('"AggregateRating"');
+});
+
 test("desktop header groups secondary account tools behind an accessible menu", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name === "mobile-chromium", "Secondary utilities are intentionally collected in the mobile navigation panel.");
   await page.goto("/");

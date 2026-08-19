@@ -48,6 +48,7 @@ The captures reflect the current [shareable comparison](https://apexroast-5n8toj
 | **Product discovery** | Search URL state, active refinements, locally saved filters, verified-note gating, recent searches, related products | Shows practical search interaction design and accessible state communication |
 | **Comparison engine** | Two-product URL pairing, evidence-aware fields, recipe cards, browser sharing, SVG image export, server PDF | Demonstrates decision support, export design, and URL-driven composition |
 | **Social preview layer** | Server-rendered product, comparison, Field Notes, and Case Study metadata with canonical URLs, Open Graph/Twitter tags, branded PNG endpoints, and safe route snapshots | Shows share-ready metadata design for crawler-facing routes without exposing private UGC |
+| **Search discovery baseline** | Canonical `sitemap.xml`, a `robots.txt` sitemap directive with demo/private-route exclusions, and global WebSite/Organization JSON-LD | Makes the documented public experience discoverable without marking demo checkout, private tools, unverified products, or reviews as indexable facts |
 | **Demo commerce boundary** | Local cart, promo code, checkout, society flow, tracking, favorites, profile | Demonstrates commerce UX without falsely representing payments or fulfilment |
 | **Responsive performance** | Route lazy-loading, responsive AVIF/WebP imagery, prioritized Hero, deferred non-critical media | Shows performance-aware front-end architecture |
 | **Buyer walkthrough delivery** | Actual 90-second 1280×720 navigation recording, no voiceover, low-level instrumental bed, checksum and source-decision record | Shows the working public routes without implying a live checkout, shipment, or transferred music rights |
@@ -221,7 +222,7 @@ The following work is intentionally not represented as complete:
 1. **Verified tasting data:** Publish it only after producer or cupping documents are supplied and logged in the source registry.
 2. **Full public-route React SSR:** Expand beyond the current source-governed snapshots for product, comparison, and editorial routes only after auditing all browser-local state and hydration behavior across public routes.
 3. **Live commerce:** Configure a payment provider, server-side checkout, webhooks, fulfillment, cancellation, data retention, and shipping rules before claiming real subscription capability.
-4. **Structured discovery:** Add `sitemap.xml`, `robots.txt` sitemap reference, and record-backed JSON-LD only once product facts are supported.
+4. **Record-backed product JSON-LD:** The global sitemap, robots directive, and site-level JSON-LD are now present. Add `Product`, `Offer`, `Review`, or product-level `FAQPage` markup only after the corresponding product, availability, review, and batch facts are supported by records.
 
 ## Buyer handover and commercial readiness
 

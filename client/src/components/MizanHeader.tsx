@@ -44,7 +44,7 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
       <nav id="primary-navigation" className={mobileOpen ? "mizan-nav-links is-open" : "mizan-nav-links"} aria-label="Primary navigation">
         {["story", "collection", "ritual", "notes", "faq", "caseStudy", "society"].map((id, index) => <a key={id} href={navHref(id)} onClick={() => setMobileOpen(false)}><span>{String(index + 1).padStart(2, "0")}</span>{t[id as keyof typeof t]}</a>)}
         <div className="mobile-utility-links" aria-label={lang === "ar" ? "أدوات الحساب والسلة" : "Account and cart tools"}>
-          <button type="button" onClick={() => toggleTheme?.()}><span>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</span>{theme === "dark" ? t.light : t.dark}</button>
+          <button type="button" onClick={toggleTheme} aria-pressed={theme === "dark"} data-testid="theme-toggle-mobile"><span>{theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}</span>{theme === "dark" ? t.light : t.dark}</button>
           <a href="/search" onClick={() => setMobileOpen(false)}><span><Search size={15} /></span>{t.search}</a>
           <a href="/favorites" onClick={() => setMobileOpen(false)}><span><Heart size={15} /></span>{t.favorites}</a>
           <a href="/track" onClick={() => setMobileOpen(false)}><span><PackageSearch size={15} /></span>{t.tracking}</a>
@@ -56,7 +56,7 @@ export default function MizanHeader({ lang, onLangChange, home = true }: { lang:
         <button className="locale-toggle" type="button" onClick={() => onLangChange(nextLang)} aria-label={lang === "en" ? "Switch to Arabic" : "Switch to English"} aria-pressed={lang === "ar"} data-testid="direct-language-toggle">
           <Globe2 size={14} aria-hidden="true" /><span lang={nextLang} dir={nextLang === "ar" ? "rtl" : "ltr"}>{languageLabel}</span>
         </button>
-        <button className="icon-button utility-icon" data-utility-label={theme === "dark" ? t.light : t.dark} onClick={() => toggleTheme?.()} aria-label={theme === "dark" ? t.light : t.dark} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</button>
+        <button className={theme === "dark" ? "icon-button utility-icon theme-toggle is-dark" : "icon-button utility-icon theme-toggle"} type="button" data-testid="theme-toggle-desktop" data-utility-label={theme === "dark" ? t.light : t.dark} onClick={toggleTheme} aria-label={theme === "dark" ? t.light : t.dark} aria-pressed={theme === "dark"} title={theme === "dark" ? t.light : t.dark}>{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</button>
         <a className="icon-button utility-icon" data-utility-label={t.search} href="/search" aria-label={t.search} title={t.search}><Search size={16} /></a>
         <a className="cart-button utility-icon favorite-utility" data-utility-label={t.favorites} href="/favorites" aria-label={`${t.favorites} (${favorites.length})`} title={t.favorites}><Heart size={16} fill={favorites.length ? "currentColor" : "none"} /><span>{favorites.length}</span></a>
         <details className="nav-more">

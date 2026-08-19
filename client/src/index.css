@@ -40,7 +40,9 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; background: var(--charcoal); }
+html { scroll-behavior: smooth; background: var(--charcoal); color-scheme: light; }
+html[data-theme="light"] { color-scheme: light; }
+html[data-theme="dark"] { color-scheme: dark; }
 body { margin: 0; background: var(--ivory); color: var(--ink); font-family: var(--font-functional); font-size: var(--text-base); line-height: 1.65; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
 html.dark body { background: #12191a; color: var(--ivory); }
 button, a, input, select { font: inherit; }
@@ -92,6 +94,8 @@ a { color: inherit; }
 .locale-toggle:active { transform: scale(.97); }
 .icon-button, .cart-button { position: relative; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid rgba(184, 145, 82, .55); background: rgba(15, 20, 21, .16); color: var(--gold); cursor: pointer; transition: background 180ms var(--ease-out), color 180ms var(--ease-out), transform 180ms var(--ease-out), border-color 180ms var(--ease-out); }
 .icon-button:hover, .cart-button:hover { background: var(--gold); color: var(--charcoal); }
+.theme-toggle.is-dark { border-color: rgba(242, 235, 221, .58); background: rgba(184, 145, 82, .18); color: var(--ivory); }
+.theme-toggle.is-dark:hover { background: var(--gold); color: var(--charcoal); }
 .utility-icon::after { position: absolute; z-index: 2; top: calc(100% + 8px); left: 50%; width: max-content; max-width: 150px; padding: 6px 8px; background: var(--ivory); color: var(--charcoal); content: attr(data-utility-label); font-size: 8px; letter-spacing: .06em; line-height: 1.2; opacity: 0; pointer-events: none; text-transform: uppercase; transform: translate(-50%, -4px); transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out); }
 .utility-icon:hover::after, .utility-icon:focus-visible::after { opacity: 1; transform: translate(-50%, 0); }
 .cart-button span { position: absolute; top: -7px; right: -7px; display: grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 50%; background: var(--gold); color: var(--charcoal); font-size: 8px; font-weight: 700; }

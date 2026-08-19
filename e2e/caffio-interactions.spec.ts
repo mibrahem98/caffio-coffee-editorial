@@ -481,7 +481,7 @@ test("Society completes a clearly labeled local-only subscription simulation", a
   await expect(page.getByText(/no billing or shipping action occurred/i)).toBeVisible();
 });
 
-test("dark mode applies a polished persisted surface without changing the available routes", async ({ page }, testInfo) => {
+test("theme toggle applies both polished persisted modes without changing the available routes", async ({ page }, testInfo) => {
   await page.goto("/");
   await page.evaluate(() => localStorage.removeItem("mizan-theme"));
   await page.reload();
@@ -492,13 +492,19 @@ test("dark mode applies a polished persisted surface without changing the availa
   await expect(themeControl).toBeVisible();
   await themeControl.click();
   await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(page.locator(".mizan-site")).toHaveCSS("background-color", "rgb(18, 25, 26)");
+  await expect(page.getByTestId("theme-toggle-desktop")).toHaveAttribute("aria-pressed", "true");
   await page.reload();
   if (testInfo.project.name === "mobile-chromium") {
     await page.getByRole("button", { name: "Toggle navigation" }).click();
   }
   await expect(page.locator("html")).toHaveClass(/dark/);
   await expect(page.getByRole("button", { name: "Light mode" })).toBeVisible();
+  await page.getByRole("button", { name: "Light mode" }).click();
+  await expect(page.locator("html")).not.toHaveClass(/dark/);
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("mizan-theme"))).toBe("light");
 });
 
 test("homepage purchase preview routes visitors to a local-only simulation and a verified-payment boundary", async ({ page }) => {

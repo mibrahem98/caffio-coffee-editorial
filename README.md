@@ -1,6 +1,6 @@
 # Caffio Coffee — Bilingual Specialty Coffee Editorial Experience
 
-[![Live Experience](https://img.shields.io/badge/Live-Caffio%20Coffee-C29B58?style=flat-square)](https://apexroast-5n8tojyv.manus.space/) [![Portfolio Repository](https://img.shields.io/badge/GitHub-Portfolio%20Case%20Study-1E2224?style=flat-square&logo=github)](https://github.com/mibrahem98/caffio-coffee-editorial) [![Quality](https://img.shields.io/badge/Quality-33%20Vitest%20%2B%2070%20Playwright-4E6653?style=flat-square)](#quality-assurance)
+[![Live Experience](https://img.shields.io/badge/Live-Caffio%20Coffee-C29B58?style=flat-square)](https://apexroast-5n8tojyv.manus.space/) [![Portfolio Repository](https://img.shields.io/badge/GitHub-Portfolio%20Case%20Study-1E2224?style=flat-square&logo=github)](https://github.com/mibrahem98/caffio-coffee-editorial) [![Quality](https://img.shields.io/badge/Quality-37%20Vitest%20%2B%2084%20Playwright-4E6653?style=flat-square)](#quality-assurance)
 
 > **Caffio Coffee** is a bilingual Arabic/English specialty-coffee experience that treats the product record as the center of the story. Its visual system combines quiet editorial pacing, warm neo-minimalism, and auditable content states so that the interface never turns pending origin or tasting information into a marketing claim.
 
@@ -50,6 +50,7 @@ The captures reflect the current [shareable comparison](https://apexroast-5n8toj
 | **Social preview layer** | Server-rendered product, comparison, Field Notes, and Case Study metadata with canonical URLs, Open Graph/Twitter tags, branded PNG endpoints, and safe route snapshots | Shows share-ready metadata design for crawler-facing routes without exposing private UGC |
 | **Demo commerce boundary** | Local cart, promo code, checkout, society flow, tracking, favorites, profile | Demonstrates commerce UX without falsely representing payments or fulfilment |
 | **Responsive performance** | Route lazy-loading, responsive AVIF/WebP imagery, prioritized Hero, deferred non-critical media | Shows performance-aware front-end architecture |
+| **Buyer walkthrough delivery** | Actual 90-second 1280×720 navigation recording, no voiceover, low-level instrumental bed, checksum and source-decision record | Shows the working public routes without implying a live checkout, shipment, or transferred music rights |
 | **Quality discipline** | Unit tests, browser flows, mobile/RTL coverage, reduced-motion checks, type checking, production build verification | Shows a repeatable engineering workflow, not only visual output |
 
 ---
@@ -85,6 +86,7 @@ The project evolved in deliberate stages, each designed to add a demonstrable ca
 | **07 — Share and export** | Added browser sharing, SVG export, formatted PDF generation, server-rendered social metadata, and a dynamic PNG card | `/compare/og.png`, `/compare/pdf` |
 | **08 — Moderation and editorial discovery** | Added moderated visitor reflections, approved-only automated summaries, a standalone admin review route, and crawler-visible product/editorial metadata | `/admin/tasting`, `/coffee/:id/og.png`, `/editorial/og.png` |
 | **09 — Buyer readiness and audit** | Added sale handover documentation, Arabic PDF reporting, polished dark-mode/purchase-preview/reflection surfaces, and a final responsive audit that fixed hidden interactive workspaces | [Full evolution log](./docs/PROJECT-EVOLUTION.md) |
+| **10 — Buyer walkthrough release** | Added buyer-oriented FAQ and conversion boundaries, recorded the actual public journey, then selected and documented a low-level licensed music bed after delegated review | [`docs/turnkey/BUYER-WALKTHROUGH-DELIVERY-STATUS.md`](./docs/turnkey/BUYER-WALKTHROUGH-DELIVERY-STATUS.md) |
 
 ---
 
@@ -173,7 +175,7 @@ React 19 + Vite + TypeScript
 
 ## Quality Assurance
 
-The latest audited release validated **33 Vitest assertions** and **70 Playwright scenarios**; two viewport-specific checks are intentionally skipped because desktop hover and desktop-only utility grouping do not apply to touch layouts. In addition, TypeScript, production build, server PDF, raw crawler HTML, Open Graph image MIME, Arabic metadata, approved-only reflection rules, and responsive desktop/mobile layouts were reviewed before release. The audit also corrected a broad scroll-reveal selector that could delay interactive workspace visibility in full-page/mobile capture contexts.
+The latest consolidated release validated **37 Vitest assertions** and **84 Playwright scenarios**; two viewport-specific checks are intentionally skipped because desktop hover and desktop-only utility grouping do not apply to touch layouts. TypeScript, the production build, `git diff --check`, the 90-second walkthrough runtime/codec/audio level, and the packaged ZIP integrity were also checked. A regression that requested an absent automated flavor summary was corrected in the client by deferring that query until approved reflections exist; a browser test now guards the empty state.
 
 | Check | Examples covered |
 |---|---|
